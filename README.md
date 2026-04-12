@@ -1,5 +1,7 @@
 # MoreVibe
 
+[English](./README.md) | [한국어](./README.ko.md)
+
 MoreVibe is a personal LLM harness plugin for better vibe coding across any project.
 
 It is designed for a workflow where the user may not be a programmer and delegates most structure, writing, and maintenance work to AI.
