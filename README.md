@@ -178,6 +178,12 @@ Install the plugin and also bootstrap a project-local `.morevibe/` folder:
 powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
 ```
 
+Install the plugin, bootstrap `.morevibe/`, and add the MoreVibe bootstrap block to the project's root `AGENTS.md`:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project" -ApplyProjectAgentsBootstrap
+```
+
 If a project already has a `.morevibe/` folder and you intentionally want to replace it:
 
 ```powershell
@@ -191,6 +197,7 @@ The installer currently:
 - backs up an existing plugin directory before replacing it
 - backs up the current marketplace file before writing updates
 - optionally bootstraps `.morevibe/` into a project
+- can optionally append a minimal MoreVibe bootstrap block to the project's root `AGENTS.md`
 
 ## Adapter Strategy
 

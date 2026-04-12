@@ -176,6 +176,12 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
 ```
 
+플러그인을 설치하고 `.morevibe/`를 부트스트랩하면서 프로젝트 루트 `AGENTS.md`에도 MoreVibe 부트스트랩 블록 추가:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project" -ApplyProjectAgentsBootstrap
+```
+
 이미 `.morevibe/`가 있는 프로젝트에서 의도적으로 교체하고 싶을 때:
 
 ```powershell
@@ -189,6 +195,7 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 - 기존 플러그인 디렉터리를 교체하기 전에 백업
 - 현재 marketplace 파일을 쓰기 전에 백업
 - 필요하면 프로젝트에 `.morevibe/`를 부트스트랩
+- 필요하면 프로젝트 루트 `AGENTS.md`에 최소 MoreVibe 부트스트랩 블록 추가
 
 ## 어댑터 전략
 

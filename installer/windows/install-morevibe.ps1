@@ -1,7 +1,8 @@
 param(
     [string]$HomePath = $HOME,
     [string]$ProjectPath = "",
-    [switch]$ForceProjectTemplate
+    [switch]$ForceProjectTemplate,
+    [switch]$ApplyProjectAgentsBootstrap
 )
 
 $ErrorActionPreference = "Stop"
@@ -52,6 +53,25 @@ function Write-JsonFile {
 
     $json = $Data | ConvertTo-Json -Depth 16
     Set-Content -LiteralPath $LiteralPath -Value $json -Encoding UTF8
+}
+
+function Read-TextFile {
+    param([string]$LiteralPath)
+
+    if (-not (Test-Path -LiteralPath $LiteralPath)) {
+        return $null
+    }
+
+    return Get-Content -LiteralPath $LiteralPath -Raw -Encoding UTF8
+}
+
+function Write-TextFile {
+    param(
+        [string]$LiteralPath,
+        [string]$Value
+    )
+
+    Set-Content -LiteralPath $LiteralPath -Value $Value -Encoding UTF8
 }
 
 function New-MarketplaceObject {
@@ -177,9 +197,58 @@ function Install-ProjectTemplate {
     }
 }
 
+function Apply-AgentsBootstrap {
+    param(
+        [string]$ProjectRoot,
+        [string]$BootstrapSnippetPath
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
+        return $null
+    }
+
+    $agentsPath = Join-Path $ProjectRoot "AGENTS.md"
+    if (-not (Test-Path -LiteralPath $agentsPath)) {
+        return [ordered]@{
+            action = "skipped"
+            target = $agentsPath
+            reason = "AGENTS.md does not exist."
+        }
+    }
+
+    $snippet = Read-TextFile -LiteralPath $BootstrapSnippetPath
+    $existing = Read-TextFile -LiteralPath $agentsPath
+
+    if ([string]::IsNullOrWhiteSpace($snippet)) {
+        throw "Bootstrap snippet is empty: $BootstrapSnippetPath"
+    }
+
+    if ($existing -like "*## MoreVibe Bootstrap*") {
+        return [ordered]@{
+            action = "skipped"
+            target = $agentsPath
+            reason = "MoreVibe bootstrap block already exists."
+        }
+    }
+
+    $backupPath = Copy-Item -LiteralPath $agentsPath -Destination "$agentsPath.backup-$(New-Timestamp)" -Force -PassThru | ForEach-Object { $_.FullName }
+
+    $trimmedExisting = $existing.TrimEnd()
+    $trimmedSnippet = $snippet.Trim()
+    $newContent = "$trimmedExisting`r`n`r`n$trimmedSnippet`r`n"
+    Write-TextFile -LiteralPath $agentsPath -Value $newContent
+
+    return [ordered]@{
+        action = "updated"
+        target = $agentsPath
+        backup = $backupPath
+    }
+}
+
 $scriptRoot = Resolve-FullPath -PathValue $PSScriptRoot
 $pluginSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\plugin")
 $templateSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\templates\project\.morevibe")
+$projectAgentsBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\codex\snippets\project-agents-bootstrap.md")
 $resolvedHomePath = Resolve-FullPath -PathValue $HomePath
 
 $pluginsDir = Join-Path $resolvedHomePath "plugins"
@@ -199,14 +268,24 @@ Copy-Item -LiteralPath $pluginSource -Destination $pluginTarget -Recurse -Force
 
 $marketplaceBackup = $null
 if (Test-Path -LiteralPath $marketplacePath) {
-    Copy-Item -LiteralPath $marketplacePath -Destination "$marketplacePath.backup-$(New-Timestamp)" -Force
-    $marketplaceBackup = Get-ChildItem -LiteralPath "$marketplacePath.backup-*" | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | ForEach-Object { $_.FullName }
+    $marketplaceBackupPath = "$marketplacePath.backup-$(New-Timestamp)"
+    Copy-Item -LiteralPath $marketplacePath -Destination $marketplaceBackupPath -Force
+    $marketplaceBackup = $marketplaceBackupPath
 }
 
 $marketplace = Merge-Marketplace -MarketplacePath $marketplacePath
 Write-JsonFile -LiteralPath $marketplacePath -Data $marketplace
 
 $templateResult = Install-ProjectTemplate -TemplateSource $templateSource -TargetProjectPath $ProjectPath -ForceTemplate $ForceProjectTemplate.IsPresent
+$agentsBootstrapResult = $null
+if ($ApplyProjectAgentsBootstrap.IsPresent) {
+    if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
+        throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
+    }
+
+    $resolvedProjectPath = Resolve-FullPath -PathValue $ProjectPath
+    $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource
+}
 
 Write-Host ""
 Write-Host "MoreVibe installation complete." -ForegroundColor Green
@@ -228,5 +307,15 @@ if ($null -ne $templateResult) {
     }
     if ($templateResult.reason) {
         Write-Host "Project template note: $($templateResult.reason)"
+    }
+}
+
+if ($null -ne $agentsBootstrapResult) {
+    Write-Host "AGENTS bootstrap: $($agentsBootstrapResult.action) -> $($agentsBootstrapResult.target)"
+    if ($agentsBootstrapResult.backup) {
+        Write-Host "AGENTS backup: $($agentsBootstrapResult.backup)"
+    }
+    if ($agentsBootstrapResult.reason) {
+        Write-Host "AGENTS note: $($agentsBootstrapResult.reason)"
     }
 }
