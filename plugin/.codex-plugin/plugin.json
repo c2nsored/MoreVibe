@@ -1,0 +1,42 @@
+{
+  "name": "morevibe",
+  "version": "0.1.0",
+  "description": "Personal vibe-coding harness that helps LLMs maintain sources, canon, and wiki layers consistently.",
+  "author": {
+    "name": "[TODO: Your name or handle]",
+    "email": "[TODO: Contact email]",
+    "url": "[TODO: Author URL]"
+  },
+  "homepage": "[TODO: Plugin docs URL]",
+  "repository": "https://github.com/c2nsored/MoreVibe",
+  "license": "MIT",
+  "keywords": [
+    "vibe-coding",
+    "knowledge-management",
+    "llm-harness"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "MoreVibe",
+    "shortDescription": "A personal harness for better vibe coding.",
+    "longDescription": "MoreVibe helps LLM agents maintain a reusable project harness with clear source, canon, and wiki boundaries so context compounds across sessions.",
+    "developerName": "[TODO: Developer name]",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "[TODO: Plugin website URL]",
+    "privacyPolicyURL": "[TODO: Privacy policy URL]",
+    "termsOfServiceURL": "[TODO: Terms of service URL]",
+    "defaultPrompt": [
+      "Set up MoreVibe for this project.",
+      "Ingest these docs into MoreVibe canon and wiki.",
+      "Lint the MoreVibe wiki for drift and gaps."
+    ],
+    "brandColor": "#0F766E",
+    "composerIcon": "./assets/icon.png",
+    "logo": "./assets/logo.png",
+    "screenshots": []
+  }
+}

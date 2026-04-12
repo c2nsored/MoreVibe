@@ -1,0 +1,15 @@
+# Local editor files
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+*.pyc
+
+# Installer build output
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.log
