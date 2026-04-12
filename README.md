@@ -102,6 +102,21 @@ core/          # Tool-agnostic MoreVibe harness model
 adapters/      # Tool-specific integration guidance
 ```
 
+## What Is Automated vs Not Yet Automated
+
+Already implemented:
+
+- local Codex-style plugin installation
+- marketplace registration merge/update
+- project-local `.morevibe/` bootstrap
+- backup before replacement for current installer targets
+
+Documented but not yet automated:
+
+- patching root `AGENTS.md` with a minimal MoreVibe bootstrap block
+- patching tool-specific global config files
+- tool-specific support beyond the current Codex-first path
+
 ## Project Integration Model
 
 MoreVibe should not replace the project's root `AGENTS.md`.
@@ -217,6 +232,6 @@ This principle applies to:
 ## Current Next Steps
 
 1. Turn the current Codex-first implementation into an explicit Codex adapter.
-2. Define the shared MoreVibe core contract for all tools.
-3. Add ClaudeCode and Antigravity adapter specifications.
+2. Implement safe Codex bootstrap insertion for project `AGENTS.md`.
+3. Define concrete global integration specs for ClaudeCode and Antigravity.
 4. Expand ingest, query, and lint skills.

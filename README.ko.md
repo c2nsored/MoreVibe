@@ -100,6 +100,21 @@ core/          # 도구 공통 MoreVibe 하네스 모델
 adapters/      # 도구별 통합 가이드와 어댑터
 ```
 
+## 자동화된 것과 아직 자동화되지 않은 것
+
+이미 구현된 것:
+
+- Codex 스타일 로컬 플러그인 설치
+- marketplace 등록 병합/갱신
+- 프로젝트 로컬 `.morevibe/` 부트스트랩
+- 현재 설치 대상에 대한 교체 전 백업
+
+문서화만 되었고 아직 자동화되지 않은 것:
+
+- 루트 `AGENTS.md`에 최소 MoreVibe 부트스트랩 블록 삽입
+- 도구별 전역 설정 파일 패치
+- 현재 Codex 중심 경로를 넘어서는 도구별 실제 지원
+
 ## 프로젝트 통합 방식
 
 MoreVibe는 프로젝트 루트의 `AGENTS.md`를 대체하지 않습니다.
@@ -214,7 +229,7 @@ MoreVibe는 기본적으로 비파괴적 설치를 지향해야 합니다.
 
 ## 현재 다음 단계
 
-1. 현재 Codex 중심 구현을 명시적인 Codex 어댑터로 정리하기
-2. 모든 도구가 공유할 MoreVibe core 계약 정의하기
-3. ClaudeCode와 Antigravity 어댑터 명세 추가하기
+1. 현재 Codex 중심 구현에서 프로젝트 `AGENTS.md` 안전 삽입까지 구현하기
+2. ClaudeCode와 Antigravity의 전역 통합 명세 구체화하기
+3. 도구별 실제 설치 경로와 어댑터 동작 정의하기
 4. ingest, query, lint 스킬 확장하기
