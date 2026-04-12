@@ -29,6 +29,24 @@ MoreVibe는 프로젝트 지식을 네 가지 역할로 나눕니다.
 
 즉, AI가 쓴 문서도 현재 프로젝트의 공식 참조 문서라면 `canon`이 될 수 있습니다.
 
+## Core + Adapters 구조
+
+MoreVibe는 이제 두 레이어를 기준으로 구조화됩니다.
+
+- `core`: 여러 에이전트 도구에서 공통으로 써야 하는 하네스 모델
+- `adapters`: Codex, ClaudeCode, Antigravity 같은 도구별 통합 레이어
+
+`core`는 웹, 게임, 도구, 자동화 프로젝트처럼 프로젝트 종류가 달라도 최대한 그대로 재사용되어야 합니다.
+
+반대로 `adapters`는 아래 같은 도구별 차이를 담당합니다.
+
+- 전역 규칙 파일이 어디에 있는지
+- 프로젝트 진입점을 어떻게 찾는지
+- 사용자 전역 설정을 어떻게 건드려야 하는지
+- 기존 파일을 덮어쓰지 않고 MoreVibe를 어떻게 붙일지
+
+즉, MoreVibe는 "Codex 전용 플러그인"이라기보다, Codex를 첫 번째 어댑터로 구현한 공통 하네스 시스템으로 보는 편이 맞습니다.
+
 ## MoreVibe가 필요한 이유
 
 많은 LLM 워크플로는 사실상 즉석 검색에 가깝습니다.
@@ -66,10 +84,11 @@ MoreVibe는 아직 초기 스캐폴딩 단계입니다.
 
 현재 저장소에는 아래가 포함되어 있습니다.
 
-- Codex 플러그인 manifest
+- Codex 중심 플러그인 manifest
 - 초기 bootstrap skill
 - Windows 설치기 시작점
 - `.morevibe/` 프로젝트 템플릿 네임스페이스
+- core/adapters 구조의 기본 설계
 
 ## 저장소 구조
 
@@ -77,6 +96,8 @@ MoreVibe는 아직 초기 스캐폴딩 단계입니다.
 plugin/        # 설치 가능한 MoreVibe 플러그인 본체
 installer/     # 설치 스크립트와 패키징 진입점
 templates/     # MoreVibe가 프로젝트에 주입할 템플릿
+core/          # 도구 공통 MoreVibe 하네스 모델
+adapters/      # 도구별 통합 가이드와 어댑터
 ```
 
 ## 프로젝트 통합 방식
@@ -120,9 +141,80 @@ project-root/
 3. 사용자의 로컬 Codex 플러그인 디렉터리에 플러그인을 설치합니다.
 4. 별도 수작업 없이 프로젝트에서 MoreVibe를 사용할 수 있게 합니다.
 
+## 현재 Windows 설치기
+
+현재 설치 진입점은 아래 파일입니다.
+
+```powershell
+installer/windows/install-morevibe.ps1
+```
+
+기본 사용:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1
+```
+
+플러그인을 설치하면서 프로젝트에 `.morevibe/`도 함께 부트스트랩:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
+```
+
+이미 `.morevibe/`가 있는 프로젝트에서 의도적으로 교체하고 싶을 때:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project" -ForceProjectTemplate
+```
+
+현재 설치기는 다음을 수행합니다.
+
+- `~/plugins/morevibe`에 MoreVibe 플러그인 설치
+- `~/.agents/plugins/marketplace.json` 생성 또는 갱신
+- 기존 플러그인 디렉터리를 교체하기 전에 백업
+- 현재 marketplace 파일을 쓰기 전에 백업
+- 필요하면 프로젝트에 `.morevibe/`를 부트스트랩
+
+## 어댑터 전략
+
+### Codex
+
+- 현재 가장 먼저 구현 중인 대상
+- `plugin/`의 현재 구조를 사용
+- 프로젝트 루트 `AGENTS.md`를 표준 진입점으로 유지
+
+### ClaudeCode
+
+- 이후 추가할 어댑터
+- 자체 부트스트랩 규칙과 설치 지점이 필요할 가능성이 큼
+- 그래도 `.morevibe/`와 core 하네스 규칙은 공통으로 재사용해야 함
+
+### Antigravity
+
+- 이후 추가할 어댑터
+- 자체 부트스트랩 규칙과 설치 지점이 필요할 가능성이 큼
+- 그래도 `.morevibe/`와 core 하네스 규칙은 공통으로 재사용해야 함
+
+## 안전한 설치 원칙
+
+MoreVibe는 기본적으로 비파괴적 설치를 지향해야 합니다.
+
+- 기존 프로젝트 진입 파일을 명시적 의도 없이 덮어쓰지 않음
+- 사용자 전역 설정을 무조건 교체하지 않음
+- 교체 전 백업
+- 가능하면 병합
+- 대상 도구에 필요한 최소 부트스트랩만 추가
+
+이 원칙은 아래 모두에 적용됩니다.
+
+- 사용자 전역 에이전트 설정
+- 프로젝트 루트 `AGENTS.md`
+- 프로젝트 내부 `.morevibe/`
+- 플러그인 등록 및 marketplace 파일
+
 ## 현재 다음 단계
 
-1. 플러그인 manifest와 bootstrap 워크플로를 더 정리하기
-2. 실제로 동작하는 Windows 설치기 만들기
-3. `.morevibe/` 프로젝트 템플릿 확장하기
-4. ingest, query, lint 스킬 추가하기
+1. 현재 Codex 중심 구현을 명시적인 Codex 어댑터로 정리하기
+2. 모든 도구가 공유할 MoreVibe core 계약 정의하기
+3. ClaudeCode와 Antigravity 어댑터 명세 추가하기
+4. ingest, query, lint 스킬 확장하기

@@ -29,6 +29,26 @@ These roles are separated by function, not by who wrote the files.
 
 An AI-written document can still be part of `canon` if it is the project's current official reference.
 
+## Core + Adapters
+
+MoreVibe is structured around two layers:
+
+- `core`: the shared harness model that should work across different agent tools
+- `adapters`: tool-specific integration layers for Codex, ClaudeCode, and Antigravity
+
+The core should stay stable across project types such as web apps, games, tools, and automation systems.
+
+Adapters are responsible for tool-specific behavior such as:
+
+- where global rules live
+- how project entrypoints are discovered
+- how installation should modify user-level config
+- how MoreVibe should attach to a project without overwriting existing files
+
+This means MoreVibe should not be treated as "Codex only".
+
+Instead, Codex is the first implemented adapter, while ClaudeCode and Antigravity are planned adapter targets.
+
 ## Why MoreVibe Exists
 
 Most LLM workflows behave like ad hoc retrieval:
@@ -66,10 +86,11 @@ MoreVibe is currently in early scaffolding.
 
 This repository already includes:
 
-- a Codex plugin manifest
+- a Codex-oriented plugin manifest
 - an initial bootstrap skill
 - a Windows installer starting point
 - a project template namespace for `.morevibe/`
+- a core/adapters architecture baseline
 
 ## Repository Layout
 
@@ -77,6 +98,8 @@ This repository already includes:
 plugin/        # The installable MoreVibe plugin
 installer/     # Installation scripts and packaging entrypoints
 templates/     # Project bootstrap templates used by MoreVibe
+core/          # Tool-agnostic MoreVibe harness model
+adapters/      # Tool-specific integration guidance
 ```
 
 ## Project Integration Model
@@ -154,9 +177,46 @@ The installer currently:
 - backs up the current marketplace file before writing updates
 - optionally bootstraps `.morevibe/` into a project
 
+## Adapter Strategy
+
+### Codex
+
+- Current primary implementation target
+- Uses the current local plugin structure in `plugin/`
+- Assumes the project root `AGENTS.md` remains the standard entrypoint
+
+### ClaudeCode
+
+- Planned adapter
+- Will likely need its own bootstrap rules and installation touchpoints
+- Should reuse the same `.morevibe/` project namespace and core harness rules
+
+### Antigravity
+
+- Planned adapter
+- Will likely need its own bootstrap rules and installation touchpoints
+- Should reuse the same `.morevibe/` project namespace and core harness rules
+
+## Safe Installation Principle
+
+MoreVibe should follow a strict non-destructive installation rule:
+
+- do not overwrite existing project entry files without explicit intent
+- do not replace user config blindly
+- back up before replacing
+- merge when possible
+- add only the minimum bootstrap needed for the target tool
+
+This principle applies to:
+
+- global user-level agent config
+- project root `AGENTS.md`
+- project-local `.morevibe/`
+- plugin marketplace and registration files
+
 ## Current Next Steps
 
-1. Finalize the plugin manifest and bootstrap workflow.
-2. Build a working Windows installer.
-3. Define the `.morevibe/` project template.
-4. Add ingest, query, and lint skills.
+1. Turn the current Codex-first implementation into an explicit Codex adapter.
+2. Define the shared MoreVibe core contract for all tools.
+3. Add ClaudeCode and Antigravity adapter specifications.
+4. Expand ingest, query, and lint skills.
