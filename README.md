@@ -87,7 +87,7 @@ MoreVibe is currently in early scaffolding.
 This repository already includes:
 
 - a Codex-oriented plugin manifest
-- an initial bootstrap skill
+- a reusable MoreVibe skill set
 - a Windows installer starting point
 - a project template namespace for `.morevibe/`
 - a core/adapters architecture baseline
@@ -111,6 +111,8 @@ Already implemented:
 - project-local `.morevibe/` bootstrap
 - optional safe insertion of a MoreVibe bootstrap block into project `AGENTS.md`
 - backup before replacement for current installer targets
+- reusable workflow skills for planning, execution, review, verification, docs, handoff, deployment, and delegation
+- default `.morevibe/schema/`, `.morevibe/canon/`, and `.morevibe/wiki/` starter documents
 
 Documented but not yet automated:
 
@@ -133,6 +135,7 @@ Recommended project-local layout:
 project-root/
   AGENTS.md
   .morevibe/
+    schema/
     sources/
     canon/
     wiki/
@@ -142,6 +145,7 @@ This avoids collisions with common project folders such as `src`, `docs`, or `so
 
 ## Layer Rules
 
+- `schema` stores MoreVibe-local operating rules.
 - `sources` stores evidence, external material, notes, snapshots, and raw inputs.
 - `canon` stores the project's current official reference documents.
 - `wiki` stores the LLM's compiled internal memory and cross-linked summaries.
@@ -204,6 +208,25 @@ The installer currently:
 - backs up the current marketplace file before writing updates
 - optionally bootstraps `.morevibe/` into a project
 - can optionally append a minimal MoreVibe bootstrap block to the project's root `AGENTS.md`
+
+## Included Skill Set
+
+Current MoreVibe skills include:
+
+- bootstrap
+- start session
+- plan feature
+- execute plan
+- debug bug
+- delegate work
+- request review
+- apply review fixes
+- verify change
+- update docs
+- update handoff
+- finish task
+- report deployment
+- test first
 
 ## Adapter Strategy
 

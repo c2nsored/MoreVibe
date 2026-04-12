@@ -85,7 +85,7 @@ MoreVibe는 아직 초기 스캐폴딩 단계입니다.
 현재 저장소에는 아래가 포함되어 있습니다.
 
 - Codex 중심 플러그인 manifest
-- 초기 bootstrap skill
+- 재사용 가능한 MoreVibe skill 세트
 - Windows 설치기 시작점
 - `.morevibe/` 프로젝트 템플릿 네임스페이스
 - core/adapters 구조의 기본 설계
@@ -109,6 +109,8 @@ adapters/      # 도구별 통합 가이드와 어댑터
 - 프로젝트 로컬 `.morevibe/` 부트스트랩
 - 프로젝트 `AGENTS.md`에 대한 선택적 안전 부트스트랩 삽입
 - 현재 설치 대상에 대한 교체 전 백업
+- 계획, 실행, 리뷰, 검증, 문서, handoff, 배포, 분담을 위한 재사용 skill 세트
+- `.morevibe/schema/`, `.morevibe/canon/`, `.morevibe/wiki/` 기본 문서 세트
 
 문서화만 되었고 아직 자동화되지 않은 것:
 
@@ -131,6 +133,7 @@ MoreVibe는 프로젝트 루트의 `AGENTS.md`를 대체하지 않습니다.
 project-root/
   AGENTS.md
   .morevibe/
+    schema/
     sources/
     canon/
     wiki/
@@ -140,6 +143,7 @@ project-root/
 
 ## 레이어 규칙
 
+- `schema`에는 MoreVibe 로컬 운영 규칙을 둡니다.
 - `sources`에는 근거 자료, 외부 자료, 메모, 스냅샷, 원시 입력을 둡니다.
 - `canon`에는 프로젝트의 현재 공식 기준 문서를 둡니다.
 - `wiki`에는 LLM의 내부 작업 메모리와 연결된 요약을 둡니다.
@@ -202,6 +206,25 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 - 현재 marketplace 파일을 쓰기 전에 백업
 - 필요하면 프로젝트에 `.morevibe/`를 부트스트랩
 - 필요하면 프로젝트 루트 `AGENTS.md`에 최소 MoreVibe 부트스트랩 블록 추가
+
+## 포함된 Skill 세트
+
+현재 MoreVibe에는 아래 skill들이 포함되어 있습니다.
+
+- bootstrap
+- start session
+- plan feature
+- execute plan
+- debug bug
+- delegate work
+- request review
+- apply review fixes
+- verify change
+- update docs
+- update handoff
+- finish task
+- report deployment
+- test first
 
 ## 어댑터 전략
 
