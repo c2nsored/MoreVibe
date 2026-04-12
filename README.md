@@ -120,6 +120,40 @@ The long-term goal is simple installation for non-technical users:
 3. Install the plugin into the user's local Codex plugin directory.
 4. Enable MoreVibe in projects without manual setup.
 
+## Current Windows Installer
+
+The current installer entrypoint is:
+
+```powershell
+installer/windows/install-morevibe.ps1
+```
+
+Basic usage:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1
+```
+
+Install the plugin and also bootstrap a project-local `.morevibe/` folder:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
+```
+
+If a project already has a `.morevibe/` folder and you intentionally want to replace it:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project" -ForceProjectTemplate
+```
+
+The installer currently:
+
+- installs the MoreVibe plugin into `~/plugins/morevibe`
+- creates or updates `~/.agents/plugins/marketplace.json`
+- backs up an existing plugin directory before replacing it
+- backs up the current marketplace file before writing updates
+- optionally bootstraps `.morevibe/` into a project
+
 ## Current Next Steps
 
 1. Finalize the plugin manifest and bootstrap workflow.

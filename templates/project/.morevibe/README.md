@@ -10,6 +10,12 @@ Recommended layers:
 - `canon/`: authoritative project documents
 - `wiki/`: compiled working memory for the LLM
 
+Recommended minimum wiki files:
+
+- `wiki/index.md`
+- `wiki/state.md`
+- `wiki/log.md`
+
 The project root `AGENTS.md` remains the main entrypoint.
 
 ## Rules
