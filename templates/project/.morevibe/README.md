@@ -2,6 +2,8 @@
 
 This folder is the project-local namespace managed by MoreVibe.
 
+It exists to help the LLM maintain stable project memory without replacing the project's normal root structure.
+
 Recommended layers:
 
 - `sources/`: evidence, references, notes, snapshots
@@ -9,3 +11,18 @@ Recommended layers:
 - `wiki/`: compiled working memory for the LLM
 
 The project root `AGENTS.md` remains the main entrypoint.
+
+## Rules
+
+- `sources` is for inputs and evidence.
+- `canon` is for the current official project reference.
+- `wiki` is for compiled memory, summaries, links, and reusable answers.
+- `wiki` should not replace `canon`.
+- If the same rule appears in two places, one place must be designated authoritative.
+
+## Intended workflow
+
+1. Ingest new material.
+2. Update or verify canon when needed.
+3. Refresh wiki state, index, and log.
+4. Lint for drift and stale memory.

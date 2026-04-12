@@ -1,13 +1,13 @@
 {
   "name": "morevibe",
   "version": "0.1.0",
-  "description": "Personal vibe-coding harness that helps LLMs maintain sources, canon, and wiki layers consistently.",
+  "description": "A reusable LLM harness for vibe coding that separates sources, canon, and wiki layers across any project.",
   "author": {
-    "name": "[TODO: Your name or handle]",
+    "name": "c2nsored",
     "email": "[TODO: Contact email]",
-    "url": "[TODO: Author URL]"
+    "url": "https://github.com/c2nsored"
   },
-  "homepage": "[TODO: Plugin docs URL]",
+  "homepage": "https://github.com/c2nsored/MoreVibe",
   "repository": "https://github.com/c2nsored/MoreVibe",
   "license": "MIT",
   "keywords": [
@@ -18,21 +18,21 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "MoreVibe",
-    "shortDescription": "A personal harness for better vibe coding.",
-    "longDescription": "MoreVibe helps LLM agents maintain a reusable project harness with clear source, canon, and wiki boundaries so context compounds across sessions.",
-    "developerName": "[TODO: Developer name]",
+    "shortDescription": "A reusable harness for better vibe coding.",
+    "longDescription": "MoreVibe helps LLM agents maintain project knowledge with separate sources, canon, and wiki layers so context compounds cleanly across sessions and across different kinds of projects.",
+    "developerName": "c2nsored",
     "category": "Productivity",
     "capabilities": [
       "Interactive",
       "Write"
     ],
-    "websiteURL": "[TODO: Plugin website URL]",
+    "websiteURL": "https://github.com/c2nsored/MoreVibe",
     "privacyPolicyURL": "[TODO: Privacy policy URL]",
     "termsOfServiceURL": "[TODO: Terms of service URL]",
     "defaultPrompt": [
       "Set up MoreVibe for this project.",
-      "Ingest these docs into MoreVibe canon and wiki.",
-      "Lint the MoreVibe wiki for drift and gaps."
+      "Ingest these materials into sources, canon, and wiki.",
+      "Lint MoreVibe for drift, overlap, and stale memory."
     ],
     "brandColor": "#0F766E",
     "composerIcon": "./assets/icon.png",
