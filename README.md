@@ -109,11 +109,11 @@ Already implemented:
 - local Codex-style plugin installation
 - marketplace registration merge/update
 - project-local `.morevibe/` bootstrap
+- optional safe insertion of a MoreVibe bootstrap block into project `AGENTS.md`
 - backup before replacement for current installer targets
 
 Documented but not yet automated:
 
-- patching root `AGENTS.md` with a minimal MoreVibe bootstrap block
 - patching tool-specific global config files
 - tool-specific support beyond the current Codex-first path
 
@@ -164,6 +164,12 @@ The current installer entrypoint is:
 
 ```powershell
 installer/windows/install-morevibe.ps1
+```
+
+For easier Windows usage, a batch launcher is also provided:
+
+```text
+installer/windows/install-morevibe.bat
 ```
 
 Basic usage:
@@ -238,7 +244,7 @@ This principle applies to:
 
 ## Current Next Steps
 
-1. Turn the current Codex-first implementation into an explicit Codex adapter.
-2. Implement safe Codex bootstrap insertion for project `AGENTS.md`.
-3. Define concrete global integration specs for ClaudeCode and Antigravity.
+1. Add a release-friendly Windows installer entrypoint.
+2. Define concrete global integration specs for ClaudeCode and Antigravity.
+3. Add release packaging guidance.
 4. Expand ingest, query, and lint skills.

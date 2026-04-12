@@ -107,11 +107,11 @@ adapters/      # 도구별 통합 가이드와 어댑터
 - Codex 스타일 로컬 플러그인 설치
 - marketplace 등록 병합/갱신
 - 프로젝트 로컬 `.morevibe/` 부트스트랩
+- 프로젝트 `AGENTS.md`에 대한 선택적 안전 부트스트랩 삽입
 - 현재 설치 대상에 대한 교체 전 백업
 
 문서화만 되었고 아직 자동화되지 않은 것:
 
-- 루트 `AGENTS.md`에 최소 MoreVibe 부트스트랩 블록 삽입
 - 도구별 전역 설정 파일 패치
 - 현재 Codex 중심 경로를 넘어서는 도구별 실제 지원
 
@@ -162,6 +162,12 @@ project-root/
 
 ```powershell
 installer/windows/install-morevibe.ps1
+```
+
+Windows에서 더 쉽게 실행할 수 있도록 배치 런처도 함께 제공합니다.
+
+```text
+installer/windows/install-morevibe.bat
 ```
 
 기본 사용:
@@ -236,7 +242,7 @@ MoreVibe는 기본적으로 비파괴적 설치를 지향해야 합니다.
 
 ## 현재 다음 단계
 
-1. 현재 Codex 중심 구현에서 프로젝트 `AGENTS.md` 안전 삽입까지 구현하기
+1. 릴리스에 넣기 쉬운 Windows 설치 진입점 추가하기
 2. ClaudeCode와 Antigravity의 전역 통합 명세 구체화하기
-3. 도구별 실제 설치 경로와 어댑터 동작 정의하기
+3. 릴리스 패키징 가이드 추가하기
 4. ingest, query, lint 스킬 확장하기
