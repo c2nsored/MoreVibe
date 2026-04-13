@@ -46,8 +46,9 @@ This checklist captures the harness features extracted from Stick3r and maps the
 ## Still missing for full automation
 
 - [ ] automatic skill triggering outside tool support
+- [x] scripted ingest into `sources` or `canon`
+- [x] scripted harness query across `wiki / canon / sources`
 - [x] scripted wiki write-back for reusable answers
 - [x] scripted harness lint and drift reporting
 - [x] ClaudeCode adapter export package installation
 - [x] Antigravity adapter export package installation
-- [ ] standalone `.exe` installer

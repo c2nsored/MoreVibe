@@ -24,8 +24,9 @@ When a session starts on a MoreVibe project:
 
 1. read the root `AGENTS.md`
 2. read `.morevibe/schema/OPERATING_RULES.md`
-3. read `.morevibe/wiki/state.md`
-4. use `morevibe-using-morevibe` as the main workflow router
+3. use `morevibe-query-harness` when you need a quick memory scan
+4. read `.morevibe/wiki/state.md`
+5. use `morevibe-using-morevibe` as the main workflow router
 
 ## Workflow routing
 
@@ -69,5 +70,7 @@ When a session starts on a MoreVibe project:
 - `morevibe-test-first`
 - `morevibe-report-deployment`
 - `morevibe-sync-memory`
+- `morevibe-ingest-item`
+- `morevibe-query-harness`
 - `morevibe-writeback-answer`
 - `morevibe-lint-harness`

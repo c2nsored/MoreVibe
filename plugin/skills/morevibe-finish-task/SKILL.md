@@ -19,4 +19,5 @@ Do not treat code edits alone as completion.
 6. `morevibe-sync-memory` completed
 7. `morevibe-lint-harness` run when the harness changed materially
 8. Reusable outputs written back when appropriate
-9. Final report prepared
+9. New evidence or canon changes ingested when appropriate
+10. Final report prepared

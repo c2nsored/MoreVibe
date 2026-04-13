@@ -12,6 +12,7 @@ REQUIRED_DIRS = [
     "wiki",
     "wiki/outputs",
     "wiki/lint",
+    "wiki/queries",
 ]
 
 REQUIRED_FILES = [
@@ -28,6 +29,11 @@ REQUIRED_FILES = [
     "wiki/index.md",
     "wiki/state.md",
     "wiki/log.md",
+    "wiki/outputs/README.md",
+    "wiki/lint/README.md",
+    "wiki/queries/README.md",
+    "sources/README.md",
+    "canon/README.md",
 ]
 
 

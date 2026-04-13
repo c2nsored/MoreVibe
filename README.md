@@ -117,6 +117,8 @@ Already implemented:
 - default `.morevibe/schema/`, `.morevibe/canon/`, and `.morevibe/wiki/` starter documents
 - a main MoreVibe workflow router for feature, bug, and document task chains
 - a session memory sync script and skill for state, log, and handoff updates
+- scripted ingest into `sources` or `canon`
+- scripted harness query reports from `wiki`, `canon`, and `sources`
 
 Partially automated:
 
@@ -238,6 +240,8 @@ Current MoreVibe skills include:
 - finish task
 - report deployment
 - sync memory
+- ingest item
+- query harness
 - write back answer
 - lint harness
 - test first
@@ -283,7 +287,5 @@ This principle applies to:
 
 ## Current Next Steps
 
-1. Add a release-friendly Windows installer entrypoint.
-2. Define concrete global integration specs for ClaudeCode and Antigravity.
-3. Add release packaging guidance.
-4. Add deeper tool-specific automatic triggering where the host supports it.
+1. Add deeper tool-specific automatic triggering where the host supports it.
+2. Turn adapter exports into tool-specific in-place installers when those hosts are fully confirmed.
