@@ -6,6 +6,7 @@ This guide explains what to include in a Windows-friendly release package.
 
 Current preferred Windows release package:
 
+- `MoreVibeInstaller-v0.4.0-win-x64.zip`
 - `MoreVibeInstaller.exe`
 - `installer/`
 - `plugin/`
