@@ -23,6 +23,11 @@ echo ==========================================
 echo           MoreVibe Installer
 echo ==========================================
 echo.
+echo Recommended setup:
+echo   1. Extract this package anywhere you want.
+echo   2. Run this installer from the extracted folder.
+echo   3. Enter your real project root path when asked.
+echo.
 echo This installer can set up MoreVibe for:
 echo   1. Codex
 echo   2. Claude Code
@@ -38,11 +43,6 @@ if errorlevel 2 (
   pause
   exit /b 0
 )
-
-echo.
-set "DEFAULT_PROJECT=%CD%"
-set /p "PROJECT_PATH=Project path to bootstrap .morevibe (press Enter for current directory: %DEFAULT_PROJECT%): "
-if "%PROJECT_PATH%"=="" set "PROJECT_PATH=%DEFAULT_PROJECT%"
 
 echo.
 echo Select targets:
@@ -105,8 +105,21 @@ goto confirm_run
 
 :confirm_run
 echo.
+echo Enter the project root path where you want MoreVibe to create .morevibe/.
+echo Leave this blank if you only want global tool setup right now.
+echo.
+set "PROJECT_PATH="
+set /p "PROJECT_PATH=Project root path (optional): "
+
+set "INSTALL_ARGS="
+if not "%PROJECT_PATH%"=="" set "INSTALL_ARGS=-ProjectPath ""%PROJECT_PATH%"""
+
 echo ------------------------------------------
-echo Project path : %PROJECT_PATH%
+if "%PROJECT_PATH%"=="" (
+  echo Project path : [skip project bootstrap]
+) else (
+  echo Project path : %PROJECT_PATH%
+)
 echo Targets      : %TARGET_SUMMARY%
 echo ------------------------------------------
 echo.

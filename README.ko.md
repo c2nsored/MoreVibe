@@ -187,8 +187,8 @@ installer/windows/install-morevibe.bat
 
 - 기본 설치 안내 표시
 - 설치 계속 여부 확인
-- 프로젝트 경로 입력
 - Codex / Claude Code / Antigravity / 전체 설치 대상 선택
+- 설치 대상 선택 후 실제 프로젝트 루트 경로를 선택적으로 입력
 - 성공 또는 실패 결과를 콘솔에 유지해서 확인 가능
 
 기본 사용:

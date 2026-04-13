@@ -200,8 +200,8 @@ When launched by double-click, the batch installer now:
 
 - shows a basic installation guide
 - asks whether to continue
-- asks for a project path
 - lets the user choose Codex, Claude Code, Antigravity, or all targets
+- asks for an optional real project root path after target selection
 - keeps the console open so success or failure is visible
 
 Basic usage:
