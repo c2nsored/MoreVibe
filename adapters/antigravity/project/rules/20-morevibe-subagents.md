@@ -1,9 +1,42 @@
 # MoreVibe Subagent Orchestration
 
-Use the MoreVibe orchestration model even though Antigravity does not expose Claude-style custom subagents.
+Antigravity does not expose Claude-style custom subagent files.
+Apply the MoreVibe team model as a conceptual ownership structure within a single session,
+and use `run_command` where MoreVibe scripts are available.
 
-- Main agent: orchestrator, planner, final integrator
-- Worker role: file- or subsystem-scoped executor
-- Review role: regression and canon/wiki drift checker
+## Team model
 
-If the task needs an orchestrator split, follow `morevibe-orchestrate-subagents` principles and use `run_command` where MoreVibe scripts are available.
+| Role | Responsibility | File scope |
+|---|---|---|
+| **pm-lead** | Orchestrates, plans, integrates, syncs canon/wiki | All — does not own files directly |
+| **frontend-worker** | UI, pages, components, layout | Frontend directories (customize per project) |
+| **backend-worker** | API, server logic, DB, integrations | Backend directories (customize per project) |
+| **qa-reviewer** | Read-only regression, risk, and documentation gap checks | All — read-only |
+
+## Ownership rules
+
+- Track which files belong to which role before implementation begins.
+- Do not modify files outside the current role's scope without explicit reason.
+- Workers report scope creep to the lead role instead of expanding silently.
+- One role owns one file at a time within a work unit.
+
+## Orchestration in Antigravity
+
+Since Antigravity runs as a single agent, apply the team model as a mental partitioning strategy:
+
+1. Start as `pm-lead` — restore context from `.morevibe/`, plan the work, decide ownership.
+2. Switch focus to the appropriate worker role for implementation.
+3. Switch to `qa-reviewer` focus for regression and risk checks before finalizing.
+4. Return to `pm-lead` to integrate, update canon/wiki, and report.
+
+Use `run_command` with MoreVibe scripts when available:
+- `morevibe/scripts/bootstrap_morevibe_session.py` — restore session context
+- `morevibe/scripts/lint_morevibe.py` — check harness for drift
+- `morevibe/scripts/sync_morevibe_memory.py` — sync state and log
+
+## When to split work
+
+Even within a single Antigravity session, apply the split when:
+- The task touches both frontend and backend boundaries.
+- A documentation sync is needed alongside implementation.
+- A regression check should happen before the final answer.

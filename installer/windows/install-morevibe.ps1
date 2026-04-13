@@ -141,6 +141,70 @@ function Merge-Marketplace {
     return [ordered]@{ name = $name; interface = [ordered]@{ displayName = $displayName }; plugins = $plugins }
 }
 
+function Get-ProjectDomainPaths {
+    param([string]$ProjectRoot)
+
+    $ignoredDirs = @('node_modules', '.next', 'dist', 'build', '.git', '__pycache__', '.venv', 'venv', 'coverage', '.turbo', '.vercel', 'out', '.cache', 'tmp', 'temp')
+    $frontendNames = @('app', 'pages', 'components', 'views', 'layouts', 'ui', 'public', 'styles', 'assets', 'features', 'screens')
+    $backendNames = @('api', 'lib', 'server', 'services', 'prisma', 'db', 'database', 'utils', 'helpers', 'middleware', 'routes', 'controllers', 'models', 'schema')
+
+    $frontendPaths = [System.Collections.Generic.List[string]]::new()
+    $backendPaths = [System.Collections.Generic.List[string]]::new()
+
+    $allDirs = Get-ChildItem -LiteralPath $ProjectRoot -Directory -ErrorAction SilentlyContinue |
+               Where-Object { $_.Name -notin $ignoredDirs -and -not $_.Name.StartsWith('.') } |
+               Select-Object -ExpandProperty Name
+
+    # Next.js App Router: split app/ into app/api (backend) and the rest (frontend)
+    $hasNextConfig = (Test-Path (Join-Path $ProjectRoot "next.config.js")) -or
+                     (Test-Path (Join-Path $ProjectRoot "next.config.ts")) -or
+                     (Test-Path (Join-Path $ProjectRoot "next.config.mjs"))
+    $hasAppApi = Test-Path (Join-Path $ProjectRoot "app\api")
+
+    foreach ($dir in $allDirs) {
+        $lower = $dir.ToLowerInvariant()
+        if ($lower -eq 'app' -and $hasNextConfig -and $hasAppApi) {
+            $frontendPaths.Add("app/**")
+            $backendPaths.Add("app/api/**")
+        } elseif ($lower -in $frontendNames) {
+            $frontendPaths.Add("$dir/**")
+        } elseif ($lower -in $backendNames) {
+            $backendPaths.Add("$dir/**")
+        }
+    }
+
+    if ($frontendPaths.Count -eq 0) { $frontendPaths.Add("[no frontend dirs auto-detected — add paths here]") }
+    if ($backendPaths.Count -eq 0) { $backendPaths.Add("[no backend dirs auto-detected — add paths here]") }
+
+    return [ordered]@{ frontend = $frontendPaths.ToArray(); backend = $backendPaths.ToArray() }
+}
+
+function Set-AgentFocusPaths {
+    param([string]$AgentFilePath, [string[]]$Paths)
+    if (-not (Test-Path -LiteralPath $AgentFilePath)) { return }
+
+    $lines = Get-Content -LiteralPath $AgentFilePath -Encoding UTF8
+    $newLines = [System.Collections.Generic.List[string]]::new()
+    $skipExampleLine = $false
+
+    foreach ($line in $lines) {
+        if ($skipExampleLine) {
+            $skipExampleLine = $false
+            if ($line -match '^\s*- Example:') { continue }
+            $newLines.Add($line)
+            continue
+        }
+        if ($line -match '\[CUSTOMIZE:') {
+            foreach ($path in $Paths) { $newLines.Add("- ``$path``") }
+            $skipExampleLine = $true
+            continue
+        }
+        $newLines.Add($line)
+    }
+
+    Set-Content -LiteralPath $AgentFilePath -Value ($newLines -join "`n") -Encoding UTF8
+}
+
 function Install-ProjectTemplate {
     param(
         [string]$TemplateSource,
@@ -294,6 +358,11 @@ function Install-ClaudeProjectIntegration {
     New-Item -ItemType Directory -Path $commandsRoot,$agentsRoot,$scriptsRoot -Force | Out-Null
     Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\commands\*") -Destination $commandsRoot -Force
     Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\*") -Destination $agentsRoot -Force
+
+    # Auto-configure worker agent file paths from project structure
+    $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
+    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "frontend-worker.md") -Paths $domainPaths.frontend
+    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "backend-worker.md") -Paths $domainPaths.backend
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\CLAUDE.morevibe.md") -Destination (Join-Path $morevibeRoot "CLAUDE.morevibe.md") -Force
 
     foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {

@@ -10,3 +10,20 @@ This project uses MoreVibe as a project-local harness.
 - Use `morevibe-using-morevibe` as the main MoreVibe entry skill before implementation.
 - Use `morevibe-orchestrate-subagents` when the task is large enough for explicit delegation.
 - Route non-trivial work through the MoreVibe workflow chain instead of jumping straight into coding.
+
+## Team Structure
+
+| Agent | Role | File scope |
+|---|---|---|
+| **pm-lead** | Orchestrator — planning, delegation, integration, canon/wiki sync | All files — does not own files directly |
+| **frontend-worker** | Frontend UI, pages, components, layout | Frontend directories (customize per project) |
+| **backend-worker** | Backend API, server logic, DB, integrations | Backend directories (customize per project) |
+| **qa-reviewer** | Read-only regression, risk, and documentation gap checks | All files — read-only |
+
+Customize agent names and file ownership to match your project's domain.
+For domain-specific splits (e.g. payments vs. orders), add new worker agents and update the team table.
+
+### File ownership rules
+- One agent owns one file at a time.
+- Workers report scope creep to the lead instead of silently expanding ownership.
+- Do not assign the same file to multiple agents in the same work unit.
