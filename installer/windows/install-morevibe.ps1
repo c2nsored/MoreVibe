@@ -4,6 +4,9 @@
     [string]$ClaudeHomePath = "",
     [string]$GeminiHomePath = "",
     [string]$ProjectPath = "",
+    [switch]$InstallCodex,
+    [switch]$InstallClaudeCode,
+    [switch]$InstallAntigravity,
     [switch]$ForceProjectTemplate,
     [switch]$ApplyProjectAgentsBootstrap,
     [switch]$ApplyCodexGlobalBootstrap,
@@ -362,6 +365,16 @@ $resolvedCodexHomePath = if ([string]::IsNullOrWhiteSpace($CodexHomePath)) { Joi
 $resolvedClaudeHomePath = if ([string]::IsNullOrWhiteSpace($ClaudeHomePath)) { Join-Path $resolvedHomePath ".claude" } else { Resolve-FullPath -PathValue $ClaudeHomePath }
 $resolvedGeminiHomePath = if ([string]::IsNullOrWhiteSpace($GeminiHomePath)) { Join-Path $resolvedHomePath ".gemini" } else { Resolve-FullPath -PathValue $GeminiHomePath }
 
+$selectedTargetCount = 0
+if ($InstallCodex.IsPresent) { $selectedTargetCount += 1 }
+if ($InstallClaudeCode.IsPresent) { $selectedTargetCount += 1 }
+if ($InstallAntigravity.IsPresent) { $selectedTargetCount += 1 }
+if ($selectedTargetCount -eq 0) {
+    $InstallCodex = $true
+    $InstallClaudeCode = $true
+    $InstallAntigravity = $true
+}
+
 $pluginsDir = Join-Path $resolvedHomePath "plugins"
 $pluginTarget = Join-Path $pluginsDir "morevibe"
 $agentsDir = Join-Path $resolvedHomePath ".agents\plugins"
@@ -370,22 +383,26 @@ $marketplacePath = Join-Path $agentsDir "marketplace.json"
 Write-Host "Installing MoreVibe..." -ForegroundColor Cyan
 Write-Host "Plugin source: $pluginSource"
 Write-Host "Plugin target: $pluginTarget"
+Write-Host "Targets: Codex=$InstallCodex ClaudeCode=$InstallClaudeCode Antigravity=$InstallAntigravity"
 
-New-Item -ItemType Directory -Path $pluginsDir -Force | Out-Null
-New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
-
-$pluginBackup = Backup-PathIfExists -LiteralPath $pluginTarget
-Copy-Item -LiteralPath $pluginSource -Destination $pluginTarget -Recurse -Force
-
+$pluginBackup = $null
 $marketplaceBackup = $null
-if (Test-Path -LiteralPath $marketplacePath) {
-    $marketplaceBackupPath = "$marketplacePath.backup-$(New-Timestamp)"
-    Copy-Item -LiteralPath $marketplacePath -Destination $marketplaceBackupPath -Force
-    $marketplaceBackup = $marketplaceBackupPath
-}
+if ($InstallCodex) {
+    New-Item -ItemType Directory -Path $pluginsDir -Force | Out-Null
+    New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
 
-$marketplace = Merge-Marketplace -MarketplacePath $marketplacePath
-Write-JsonFile -LiteralPath $marketplacePath -Data $marketplace
+    $pluginBackup = Backup-PathIfExists -LiteralPath $pluginTarget
+    Copy-Item -LiteralPath $pluginSource -Destination $pluginTarget -Recurse -Force
+
+    if (Test-Path -LiteralPath $marketplacePath) {
+        $marketplaceBackupPath = "$marketplacePath.backup-$(New-Timestamp)"
+        Copy-Item -LiteralPath $marketplacePath -Destination $marketplaceBackupPath -Force
+        $marketplaceBackup = $marketplaceBackupPath
+    }
+
+    $marketplace = Merge-Marketplace -MarketplacePath $marketplacePath
+    Write-JsonFile -LiteralPath $marketplacePath -Data $marketplace
+}
 
 $adapterExportResults = Install-AdapterExports -ScriptRootPath $scriptRoot -ResolvedHome $resolvedHomePath -Adapters $ExportAdapters
 $templateResult = Install-ProjectTemplate -TemplateSource $templateSource -TargetProjectPath $ProjectPath -ForceTemplate $ForceProjectTemplate.IsPresent
@@ -398,21 +415,35 @@ $antigravityGlobalBootstrapResult = $null
 
 if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
     $resolvedProjectPath = Resolve-FullPath -PathValue $ProjectPath
-    $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource
-    $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
-    $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
+    if ($InstallCodex) {
+        $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource
+    }
+    if ($InstallClaudeCode) {
+        $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
+    }
+    if ($InstallAntigravity) {
+        $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
+    }
 } elseif ($ApplyProjectAgentsBootstrap.IsPresent) {
     throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
 }
 
-$codexGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedCodexHomePath "AGENTS.md") -SnippetPath $codexGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for Codex" -DefaultHeader "# Global Codex Rules" -MissingReason "Codex global AGENTS missing."
-$claudeGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedClaudeHomePath "CLAUDE.md") -SnippetPath $claudeGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for ClaudeCode" -DefaultHeader "# Claude Global Memory" -MissingReason "Claude global memory missing."
-$antigravityGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedGeminiHomePath "GEMINI.md") -SnippetPath $antigravityGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for Antigravity" -DefaultHeader "# Gemini Global Rules" -MissingReason "Gemini global rules missing."
+if ($InstallCodex) {
+    $codexGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedCodexHomePath "AGENTS.md") -SnippetPath $codexGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for Codex" -DefaultHeader "# Global Codex Rules" -MissingReason "Codex global AGENTS missing."
+}
+if ($InstallClaudeCode) {
+    $claudeGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedClaudeHomePath "CLAUDE.md") -SnippetPath $claudeGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for ClaudeCode" -DefaultHeader "# Claude Global Memory" -MissingReason "Claude global memory missing."
+}
+if ($InstallAntigravity) {
+    $antigravityGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedGeminiHomePath "GEMINI.md") -SnippetPath $antigravityGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for Antigravity" -DefaultHeader "# Gemini Global Rules" -MissingReason "Gemini global rules missing."
+}
 
 Write-Host ""
 Write-Host "MoreVibe installation complete." -ForegroundColor Green
-Write-Host "Plugin path: $pluginTarget"
-Write-Host "Marketplace: $marketplacePath"
+if ($InstallCodex) {
+    Write-Host "Plugin path: $pluginTarget"
+    Write-Host "Marketplace: $marketplacePath"
+}
 
 if ($null -ne $pluginBackup) { Write-Host "Previous plugin backup: $pluginBackup" }
 if ($null -ne $marketplaceBackup) { Write-Host "Marketplace backup: $marketplaceBackup" }
@@ -429,8 +460,10 @@ if ($null -ne $agentsBootstrapResult) {
     if ($agentsBootstrapResult.reason) { Write-Host "AGENTS note: $($agentsBootstrapResult.reason)" }
 }
 
-Write-Host "Codex global bootstrap: $($codexGlobalBootstrapResult.action) -> $($codexGlobalBootstrapResult.target)"
-if ($codexGlobalBootstrapResult.backup) { Write-Host "Codex global backup: $($codexGlobalBootstrapResult.backup)" }
+if ($null -ne $codexGlobalBootstrapResult) {
+    Write-Host "Codex global bootstrap: $($codexGlobalBootstrapResult.action) -> $($codexGlobalBootstrapResult.target)"
+    if ($codexGlobalBootstrapResult.backup) { Write-Host "Codex global backup: $($codexGlobalBootstrapResult.backup)" }
+}
 
 if ($null -ne $claudeProjectIntegrationResult) {
     Write-Host "Claude project integration: $($claudeProjectIntegrationResult.action) -> $($claudeProjectIntegrationResult.target)"
@@ -439,8 +472,10 @@ if ($null -ne $claudeProjectIntegrationResult) {
     Write-Host "Claude memory: $($claudeProjectIntegrationResult.memoryAction) -> $($claudeProjectIntegrationResult.memoryTarget)"
     if ($claudeProjectIntegrationResult.memoryBackup) { Write-Host "Claude memory backup: $($claudeProjectIntegrationResult.memoryBackup)" }
 }
-Write-Host "Claude global bootstrap: $($claudeGlobalBootstrapResult.action) -> $($claudeGlobalBootstrapResult.target)"
-if ($claudeGlobalBootstrapResult.backup) { Write-Host "Claude global backup: $($claudeGlobalBootstrapResult.backup)" }
+if ($null -ne $claudeGlobalBootstrapResult) {
+    Write-Host "Claude global bootstrap: $($claudeGlobalBootstrapResult.action) -> $($claudeGlobalBootstrapResult.target)"
+    if ($claudeGlobalBootstrapResult.backup) { Write-Host "Claude global backup: $($claudeGlobalBootstrapResult.backup)" }
+}
 
 if ($null -ne $antigravityProjectIntegrationResult) {
     Write-Host "Antigravity project integration: $($antigravityProjectIntegrationResult.action) -> $($antigravityProjectIntegrationResult.target)"
@@ -448,8 +483,10 @@ if ($null -ne $antigravityProjectIntegrationResult) {
     Write-Host "Antigravity project memory: $($antigravityProjectIntegrationResult.geminiAction) -> $($antigravityProjectIntegrationResult.geminiTarget)"
     if ($antigravityProjectIntegrationResult.geminiBackup) { Write-Host "Antigravity project memory backup: $($antigravityProjectIntegrationResult.geminiBackup)" }
 }
-Write-Host "Antigravity global bootstrap: $($antigravityGlobalBootstrapResult.action) -> $($antigravityGlobalBootstrapResult.target)"
-if ($antigravityGlobalBootstrapResult.backup) { Write-Host "Antigravity global backup: $($antigravityGlobalBootstrapResult.backup)" }
+if ($null -ne $antigravityGlobalBootstrapResult) {
+    Write-Host "Antigravity global bootstrap: $($antigravityGlobalBootstrapResult.action) -> $($antigravityGlobalBootstrapResult.target)"
+    if ($antigravityGlobalBootstrapResult.backup) { Write-Host "Antigravity global backup: $($antigravityGlobalBootstrapResult.backup)" }
+}
 
 if ($null -ne $adapterExportResults -and $adapterExportResults.Count -gt 0) {
     foreach ($result in $adapterExportResults) {

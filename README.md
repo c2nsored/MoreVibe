@@ -196,6 +196,14 @@ For easier Windows usage, a batch launcher is also provided:
 installer/windows/install-morevibe.bat
 ```
 
+When launched by double-click, the batch installer now:
+
+- shows a basic installation guide
+- asks whether to continue
+- asks for a project path
+- lets the user choose Codex, Claude Code, Antigravity, or all targets
+- keeps the console open so success or failure is visible
+
 Basic usage:
 
 ```powershell
