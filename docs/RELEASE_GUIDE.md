@@ -28,6 +28,14 @@ Current preferred Windows release package:
 
 The WPF installer is now a standalone Windows executable wrapper, but it still relies on the packaged PowerShell installer and repository assets shipped beside it.
 
+The release package should reflect the current install behavior:
+
+- create or update a project root `AGENTS.md`
+- install default MoreVibe project skills into `.agents/skills/`
+- install `.claude/skills/` for Claude Code targets
+- install project-local `.codex/` files for Codex targets
+- print a project bootstrap health summary after installation
+
 ## Future release target
 
 Later, MoreVibe can add:

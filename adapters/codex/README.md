@@ -13,7 +13,7 @@ Codex is the first active MoreVibe adapter.
 
 - installable plugin manifest exists in `plugin/.codex-plugin/plugin.json`
 - bootstrap skill exists in `plugin/skills/morevibe-bootstrap/`
-- Windows installer can install the local plugin, bootstrap `.morevibe/`, and update project/global `AGENTS.md`
+- Windows installer can install the local plugin, bootstrap `.morevibe/`, create or update project `AGENTS.md`, install default project skills, and install project-local `.codex/` files
 - adapter specification exists in `SPEC.md`
 - bootstrap snippet templates exist in `snippets/`
 
@@ -30,3 +30,5 @@ Codex is the first active MoreVibe adapter.
 - `SPEC.md`: Codex adapter behavior contract
 - `snippets/project-agents-bootstrap.md`: minimal project-level insertion text
 - `snippets/global-bootstrap.md`: minimal global-level bootstrap text
+- `project/config.toml`: default project-local Codex config template
+- `project/agents/*.toml`: default project-local Codex role templates

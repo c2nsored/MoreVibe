@@ -76,6 +76,8 @@ Depending on the tool, it can install or generate:
 
 - project-local `.morevibe/` structure
 - tool-specific entry files such as `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md`
+- project-native skill folders for supported tools
+- project-local agent and routing files for tools that support role-based orchestration
 - reusable rules and operating instructions
 - durable project memory layout
 - optional bootstrap or plugin helpers for supported tools
@@ -144,6 +146,7 @@ If you want the easiest path on Windows:
 7. Start your AI tool from the project root
 
 After installation, MoreVibe will place the project harness and supported adapter files into the selected project.
+For a new or empty project, it can also create a starter `AGENTS.md`, install the default MoreVibe skill set, and generate project-local role files for supported tools.
 
 ---
 
@@ -200,7 +203,7 @@ Supports project and global entry behavior through Claude-oriented files and boo
 
 ### Codex
 
-Supports Codex-oriented entry files and plugin/helper structure where applicable.
+Supports Codex-oriented entry files, plugin/helper structure, and project-local `.codex/` role templates.
 
 ### Antigravity
 
@@ -233,6 +236,8 @@ MoreVibe is already useful, but it is important to describe its current state ho
 * a working MoreVibe core structure
 * project templates
 * adapter-specific integration structure
+* default project skill installation for supported tools
+* project-local Codex role templates
 * Windows installer support
 * PowerShell install flow
 * repository layout intended for real-world project bootstrap
@@ -296,11 +301,14 @@ A MoreVibe-enabled project will usually contain something like:
 
 ```text
 your-project/
+├─ .agents/skills/
 ├─ .morevibe/
 │  ├─ schema/
 │  ├─ sources/
 │  ├─ canon/
 │  └─ wiki/
+├─ .codex/             # when Codex project integration is installed
+├─ .claude/            # when Claude Code project integration is installed
 ├─ AGENTS.md / CLAUDE.md / GEMINI.md
 └─ ...your project files...
 ```
@@ -313,6 +321,13 @@ your-project/
 | `.morevibe/sources/` | raw inputs, evidence, notes, and references |
 | `.morevibe/canon/`   | official current project truth              |
 | `.morevibe/wiki/`    | AI-maintained summaries and working memory  |
+
+Depending on the selected target tools, installation may also add:
+
+- `AGENTS.md` as the project's public entrypoint when it does not already exist
+- `.agents/skills/` with the default MoreVibe workflow skills
+- `.claude/skills/` and `.claude/agents/` for Claude Code
+- `.codex/config.toml` and `.codex/agents/*.toml` for Codex
 
 ---
 
@@ -334,6 +349,8 @@ A practical workflow looks like this:
 7. **Resume future sessions from the installed structure instead of raw chat history**
 
 This keeps the project more stable over time and reduces the need to “re-teach” the same context in every session.
+
+The installer also prints a small bootstrap health report so you can confirm the entrypoint, skills, and agent files were actually created.
 
 ---
 

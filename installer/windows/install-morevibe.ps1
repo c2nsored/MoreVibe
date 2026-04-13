@@ -206,6 +206,33 @@ function Set-AgentFocusPaths {
     Set-Content -LiteralPath $AgentFilePath -Value ($newLines -join "`n") -Encoding UTF8
 }
 
+function Install-ProjectSkills {
+    param(
+        [string]$ProjectRoot,
+        [string]$ScriptRootPath,
+        [string[]]$TargetRelativePaths
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ProjectRoot) -or $null -eq $TargetRelativePaths -or $TargetRelativePaths.Count -eq 0) {
+        return @()
+    }
+
+    $sourceRoot = Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\plugin\skills")
+    $results = @()
+
+    foreach ($relativePath in $TargetRelativePaths) {
+        $targetRoot = Join-Path $ProjectRoot $relativePath
+        New-Item -ItemType Directory -Path $targetRoot -Force | Out-Null
+        Copy-Item -Path (Join-Path $sourceRoot "*") -Destination $targetRoot -Recurse -Force
+        $results += [ordered]@{
+            target = $targetRoot
+            action = "installed"
+        }
+    }
+
+    return $results
+}
+
 function Install-ProjectTemplate {
     param(
         [string]$TemplateSource,
@@ -269,7 +296,8 @@ function Install-AdapterExports {
 function Apply-AgentsBootstrap {
     param(
         [string]$ProjectRoot,
-        [string]$BootstrapSnippetPath
+        [string]$BootstrapSnippetPath,
+        [string]$DefaultAgentsTemplatePath = ""
     )
 
     if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
@@ -278,10 +306,11 @@ function Apply-AgentsBootstrap {
 
     $agentsPath = Join-Path $ProjectRoot "AGENTS.md"
     if (-not (Test-Path -LiteralPath $agentsPath)) {
-        return [ordered]@{
-            action = "skipped"
-            target = $agentsPath
-            reason = "AGENTS.md does not exist."
+        Ensure-ParentDirectory -LiteralPath $agentsPath
+        if (-not [string]::IsNullOrWhiteSpace($DefaultAgentsTemplatePath) -and (Test-Path -LiteralPath $DefaultAgentsTemplatePath)) {
+            Copy-Item -LiteralPath $DefaultAgentsTemplatePath -Destination $agentsPath -Force
+        } else {
+            Write-TextFile -LiteralPath $agentsPath -Value "# Project Guide`r`n"
         }
     }
 
@@ -352,13 +381,15 @@ function Install-ClaudeProjectIntegration {
     $claudeRoot = Join-Path $resolvedProjectRoot ".claude"
     $commandsRoot = Join-Path $claudeRoot "commands"
     $agentsRoot = Join-Path $claudeRoot "agents"
+    $skillsRoot = Join-Path $claudeRoot "skills"
     $morevibeRoot = Join-Path $claudeRoot "morevibe"
     $scriptsRoot = Join-Path $morevibeRoot "scripts"
     $settingsPath = Join-Path $claudeRoot "settings.json"
     $projectMemoryPath = Join-Path $resolvedProjectRoot "CLAUDE.md"
 
-    New-Item -ItemType Directory -Path $commandsRoot,$agentsRoot,$scriptsRoot -Force | Out-Null
+    New-Item -ItemType Directory -Path $commandsRoot,$agentsRoot,$skillsRoot,$scriptsRoot -Force | Out-Null
     Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\commands\*") -Destination $commandsRoot -Force
+    Copy-Item -Path (Join-Path $ScriptRootPath "..\..\plugin\skills\*") -Destination $skillsRoot -Recurse -Force
 
     # Copy agent files: use preset if ProjectType is specified, else use generic agents with auto-detection
     $validPresets = @("webapp","ecommerce","blog","api")
@@ -390,12 +421,109 @@ function Install-ClaudeProjectIntegration {
     return [ordered]@{
         action = "installed"
         target = $claudeRoot
+        skills = $skillsRoot
         settings = $settingsPath
         settingsBackup = $settingsBackup
         memoryAction = $memoryResult.action
         memoryTarget = $memoryResult.target
         memoryBackup = $memoryResult.backup
     }
+}
+
+function Install-CodexProjectIntegration {
+    param(
+        [string]$ProjectRoot,
+        [string]$ScriptRootPath
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return $null }
+
+    $resolvedProjectRoot = Resolve-FullPath -PathValue $ProjectRoot
+    $codexRoot = Join-Path $resolvedProjectRoot ".codex"
+    $agentsRoot = Join-Path $codexRoot "agents"
+    $configSource = Join-Path $ScriptRootPath "..\..\adapters\codex\project\config.toml"
+    $agentsSource = Join-Path $ScriptRootPath "..\..\adapters\codex\project\agents"
+    $configTarget = Join-Path $codexRoot "config.toml"
+
+    New-Item -ItemType Directory -Path $agentsRoot -Force | Out-Null
+    Copy-Item -LiteralPath $configSource -Destination $configTarget -Force
+    Copy-Item -Path (Join-Path $agentsSource "*") -Destination $agentsRoot -Force
+
+    $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
+    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "frontend-worker.toml") -Paths $domainPaths.frontend
+    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "backend-worker.toml") -Paths $domainPaths.backend
+
+    return [ordered]@{
+        action = "installed"
+        target = $codexRoot
+        config = $configTarget
+        agents = $agentsRoot
+    }
+}
+
+function Get-ProjectBootstrapHealth {
+    param(
+        [string]$ProjectRoot,
+        [bool]$ExpectCodex,
+        [bool]$ExpectClaude
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return @() }
+
+    $results = @()
+    $agentsPath = Join-Path $ProjectRoot "AGENTS.md"
+    $projectSkillsPath = Join-Path $ProjectRoot ".morevibe\schema\PROJECT_SKILLS.md"
+    $sharedSkillsRoot = Join-Path $ProjectRoot ".agents\skills"
+    $codexAgentsRoot = Join-Path $ProjectRoot ".codex\agents"
+    $claudeSkillsRoot = Join-Path $ProjectRoot ".claude\skills"
+
+    $results += [ordered]@{
+        label = "Root AGENTS"
+        ok = (Test-Path -LiteralPath $agentsPath)
+        detail = $agentsPath
+    }
+    $results += [ordered]@{
+        label = "Project skill map"
+        ok = (Test-Path -LiteralPath $projectSkillsPath)
+        detail = $projectSkillsPath
+    }
+
+    $sharedSkillCount = if (Test-Path -LiteralPath $sharedSkillsRoot) { (Get-ChildItem -LiteralPath $sharedSkillsRoot -Directory -ErrorAction SilentlyContinue).Count } else { 0 }
+    $results += [ordered]@{
+        label = "Shared skills"
+        ok = ($sharedSkillCount -gt 0)
+        detail = "$sharedSkillsRoot ($sharedSkillCount)"
+    }
+
+    if (Test-Path -LiteralPath $projectSkillsPath) {
+        $projectSkillsText = Read-TextFile -LiteralPath $projectSkillsPath
+        $hasStartupGap = $projectSkillsText -like "*No project-native startup skill detected.*"
+        $results += [ordered]@{
+            label = "Detected startup chain"
+            ok = (-not $hasStartupGap)
+            detail = $projectSkillsPath
+        }
+    }
+
+    if ($ExpectCodex) {
+        $codexAgentCount = if (Test-Path -LiteralPath $codexAgentsRoot) { (Get-ChildItem -LiteralPath $codexAgentsRoot -File -ErrorAction SilentlyContinue).Count } else { 0 }
+        $results += [ordered]@{
+            label = "Codex project agents"
+            ok = ($codexAgentCount -gt 0)
+            detail = "$codexAgentsRoot ($codexAgentCount)"
+        }
+    }
+
+    if ($ExpectClaude) {
+        $claudeSkillCount = if (Test-Path -LiteralPath $claudeSkillsRoot) { (Get-ChildItem -LiteralPath $claudeSkillsRoot -Directory -ErrorAction SilentlyContinue).Count } else { 0 }
+        $results += [ordered]@{
+            label = "Claude project skills"
+            ok = ($claudeSkillCount -gt 0)
+            detail = "$claudeSkillsRoot ($claudeSkillCount)"
+        }
+    }
+
+    return $results
 }
 
 function Install-AntigravityProjectIntegration {
@@ -435,6 +563,7 @@ function Install-AntigravityProjectIntegration {
 $scriptRoot = Resolve-FullPath -PathValue $PSScriptRoot
 $pluginSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\plugin")
 $templateSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\templates\project\.morevibe")
+$defaultProjectAgentsTemplateSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\templates\project\AGENTS.md")
 $projectAgentsBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\codex\snippets\project-agents-bootstrap.md")
 $codexGlobalBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\codex\snippets\global-bootstrap.md")
 $claudeGlobalBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\claudecode\snippets\global-bootstrap.md")
@@ -485,17 +614,23 @@ if ($InstallCodex) {
 
 $adapterExportResults = Install-AdapterExports -ScriptRootPath $scriptRoot -ResolvedHome $resolvedHomePath -Adapters $ExportAdapters
 $templateResult = Install-ProjectTemplate -TemplateSource $templateSource -TargetProjectPath $ProjectPath -ForceTemplate $ForceProjectTemplate.IsPresent
+$projectSkillResults = @()
 $agentsBootstrapResult = $null
+$codexProjectIntegrationResult = $null
 $codexGlobalBootstrapResult = $null
 $claudeProjectIntegrationResult = $null
 $claudeGlobalBootstrapResult = $null
 $antigravityProjectIntegrationResult = $null
 $antigravityGlobalBootstrapResult = $null
+$projectBootstrapHealth = @()
 
 if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
     $resolvedProjectPath = Resolve-FullPath -PathValue $ProjectPath
+    $projectSkillTargets = @(".agents\skills")
+    $projectSkillResults = Install-ProjectSkills -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -TargetRelativePaths $projectSkillTargets
+    $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource -DefaultAgentsTemplatePath $defaultProjectAgentsTemplateSource
     if ($InstallCodex) {
-        $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource
+        $codexProjectIntegrationResult = Install-CodexProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
     }
     if ($InstallClaudeCode) {
         $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectType $ProjectType
@@ -504,6 +639,7 @@ if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
         $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
     }
     & python (Join-Path $scriptRoot '..\..\plugin\scripts\render_morevibe_project_schema.py') --project-root $resolvedProjectPath | Out-Null
+    $projectBootstrapHealth = Get-ProjectBootstrapHealth -ProjectRoot $resolvedProjectPath -ExpectCodex $InstallCodex -ExpectClaude $InstallClaudeCode
 } elseif ($ApplyProjectAgentsBootstrap.IsPresent) {
     throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
 }
@@ -540,6 +676,18 @@ if ($null -ne $agentsBootstrapResult) {
     if ($agentsBootstrapResult.reason) { Write-Host "AGENTS note: $($agentsBootstrapResult.reason)" }
 }
 
+if ($null -ne $projectSkillResults -and $projectSkillResults.Count -gt 0) {
+    foreach ($result in $projectSkillResults) {
+        Write-Host "Project skills: $($result.action) -> $($result.target)"
+    }
+}
+
+if ($null -ne $codexProjectIntegrationResult) {
+    Write-Host "Codex project integration: $($codexProjectIntegrationResult.action) -> $($codexProjectIntegrationResult.target)"
+    Write-Host "Codex config: $($codexProjectIntegrationResult.config)"
+    Write-Host "Codex agents: $($codexProjectIntegrationResult.agents)"
+}
+
 if ($null -ne $codexGlobalBootstrapResult) {
     Write-Host "Codex global bootstrap: $($codexGlobalBootstrapResult.action) -> $($codexGlobalBootstrapResult.target)"
     if ($codexGlobalBootstrapResult.backup) { Write-Host "Codex global backup: $($codexGlobalBootstrapResult.backup)" }
@@ -574,6 +722,15 @@ if ($null -ne $adapterExportResults -and $adapterExportResults.Count -gt 0) {
         if ($result.target) { Write-Host "Adapter export target: $($result.target)" }
         if ($result.backup) { Write-Host "Adapter export backup: $($result.backup)" }
         if ($result.reason) { Write-Host "Adapter export note: $($result.reason)" }
+    }
+}
+
+if ($null -ne $projectBootstrapHealth -and $projectBootstrapHealth.Count -gt 0) {
+    Write-Host ""
+    Write-Host "Project bootstrap health:" -ForegroundColor Cyan
+    foreach ($check in $projectBootstrapHealth) {
+        $status = if ($check.ok) { "OK" } else { "WARN" }
+        Write-Host "[$status] $($check.label): $($check.detail)"
     }
 }
 

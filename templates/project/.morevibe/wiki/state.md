@@ -3,13 +3,13 @@
 Last Updated: [TODO]
 
 ## Current Focus
-- [TODO]
+- What the project is actively trying to accomplish right now.
 
 ## Active Risks
-- [TODO]
+- What could break progress, quality, or deployment right now.
 
 ## Recent Changes
-- [TODO]
+- The most recent meaningful updates worth remembering next session.
 
 ## Next Session
-- [TODO]
+- What should be checked or resumed first in the next session.

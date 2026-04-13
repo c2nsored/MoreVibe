@@ -6,12 +6,15 @@ from pathlib import Path
 
 
 def find_skill_names(project_root: Path) -> set[str]:
-    skills_root = project_root / '.agents' / 'skills'
-    if not skills_root.exists():
-        return set()
     names: set[str] = set()
-    for skill_file in skills_root.glob('*/SKILL.md'):
-        names.add(skill_file.parent.name)
+    for skills_root in (
+        project_root / '.agents' / 'skills',
+        project_root / '.claude' / 'skills',
+    ):
+        if not skills_root.exists():
+            continue
+        for skill_file in skills_root.glob('*/SKILL.md'):
+            names.add(skill_file.parent.name)
     return names
 
 
