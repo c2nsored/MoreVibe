@@ -89,6 +89,7 @@ MoreVibe는 아직 초기 스캐폴딩 단계입니다.
 - Windows 설치기 시작점
 - `.morevibe/` 프로젝트 템플릿 네임스페이스
 - core/adapters 구조의 기본 설계
+- 메인 workflow 진입 skill과 skill-routing schema
 
 ## 저장소 구조
 
@@ -111,6 +112,7 @@ adapters/      # 도구별 통합 가이드와 어댑터
 - 현재 설치 대상에 대한 교체 전 백업
 - 계획, 실행, 리뷰, 검증, 문서, handoff, 배포, 분담을 위한 재사용 skill 세트
 - `.morevibe/schema/`, `.morevibe/canon/`, `.morevibe/wiki/` 기본 문서 세트
+- 기능/버그/문서 작업을 분기하는 메인 MoreVibe workflow router
 
 문서화만 되었고 아직 자동화되지 않은 것:
 
@@ -211,6 +213,7 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 
 현재 MoreVibe에는 아래 skill들이 포함되어 있습니다.
 
+- using-morevibe
 - bootstrap
 - start session
 - plan feature

@@ -18,6 +18,7 @@ Recommended minimum wiki files:
 - `wiki/log.md`
 - `schema/README.md`
 - `schema/OPERATING_RULES.md`
+- `schema/SKILL_ROUTING.md`
 - `canon/PROJECT_OVERVIEW.md`
 - `canon/ARCHITECTURE.md`
 - `canon/SCHEMA.md`

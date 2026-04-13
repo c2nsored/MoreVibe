@@ -91,6 +91,7 @@ This repository already includes:
 - a Windows installer starting point
 - a project template namespace for `.morevibe/`
 - a core/adapters architecture baseline
+- a main workflow entry skill and skill-routing schema
 
 ## Repository Layout
 
@@ -113,6 +114,7 @@ Already implemented:
 - backup before replacement for current installer targets
 - reusable workflow skills for planning, execution, review, verification, docs, handoff, deployment, and delegation
 - default `.morevibe/schema/`, `.morevibe/canon/`, and `.morevibe/wiki/` starter documents
+- a main MoreVibe workflow router for feature, bug, and document task chains
 
 Documented but not yet automated:
 
@@ -213,6 +215,7 @@ The installer currently:
 
 Current MoreVibe skills include:
 
+- using-morevibe
 - bootstrap
 - start session
 - plan feature

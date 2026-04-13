@@ -7,4 +7,5 @@ Default rules:
 - keep the project's root `AGENTS.md` as the public entrypoint
 - treat `.morevibe/canon/` as authoritative reference
 - treat `.morevibe/wiki/` as compiled working memory
+- use `morevibe-using-morevibe` as the first MoreVibe workflow router when a project contains `.morevibe/`
 - prefer merge and backup over overwrite when applying MoreVibe changes
