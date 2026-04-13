@@ -4,29 +4,33 @@ This guide explains what to include in a Windows-friendly release package.
 
 ## Recommended release contents
 
-- `installer/windows/install-morevibe.ps1`
-- `installer/windows/install-morevibe.bat`
+Current preferred Windows release package:
+
+- `MoreVibeInstaller.exe`
+- `installer/`
 - `plugin/`
 - `templates/`
 - `adapters/`
+- `core/`
+- `README.md`
+- `README.ko.md`
+- `LICENSE`
 
-## Minimal Windows release flow
+## Current Windows release flow
 
-1. Prepare a release archive that preserves folder structure.
-2. Publish it on GitHub Releases.
+1. Run `installer-ui/publish-wpf-installer.ps1`.
+2. Upload the generated ZIP from `dist/` to GitHub Releases.
 3. Tell users to download and extract the release.
-4. Let Windows users run `installer/windows/install-morevibe.bat`.
+4. Let Windows users run `MoreVibeInstaller.exe`.
 
 ## Current limitation
 
-The current installer is not yet a standalone `.exe`.
-
-It is a Windows-friendly script launcher around the PowerShell installer.
+The WPF installer is now a standalone Windows executable wrapper, but it still relies on the packaged PowerShell installer and repository assets shipped beside it.
 
 ## Future release target
 
 Later, MoreVibe can add:
 
-- a self-contained `.exe` installer
-- guided UI prompts for project path selection
-- tool-adapter selection during install
+- signed installer builds
+- automatic GitHub Actions release packaging
+- richer progress reporting and recovery flows
