@@ -171,15 +171,22 @@ project-root/
 3. 설치기가 호스트 규칙 파일과 프로젝트 `.morevibe/`를 연결합니다.
 4. 사용자는 별도 수작업 없이 MoreVibe 구조 위에서 대화를 시작합니다.
 
-## 현재 Windows 설치기
+## 현재 Windows GUI 설치기 (추천)
 
-현재 설치 진입점은 아래 파일입니다.
+이제 Windows 사용자들을 위해 직관적인 **WPF 기반 GUI 설치기**를 제공합니다.  
+[GitHub Releases](https://github.com/c2nsored/MoreVibe/releases/latest) 페이지에서 `MoreVibeInstaller.exe`를 다운로드 받아 실행하기만 하면 클릭 몇 번으로 모든 설치 과정과 부트스트랩을 완료할 수 있습니다.
+
+## 스크립트 기반 설치
+
+터미널을 선호하는 경우, 기존의 파워쉘 스크립트를 직접 사용할 수 있습니다.
+
+기본 설치 진입점:
 
 ```powershell
 installer/windows/install-morevibe.ps1
 ```
 
-Windows에서 더 쉽게 실행할 수 있도록 배치 런처도 함께 제공합니다.
+조금 더 쉽게 실행할 수 있는 배치 런처도 함께 제공합니다:
 
 ```text
 installer/windows/install-morevibe.bat

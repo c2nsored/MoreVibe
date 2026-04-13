@@ -184,9 +184,16 @@ The long-term goal is simple installation for non-technical users:
 3. Let the installer wire the host-native rule files and project-local `.morevibe/`.
 4. Start working in the project without manually rebuilding the harness structure.
 
-## Current Windows Installer
+## Current Windows GUI Installer (Recommended)
 
-The current installer entrypoint is:
+For Windows users, we now provide an intuitive **WPF-based GUI installer**.
+You can download `MoreVibeInstaller.exe` from the [GitHub Releases](https://github.com/c2nsored/MoreVibe/releases/latest) page. Just run it, and you can finish the installation and project bootstrap with a few clicks.
+
+## Script-based Installation
+
+If you prefer the terminal, you can use the raw PowerShell script.
+
+The current script installer entrypoint is:
 
 ```powershell
 installer/windows/install-morevibe.ps1
