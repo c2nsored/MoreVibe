@@ -17,6 +17,7 @@ public sealed class MainViewModel : ViewModelBase
     private bool _installAntigravity = true;
     private bool _skipProjectBootstrap;
     private bool _forceProjectTemplate;
+    private string _projectType = "webapp";
     private bool _isInstalling;
     private bool _installSucceeded;
     private string _projectPath = string.Empty;
@@ -31,6 +32,7 @@ public sealed class MainViewModel : ViewModelBase
             "환영",
             "대상 선택",
             "프로젝트 설정",
+            "프로젝트 유형",
             "설치 확인",
             "설치 진행",
             "완료"
@@ -79,6 +81,7 @@ public sealed class MainViewModel : ViewModelBase
         WizardStep.Welcome => "MoreVibe 설치 시작",
         WizardStep.Targets => "설치 대상 선택",
         WizardStep.Project => "프로젝트 경로 설정",
+        WizardStep.ProjectType => "프로젝트 유형 선택",
         WizardStep.Review => "설치 내용 확인",
         WizardStep.Progress => "설치 진행 중",
         WizardStep.Result => "설치 결과",
@@ -90,6 +93,7 @@ public sealed class MainViewModel : ViewModelBase
         WizardStep.Welcome => "시작",
         WizardStep.Targets => "다음",
         WizardStep.Project => "다음",
+        WizardStep.ProjectType => "다음",
         WizardStep.Review => "설치 시작",
         WizardStep.Progress => "설치 중",
         WizardStep.Result => "완료",
@@ -159,6 +163,57 @@ public sealed class MainViewModel : ViewModelBase
         set => SetProperty(ref _forceProjectTemplate, value);
     }
 
+    public bool ProjectTypeWebApp
+    {
+        get => _projectType == "webapp";
+        set { if (value) SetProjectType("webapp"); }
+    }
+
+    public bool ProjectTypeEcommerce
+    {
+        get => _projectType == "ecommerce";
+        set { if (value) SetProjectType("ecommerce"); }
+    }
+
+    public bool ProjectTypeBlog
+    {
+        get => _projectType == "blog";
+        set { if (value) SetProjectType("blog"); }
+    }
+
+    public bool ProjectTypeApi
+    {
+        get => _projectType == "api";
+        set { if (value) SetProjectType("api"); }
+    }
+
+    public bool ProjectTypeGeneric
+    {
+        get => _projectType == "";
+        set { if (value) SetProjectType(""); }
+    }
+
+    public string ProjectTypeSummary => _projectType switch
+    {
+        "webapp" => "웹 앱 (일반) — frontend-worker + backend-worker",
+        "ecommerce" => "쇼핑몰 / 이커머스 — storefront-worker + admin-worker + orders-worker",
+        "blog" => "블로그 / 콘텐츠 — content-worker + layout-worker",
+        "api" => "API 서버 — routes-worker + data-worker",
+        _ => "기타 (자동 감지) — 프로젝트 구조를 분석하여 경로 자동 설정"
+    };
+
+    private void SetProjectType(string type)
+    {
+        _projectType = type;
+        OnPropertyChanged(nameof(ProjectTypeWebApp));
+        OnPropertyChanged(nameof(ProjectTypeEcommerce));
+        OnPropertyChanged(nameof(ProjectTypeBlog));
+        OnPropertyChanged(nameof(ProjectTypeApi));
+        OnPropertyChanged(nameof(ProjectTypeGeneric));
+        OnPropertyChanged(nameof(ProjectTypeSummary));
+        OnPropertyChanged(nameof(ProjectSummary));
+    }
+
     public bool IsInstalling
     {
         get => _isInstalling;
@@ -226,7 +281,7 @@ public sealed class MainViewModel : ViewModelBase
     public string ProjectSummary =>
         SkipProjectBootstrap || string.IsNullOrWhiteSpace(ProjectPath)
             ? "프로젝트 부트스트랩 건너뜀"
-            : ProjectPath;
+            : $"{ProjectPath}  |  유형: {ProjectTypeSummary.Split('—')[0].Trim()}";
 
     private void BrowseProjectPath()
     {
@@ -260,6 +315,7 @@ public sealed class MainViewModel : ViewModelBase
             WizardStep.Welcome => true,
             WizardStep.Targets => InstallCodex || InstallClaudeCode || InstallAntigravity,
             WizardStep.Project => SkipProjectBootstrap || Directory.Exists(ProjectPath),
+            WizardStep.ProjectType => true,
             WizardStep.Review => true,
             _ => false
         };
@@ -267,7 +323,7 @@ public sealed class MainViewModel : ViewModelBase
 
     private bool CanMoveBackward()
     {
-        return !IsInstalling && CurrentStep is WizardStep.Targets or WizardStep.Project or WizardStep.Review;
+        return !IsInstalling && CurrentStep is WizardStep.Targets or WizardStep.Project or WizardStep.ProjectType or WizardStep.Review;
     }
 
     private async void NextStep()
@@ -281,6 +337,9 @@ public sealed class MainViewModel : ViewModelBase
                 CurrentStep = WizardStep.Project;
                 break;
             case WizardStep.Project:
+                CurrentStep = SkipProjectBootstrap ? WizardStep.Review : WizardStep.ProjectType;
+                break;
+            case WizardStep.ProjectType:
                 CurrentStep = WizardStep.Review;
                 break;
             case WizardStep.Review:
@@ -295,7 +354,8 @@ public sealed class MainViewModel : ViewModelBase
         {
             WizardStep.Targets => WizardStep.Welcome,
             WizardStep.Project => WizardStep.Targets,
-            WizardStep.Review => WizardStep.Project,
+            WizardStep.ProjectType => WizardStep.Project,
+            WizardStep.Review => SkipProjectBootstrap ? WizardStep.Project : WizardStep.ProjectType,
             _ => CurrentStep
         };
     }
@@ -315,6 +375,7 @@ public sealed class MainViewModel : ViewModelBase
                 InstallClaudeCode = InstallClaudeCode,
                 InstallAntigravity = InstallAntigravity,
                 ProjectPath = SkipProjectBootstrap ? null : ProjectPath,
+                ProjectType = SkipProjectBootstrap ? null : (string.IsNullOrEmpty(_projectType) ? null : _projectType),
                 ForceProjectTemplate = ForceProjectTemplate
             },
             AddLog,

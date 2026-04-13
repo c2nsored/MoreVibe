@@ -78,6 +78,7 @@
                     <views:WelcomeView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Welcome}" />
                     <views:TargetSelectView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Targets}" />
                     <views:ProjectSetupView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Project}" />
+                    <views:ProjectTypeView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=ProjectType}" />
                     <views:ReviewView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Review}" />
                     <views:ProgressView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Progress}" />
                     <views:ResultView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Result}" />

@@ -4,6 +4,7 @@ param(
     [string]$ClaudeHomePath = "",
     [string]$GeminiHomePath = "",
     [string]$ProjectPath = "",
+    [string]$ProjectType = "",
     [switch]$InstallCodex,
     [switch]$InstallClaudeCode,
     [switch]$InstallAntigravity,
@@ -341,7 +342,8 @@ function Apply-TextBootstrap {
 function Install-ClaudeProjectIntegration {
     param(
         [string]$ProjectRoot,
-        [string]$ScriptRootPath
+        [string]$ScriptRootPath,
+        [string]$ProjectType = ""
     )
 
     if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return $null }
@@ -357,12 +359,20 @@ function Install-ClaudeProjectIntegration {
 
     New-Item -ItemType Directory -Path $commandsRoot,$agentsRoot,$scriptsRoot -Force | Out-Null
     Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\commands\*") -Destination $commandsRoot -Force
-    Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\*") -Destination $agentsRoot -Force
 
-    # Auto-configure worker agent file paths from project structure
-    $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
-    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "frontend-worker.md") -Paths $domainPaths.frontend
-    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "backend-worker.md") -Paths $domainPaths.backend
+    # Copy agent files: use preset if ProjectType is specified, else use generic agents with auto-detection
+    $validPresets = @("webapp","ecommerce","blog","api")
+    if (-not [string]::IsNullOrWhiteSpace($ProjectType) -and $validPresets -contains $ProjectType.ToLower()) {
+        $presetAgentsSource = Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\presets\$($ProjectType.ToLower())"
+        Copy-Item -Path (Join-Path $presetAgentsSource "*") -Destination $agentsRoot -Force
+        Write-Host "  [agents] Project type preset '$($ProjectType.ToLower())' applied."
+    } else {
+        Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\*") -Destination $agentsRoot -Recurse:$false -Force
+        # Auto-configure worker agent file paths from project structure
+        $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
+        Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "frontend-worker.md") -Paths $domainPaths.frontend
+        Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "backend-worker.md") -Paths $domainPaths.backend
+    }
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\CLAUDE.morevibe.md") -Destination (Join-Path $morevibeRoot "CLAUDE.morevibe.md") -Force
 
     foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {
@@ -488,7 +498,7 @@ if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
         $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource
     }
     if ($InstallClaudeCode) {
-        $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
+        $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectType $ProjectType
     }
     if ($InstallAntigravity) {
         $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot

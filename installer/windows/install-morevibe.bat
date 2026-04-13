@@ -111,14 +111,38 @@ echo.
 set "PROJECT_PATH="
 set /p "PROJECT_PATH=Project root path (optional): "
 
+set "PROJECT_TYPE="
+if not "%PROJECT_PATH%"=="" (
+  echo.
+  echo What type of project is this?
+  echo   1 = Web app (general)
+  echo   2 = E-commerce store / Shopping mall
+  echo   3 = Blog / Content site
+  echo   4 = API server
+  echo   5 = Other (generic)
+  echo.
+  choice /C 12345 /M "Select project type"
+  if errorlevel 5 set "PROJECT_TYPE="
+  if errorlevel 4 if not errorlevel 5 set "PROJECT_TYPE=api"
+  if errorlevel 3 if not errorlevel 4 set "PROJECT_TYPE=blog"
+  if errorlevel 2 if not errorlevel 3 set "PROJECT_TYPE=ecommerce"
+  if errorlevel 1 if not errorlevel 2 set "PROJECT_TYPE=webapp"
+)
+
 set "INSTALL_ARGS="
 if not "%PROJECT_PATH%"=="" set "INSTALL_ARGS=-ProjectPath ""%PROJECT_PATH%"""
+if not "%PROJECT_TYPE%"=="" set "INSTALL_ARGS=%INSTALL_ARGS% -ProjectType ""%PROJECT_TYPE%"""
 
 echo ------------------------------------------
 if "%PROJECT_PATH%"=="" (
   echo Project path : [skip project bootstrap]
 ) else (
   echo Project path : %PROJECT_PATH%
+  if "%PROJECT_TYPE%"=="" (
+    echo Project type : Generic (auto-detect)
+  ) else (
+    echo Project type : %PROJECT_TYPE%
+  )
 )
 echo Targets      : %TARGET_SUMMARY%
 echo ------------------------------------------

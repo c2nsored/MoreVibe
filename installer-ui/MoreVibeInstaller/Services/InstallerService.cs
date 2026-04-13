@@ -75,6 +75,7 @@ public sealed class InstallerService
         if (request.InstallClaudeCode) parts.Add("-InstallClaudeCode");
         if (request.InstallAntigravity) parts.Add("-InstallAntigravity");
         if (!string.IsNullOrWhiteSpace(request.ProjectPath)) parts.Add($"-ProjectPath \"{request.ProjectPath}\"");
+        if (!string.IsNullOrWhiteSpace(request.ProjectType)) parts.Add($"-ProjectType \"{request.ProjectType}\"");
         if (request.ForceProjectTemplate) parts.Add("-ForceProjectTemplate");
 
         return string.Join(" ", parts);

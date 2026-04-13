@@ -10,6 +10,8 @@
                 <TextBlock Margin="0,8,0,0" Text="{Binding TargetSummary}" />
                 <TextBlock Margin="0,16,0,0" FontWeight="SemiBold" Text="프로젝트 적용" />
                 <TextBlock Margin="0,8,0,0" Text="{Binding ProjectSummary}" />
+                <TextBlock Margin="0,16,0,0" FontWeight="SemiBold" Text="AI 팀 구성" />
+                <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Text="{Binding ProjectTypeSummary}" />
                 <TextBlock Margin="0,16,0,0" FontWeight="SemiBold" Text="안전 원칙" />
                 <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Text="기존 파일은 가능한 한 병합하며, 덮어쓰기 전에는 백업을 남깁니다." />
             </StackPanel>

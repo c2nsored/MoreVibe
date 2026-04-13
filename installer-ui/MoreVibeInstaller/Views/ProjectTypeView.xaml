@@ -1,0 +1,62 @@
+<UserControl x:Class="MoreVibeInstaller.Views.ProjectTypeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock FontSize="22" FontWeight="SemiBold" Text="프로젝트 유형 선택" />
+        <TextBlock Margin="0,10,0,0"
+                   TextWrapping="Wrap"
+                   Text="어떤 유형의 프로젝트인지 선택하세요. 선택한 유형에 맞는 AI 팀이 자동으로 구성됩니다." />
+        <StackPanel Margin="0,20,0,0">
+            <RadioButton GroupName="ProjectType"
+                         FontSize="15"
+                         IsChecked="{Binding ProjectTypeWebApp}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="웹 앱 (일반)" />
+                    <TextBlock Foreground="#475569" Text="프론트엔드 + 백엔드로 구성된 일반 웹 서비스" />
+                </StackPanel>
+            </RadioButton>
+            <RadioButton GroupName="ProjectType"
+                         Margin="0,14,0,0"
+                         FontSize="15"
+                         IsChecked="{Binding ProjectTypeEcommerce}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="쇼핑몰 / 이커머스" />
+                    <TextBlock Foreground="#475569" Text="상품 진열, 장바구니, 주문/결제 기능이 있는 쇼핑몰" />
+                </StackPanel>
+            </RadioButton>
+            <RadioButton GroupName="ProjectType"
+                         Margin="0,14,0,0"
+                         FontSize="15"
+                         IsChecked="{Binding ProjectTypeBlog}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="블로그 / 콘텐츠 사이트" />
+                    <TextBlock Foreground="#475569" Text="글, 뉴스, 포트폴리오 등 콘텐츠 중심 사이트" />
+                </StackPanel>
+            </RadioButton>
+            <RadioButton GroupName="ProjectType"
+                         Margin="0,14,0,0"
+                         FontSize="15"
+                         IsChecked="{Binding ProjectTypeApi}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="API 서버" />
+                    <TextBlock Foreground="#475569" Text="REST API 또는 백엔드 서버만 있는 프로젝트" />
+                </StackPanel>
+            </RadioButton>
+            <RadioButton GroupName="ProjectType"
+                         Margin="0,14,0,0"
+                         FontSize="15"
+                         IsChecked="{Binding ProjectTypeGeneric}">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Text="기타 (자동 감지)" />
+                    <TextBlock Foreground="#475569" Text="위 유형에 해당하지 않으면 프로젝트 구조를 자동으로 분석합니다" />
+                </StackPanel>
+            </RadioButton>
+        </StackPanel>
+        <Border Margin="0,20,0,0" Padding="14" Background="#F6F8FA" CornerRadius="12">
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold" Text="현재 선택" />
+                <TextBlock Margin="0,8,0,0" Text="{Binding ProjectTypeSummary}" />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>
