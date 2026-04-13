@@ -10,6 +10,7 @@ The ClaudeCode adapter is responsible for:
 - defining how MoreVibe should be referenced from project-level instructions
 - keeping `.morevibe/` as the shared project-local namespace
 - applying non-destructive bootstrap changes
+- wiring project-local memory, slash commands, hooks, and subagents
 
 ## Entry Model
 
@@ -32,6 +33,13 @@ ClaudeCode support should eventually define:
 - how MoreVibe should be referenced from that global context
 - how to avoid destructive replacement of existing user rules
 
+Documented Claude Code integration points from official docs include:
+
+- `CLAUDE.md` recursive memory loading
+- `.claude/settings.json` hooks
+- `.claude/commands/` custom slash commands
+- `.claude/agents/` project subagents
+
 ## Project Integration
 
 ClaudeCode projects that adopt MoreVibe should be able to understand:
@@ -40,6 +48,8 @@ ClaudeCode projects that adopt MoreVibe should be able to understand:
 - `.morevibe/` is the internal harness namespace
 - `canon` is authoritative over `wiki`
 - `morevibe-using-morevibe` is the preferred workflow router when MoreVibe is present
+- `/morevibe-start` and `/morevibe-sync` can be used as first-class project commands
+- project subagents can mirror the MoreVibe orchestrator/reviewer split
 
 ## Non-destructive policy
 
@@ -50,4 +60,9 @@ ClaudeCode projects that adopt MoreVibe should be able to understand:
 
 ## Current status
 
-This adapter is documented but not yet implemented as an installer.
+This adapter now has project assets that can be installed into:
+
+- `CLAUDE.md`
+- `.claude/settings.json`
+- `.claude/commands/`
+- `.claude/agents/`

@@ -121,6 +121,7 @@ Already implemented:
 - scripted harness query reports from `wiki`, `canon`, and `sources`
 - scripted session bootstrap briefs from the harness
 - subagent orchestration guidance and schema
+- Claude Code project integration assets for `CLAUDE.md`, `.claude/settings.json`, commands, and agents
 
 Partially automated:
 
@@ -262,10 +263,9 @@ Current MoreVibe skills include:
 
 ### ClaudeCode
 
-- Documented adapter scaffold exists
-- Includes spec, bootstrap snippets, and global config template
-- Installer can export a ClaudeCode adapter package into the user home for manual hookup
-- In-place global config patching is still pending
+- Official Claude Code integration points are wired into the adapter
+- Installer can create project `CLAUDE.md` memory import, `.claude/settings.json` hooks, custom commands, and project agents
+- Installer can also create a Claude global bootstrap in `~/.claude/CLAUDE.md`
 
 ### Antigravity
 

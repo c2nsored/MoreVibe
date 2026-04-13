@@ -1,6 +1,6 @@
 # ClaudeCode Adapter
 
-This adapter is documented and scaffolded, but not implemented as an installer yet.
+This adapter now includes project integration assets based on Claude Code's documented memory, slash command, hook, and subagent model.
 
 ## Goal
 
@@ -12,6 +12,9 @@ Reuse the same MoreVibe core model while adapting installation and bootstrap beh
 - `snippets/project-bootstrap.md`
 - `snippets/global-bootstrap.md`
 - `GLOBAL_CONFIG_TEMPLATE.md`
+- `project/CLAUDE.morevibe.md`
+- `project/commands/*`
+- `project/agents/*`
 
 ## Constraint
 
