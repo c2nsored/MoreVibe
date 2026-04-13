@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -38,11 +38,26 @@ def main() -> None:
     parser.add_argument("--timestamp", default="")
     parser.add_argument("--write-report", action="store_true")
     parser.add_argument("--skip-log", action="store_true")
+    parser.add_argument("--once", action="store_true",
+                        help="Skip output if bootstrap already ran within the last hour.")
     args = parser.parse_args()
 
     project_root = Path(args.project_root).expanduser().resolve()
     morevibe_root = project_root / ".morevibe"
     timestamp = args.timestamp.strip() or datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    if args.once:
+        session_flag = project_root / ".claude" / "morevibe" / ".session_bootstrapped"
+        now_ts = datetime.now(tz=timezone.utc).timestamp()
+        if session_flag.exists():
+            try:
+                last_run = float(session_flag.read_text(encoding="utf-8").strip())
+                if now_ts - last_run < 3600:
+                    return
+            except (ValueError, OSError):
+                pass
+        session_flag.parent.mkdir(parents=True, exist_ok=True)
+        session_flag.write_text(str(now_ts), encoding="utf-8")
 
     report_lines = [
         "# MoreVibe Session Brief",
