@@ -220,8 +220,10 @@ The installer currently:
 - creates or updates `~/.agents/plugins/marketplace.json`
 - backs up an existing plugin directory before replacing it
 - backs up the current marketplace file before writing updates
-- optionally bootstraps `.morevibe/` into a project
-- can optionally append a minimal MoreVibe bootstrap block to the project's root `AGENTS.md`
+- bootstraps `.morevibe/` into a project when `-ProjectPath` is provided
+- appends the MoreVibe bootstrap block to the project's root `AGENTS.md` when `-ProjectPath` is provided
+- appends the MoreVibe global bootstrap block to Codex global `AGENTS.md` when a Codex home `AGENTS.md` exists
+- can export adapter packages for ClaudeCode and Antigravity
 
 ## Included Skill Set
 

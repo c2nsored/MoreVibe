@@ -10,7 +10,15 @@ if not exist "%POWERSHELL_SCRIPT%" (
   exit /b 1
 )
 
-powershell -ExecutionPolicy Bypass -File "%POWERSHELL_SCRIPT%" %*
+if "%~1"=="" (
+  set "DEFAULT_PROJECT=%CD%"
+  echo.
+  set /p "PROJECT_PATH=Project path for .morevibe bootstrap (press Enter for current directory: %DEFAULT_PROJECT%): "
+  if "%PROJECT_PATH%"=="" set "PROJECT_PATH=%DEFAULT_PROJECT%"
+  powershell -ExecutionPolicy Bypass -File "%POWERSHELL_SCRIPT%" -ProjectPath "%PROJECT_PATH%"
+) else (
+  powershell -ExecutionPolicy Bypass -File "%POWERSHELL_SCRIPT%" %*
+)
 set "EXIT_CODE=%ERRORLEVEL%"
 
 if not "%EXIT_CODE%"=="0" (

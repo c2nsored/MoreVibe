@@ -387,16 +387,14 @@ $adapterExportResults = Install-AdapterExports -ScriptRootPath $scriptRoot -Reso
 $templateResult = Install-ProjectTemplate -TemplateSource $templateSource -TargetProjectPath $ProjectPath -ForceTemplate $ForceProjectTemplate.IsPresent
 $agentsBootstrapResult = $null
 $codexGlobalBootstrapResult = $null
-if ($ApplyProjectAgentsBootstrap.IsPresent) {
-    if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
-        throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
-    }
-
+if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
     $resolvedProjectPath = Resolve-FullPath -PathValue $ProjectPath
     $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource
+} elseif ($ApplyProjectAgentsBootstrap.IsPresent) {
+    throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
 }
 
-if ($ApplyCodexGlobalBootstrap.IsPresent) {
+if ($ApplyCodexGlobalBootstrap.IsPresent -or (Test-Path -LiteralPath (Join-Path $resolvedCodexHomePath "AGENTS.md"))) {
     $codexGlobalBootstrapResult = Apply-CodexGlobalBootstrap -ResolvedCodexHomePath $resolvedCodexHomePath -BootstrapSnippetPath $codexGlobalBootstrapSource
 }
 
