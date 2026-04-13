@@ -1,4 +1,4 @@
-param(
+﻿param(
     [string]$HomePath = $HOME,
     [string]$CodexHomePath = "",
     [string]$ClaudeHomePath = "",
@@ -503,6 +503,7 @@ if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
     if ($InstallAntigravity) {
         $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
     }
+    & python (Join-Path $scriptRoot '..\..\plugin\scripts\render_morevibe_project_schema.py') --project-root $resolvedProjectPath | Out-Null
 } elseif ($ApplyProjectAgentsBootstrap.IsPresent) {
     throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
 }
@@ -575,3 +576,4 @@ if ($null -ne $adapterExportResults -and $adapterExportResults.Count -gt 0) {
         if ($result.reason) { Write-Host "Adapter export note: $($result.reason)" }
     }
 }
+

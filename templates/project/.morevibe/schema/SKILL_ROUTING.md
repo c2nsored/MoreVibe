@@ -1,47 +1,13 @@
-# MoreVibe Skill Routing
+﻿# MoreVibe Skill Routing
 
-Use this file to quickly see which MoreVibe skills should be used for each kind of task.
+This file should reflect the real skills detected in the current project.
 
-## Main entry skill
+## Main entry
 
-- `morevibe-using-morevibe`
-- `morevibe-session-brief`
-- `morevibe-query-harness`
+- Read `.morevibe/schema/PROJECT_SKILLS.md` for the detected startup chain.
+- Prefer project-native skills over generic MoreVibe placeholder names.
 
-## Feature work
+## Rule
 
-- `morevibe-start-session`
-- `morevibe-plan-feature`
-- `morevibe-execute-plan`
-- `morevibe-request-review`
-- `morevibe-apply-review-fixes`
-- `morevibe-verify-change`
-- `morevibe-update-docs`
-- `morevibe-update-handoff`
-- `morevibe-sync-memory`
-- `morevibe-finish-task`
-
-## Bug work
-
-- `morevibe-start-session`
-- `morevibe-debug-bug`
-- `morevibe-request-review`
-- `morevibe-apply-review-fixes`
-- `morevibe-verify-change`
-- `morevibe-update-docs`
-- `morevibe-update-handoff`
-- `morevibe-sync-memory`
-- `morevibe-finish-task`
-
-## Support skills
-
-- `morevibe-delegate-work`
-- `morevibe-test-first`
-- `morevibe-report-deployment`
-- `morevibe-sync-memory`
-- `morevibe-ingest-item`
-- `morevibe-query-harness`
-- `morevibe-session-brief`
-- `morevibe-orchestrate-subagents`
-- `morevibe-writeback-answer`
-- `morevibe-lint-harness`
+If the project already provides real skills in `.agents/skills/**`, route work through those skills first.
+Use generic MoreVibe names only when the project does not provide a native equivalent.

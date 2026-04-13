@@ -1,15 +1,16 @@
-# Session Bootstrap
+﻿# Session Bootstrap
 
 Use this file to standardize what should happen at the start of every session.
 
 ## Default startup order
 
 1. Read the root `AGENTS.md`
-2. Run or follow `morevibe-session-brief`
-3. Use `morevibe-query-harness` when fast retrieval is needed
-4. Read `wiki/state.md`
-5. Read the relevant canon documents
-6. Route the task with `morevibe-using-morevibe`
+2. Read `.morevibe/schema/OPERATING_RULES.md`
+3. Read `.morevibe/wiki/state.md`
+4. Read `.morevibe/canon/HANDOFF.md`
+5. Read `.morevibe/canon/TASKS.md`
+6. Read additional canon files only when needed
+7. Follow the detected project-native startup skill chain recorded in `.morevibe/schema/PROJECT_SKILLS.md`
 
 ## Rule
 
