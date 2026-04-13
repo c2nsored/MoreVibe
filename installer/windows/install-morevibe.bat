@@ -5,6 +5,7 @@ title MoreVibe Installer
 
 set "SCRIPT_DIR=%~dp0"
 set "POWERSHELL_SCRIPT=%SCRIPT_DIR%install-morevibe.ps1"
+if not exist "%POWERSHELL_SCRIPT%" set "POWERSHELL_SCRIPT=%SCRIPT_DIR%installer\windows\install-morevibe.ps1"
 
 if not exist "%POWERSHELL_SCRIPT%" (
   echo.
