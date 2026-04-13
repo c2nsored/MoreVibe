@@ -1,5 +1,5 @@
-param(
-    [string]$Version = "v0.4.0",
+﻿param(
+    [string]$Version = "v0.4.1",
     [string]$Runtime = "win-x64",
     [switch]$SkipZip
 )
@@ -45,3 +45,4 @@ if (-not $SkipZip) {
 } else {
     Write-Host "Bundle folder created: $bundleRoot" -ForegroundColor Green
 }
+
