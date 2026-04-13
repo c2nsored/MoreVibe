@@ -6,9 +6,10 @@ This document defines how MoreVibe should integrate with Codex.
 
 The Codex adapter is responsible for:
 
-- plugin installation into the user's Codex plugin path
-- Codex marketplace registration
+- project/global `AGENTS.md` bootstrap for Codex
 - project-local `.morevibe/` bootstrap
+- plugin installation into the user's Codex plugin path as a delivery helper
+- Codex marketplace registration as a delivery helper
 - minimal Codex-facing project bootstrap text
 
 ## Entry Model
@@ -17,25 +18,32 @@ The Codex adapter is responsible for:
 
 - primary project entrypoint: root `AGENTS.md`
 - MoreVibe must not replace this file
-- MoreVibe may add a minimal bootstrap block or referenced snippet when explicitly requested
+- MoreVibe may add a minimal bootstrap block or referenced snippet when installing into a project
 
 ### Project-local namespace
 
 - MoreVibe namespace: `.morevibe/`
 - purpose: internal project harness for `sources / canon / wiki`
 
+### Global entrypoint
+
+- primary global Codex entrypoint: `~/.codex/AGENTS.md`
+- MoreVibe should use this file as the main Codex-wide bootstrap lever
+- plugin registration should not be treated as the main startup guarantee
+
 ## Global Integration
 
 Current Codex-specific install behavior:
 
+- append a MoreVibe bootstrap block to `~/.codex/AGENTS.md`
 - install plugin to `~/plugins/morevibe`
 - ensure `~/.agents/plugins/marketplace.json` contains the `morevibe` entry
-- optionally append a MoreVibe bootstrap block to `~/.codex/AGENTS.md`
 
 Current rule:
 
 - merge marketplace content when possible
 - back up before replacement
+- prefer `AGENTS.md` bootstrap over plugin-only discovery
 
 ## Project Integration
 
@@ -50,8 +58,9 @@ Codex projects that adopt MoreVibe should be able to understand:
 ### Preferred integration method
 
 1. Keep the existing root `AGENTS.md`
-2. Add a short MoreVibe bootstrap block only if needed
+2. Add a short MoreVibe bootstrap block during installation
 3. Keep detailed rules inside `.morevibe/`
+4. Treat plugin assets as supporting Codex-specific delivery only
 
 ## Non-destructive policy
 
@@ -68,4 +77,5 @@ Planned Codex adapter automation should eventually support:
 - inserting a minimal bootstrap block once
 - skipping duplicate inserts
 - reporting exactly what was changed
-- giving Codex a stronger default startup path through session bootstrap and query skills
+- keeping global/project `AGENTS.md` as the main default startup path
+- using plugin-provided skills/scripts to support that path rather than replace it

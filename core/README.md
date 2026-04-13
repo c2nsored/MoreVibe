@@ -15,6 +15,7 @@ It should remain valid across:
 - define the `ingest / query / lint` operating loop
 - define non-destructive integration rules
 - define what `.morevibe/` means inside a project
+- assume host-native project/global rule files stay primary, with tool-specific helper assets layered on top
 
 ## Non-goals
 

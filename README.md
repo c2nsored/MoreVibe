@@ -2,7 +2,7 @@
 
 [English](./README.md) | [한국어](./README.ko.md)
 
-MoreVibe is a personal LLM harness plugin for better vibe coding across any project.
+MoreVibe is a personal LLM harness system for better vibe coding across any project.
 
 It is designed for a workflow where the user may not be a programmer and delegates most structure, writing, and maintenance work to AI.
 
@@ -82,11 +82,12 @@ Check the harness for drift, outdated claims, duplication, missing links, and ca
 
 ## Status
 
-MoreVibe is currently in early scaffolding.
+MoreVibe is currently an active early-stage harness system.
 
 This repository already includes:
 
-- a Codex-oriented plugin manifest
+- host-native bootstrap rules for Codex, Claude Code, and Antigravity
+- a Codex-oriented plugin manifest used as a delivery helper
 - a reusable MoreVibe skill set
 - a Windows installer starting point
 - a project template namespace for `.morevibe/`
@@ -97,21 +98,24 @@ This repository already includes:
 ## Repository Layout
 
 ```text
-plugin/        # The installable MoreVibe plugin
-installer/     # Installation scripts and packaging entrypoints
-templates/     # Project bootstrap templates used by MoreVibe
 core/          # Tool-agnostic MoreVibe harness model
 adapters/      # Tool-specific integration guidance
+templates/     # Project bootstrap templates used by MoreVibe
+installer/     # Installation scripts and packaging entrypoints
+plugin/        # Codex delivery helper for skills/scripts/manifest
 ```
 
 ## What Is Automated vs Not Yet Automated
 
 Already implemented:
 
-- local Codex-style plugin installation
-- marketplace registration merge/update
 - project-local `.morevibe/` bootstrap
-- optional safe insertion of a MoreVibe bootstrap block into project `AGENTS.md`
+- automatic project `AGENTS.md` bootstrap when `-ProjectPath` is provided
+- automatic Codex global `AGENTS.md` bootstrap
+- automatic Claude project `CLAUDE.md` bootstrap and global `CLAUDE.md` bootstrap
+- automatic Antigravity project `GEMINI.md` bootstrap and global `GEMINI.md` bootstrap
+- local Codex-style plugin installation as a delivery helper
+- marketplace registration merge/update for Codex environments
 - backup before replacement for current installer targets
 - reusable workflow skills for planning, execution, review, verification, docs, handoff, deployment, and delegation
 - default `.morevibe/schema/`, `.morevibe/canon/`, and `.morevibe/wiki/` starter documents
@@ -132,8 +136,8 @@ Partially automated:
 
 Documented but not yet fully automatic:
 
-- patching tool-specific global config files in-place
-- guaranteed tool-level auto-triggering without adapter support
+- guaranteed tool-level auto-triggering beyond what each host officially supports
+- host behaviors that depend on the tool always honoring project/global rule files in the same way
 
 ## Project Integration Model
 
@@ -142,8 +146,8 @@ MoreVibe should not replace the project's root `AGENTS.md`.
 Instead, the intended integration model is:
 
 - keep the root `AGENTS.md` as the standard entrypoint used by agent tools
-- install MoreVibe as a reusable plugin
-- use `.morevibe/` inside each project as the plugin-managed namespace
+- use `.morevibe/` inside each project as the MoreVibe-managed namespace
+- treat installer-added plugin assets as secondary delivery helpers, not the primary source of authority
 
 Recommended project-local layout:
 
@@ -175,8 +179,8 @@ The long-term goal is simple installation for non-technical users:
 
 1. Download MoreVibe from GitHub Releases.
 2. Run the installer.
-3. Install the plugin into the user's local Codex plugin directory.
-4. Enable MoreVibe in projects without manual setup.
+3. Let the installer wire the host-native rule files and project-local `.morevibe/`.
+4. Start working in the project without manually rebuilding the harness structure.
 
 ## Current Windows Installer
 
@@ -198,16 +202,16 @@ Basic usage:
 powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1
 ```
 
-Install the plugin and also bootstrap a project-local `.morevibe/` folder:
+Install MoreVibe and also bootstrap a project-local `.morevibe/` folder:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
 ```
 
-Install the plugin, bootstrap `.morevibe/`, and add the MoreVibe bootstrap block to the project's root `AGENTS.md`:
+Install MoreVibe for a project. This bootstraps `.morevibe/` and also updates the project's root `AGENTS.md` automatically:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project" -ApplyProjectAgentsBootstrap
+powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
 ```
 
 If a project already has a `.morevibe/` folder and you intentionally want to replace it:
@@ -218,13 +222,15 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 
 The installer currently:
 
-- installs the MoreVibe plugin into `~/plugins/morevibe`
-- creates or updates `~/.agents/plugins/marketplace.json`
-- backs up an existing plugin directory before replacing it
-- backs up the current marketplace file before writing updates
 - bootstraps `.morevibe/` into a project when `-ProjectPath` is provided
 - appends the MoreVibe bootstrap block to the project's root `AGENTS.md` when `-ProjectPath` is provided
-- appends the MoreVibe global bootstrap block to Codex global `AGENTS.md` when a Codex home `AGENTS.md` exists
+- appends the MoreVibe global bootstrap block to Codex global `AGENTS.md`
+- appends the MoreVibe bootstrap block to project and global Claude memory files
+- appends the MoreVibe bootstrap block to project and global Gemini rule files
+- installs the MoreVibe Codex plugin into `~/plugins/morevibe` as a delivery helper
+- creates or updates `~/.agents/plugins/marketplace.json` for Codex environments
+- backs up an existing plugin directory before replacing it
+- backs up the current marketplace file before writing updates
 - can export adapter packages for ClaudeCode and Antigravity
 
 ## Included Skill Set
@@ -258,21 +264,21 @@ Current MoreVibe skills include:
 
 ### Codex
 
-- Current primary implementation target
-- Uses the current local plugin structure in `plugin/`
-- Assumes the project root `AGENTS.md` remains the standard entrypoint
+- Uses `~/.codex/AGENTS.md` and project `AGENTS.md` as the primary startup lever
+- Uses `.morevibe/` as the project-local harness namespace
+- Uses `plugin/` and marketplace registration as secondary delivery helpers for Codex-specific assets
 
 ### ClaudeCode
 
-- Official Claude Code integration points are wired into the adapter
-- Installer can create project `CLAUDE.md` memory import, `.claude/settings.json` stop hook, custom commands, and project agents
-- Installer can also create a Claude global bootstrap in `~/.claude/CLAUDE.md`
+- Uses project/global `CLAUDE.md` as the primary startup lever
+- Uses `.claude/commands`, `.claude/agents`, and `Stop` hooks as supporting integration assets
+- Installer can create project `CLAUDE.md`, `.claude/settings.json`, commands, agents, and global bootstrap
 
 ### Antigravity
 
-- Installer can create project `GEMINI.md`, `.agents/rules/`, and `.agents/morevibe/scripts/`
-- Installer can also create a Gemini global bootstrap in `~/.gemini/GEMINI.md`
-- Integration uses rule injection and `run_command`-driven lifecycle behavior instead of native hooks
+- Uses project/global `GEMINI.md` as the primary startup lever
+- Uses `.agents/rules/` and `run_command`-driven lifecycle behavior as supporting integration assets
+- Installer can create project `GEMINI.md`, `.agents/rules/`, `.agents/morevibe/scripts/`, and global bootstrap
 
 ## Safe Installation Principle
 
@@ -288,6 +294,8 @@ This principle applies to:
 
 - global user-level agent config
 - project root `AGENTS.md`
+- project root `CLAUDE.md`
+- project root `GEMINI.md`
 - project-local `.morevibe/`
 - plugin marketplace and registration files
 
