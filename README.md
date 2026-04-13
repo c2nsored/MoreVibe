@@ -92,6 +92,7 @@ This repository already includes:
 - a project template namespace for `.morevibe/`
 - a core/adapters architecture baseline
 - a main workflow entry skill and skill-routing schema
+- ClaudeCode and Antigravity adapter scaffolds
 
 ## Repository Layout
 
@@ -117,10 +118,16 @@ Already implemented:
 - a main MoreVibe workflow router for feature, bug, and document task chains
 - a session memory sync script and skill for state, log, and handoff updates
 
-Documented but not yet automated:
+Partially automated:
 
-- patching tool-specific global config files
-- tool-specific support beyond the current Codex-first path
+- write-back of reusable answers into `wiki/outputs/` through a dedicated script and skill
+- repeatable harness lint reports into `wiki/lint/` through a dedicated script and skill
+- adapter export packages for ClaudeCode and Antigravity from the installer
+
+Documented but not yet fully automatic:
+
+- patching tool-specific global config files in-place
+- guaranteed tool-level auto-triggering without adapter support
 
 ## Project Integration Model
 
@@ -231,6 +238,8 @@ Current MoreVibe skills include:
 - finish task
 - report deployment
 - sync memory
+- write back answer
+- lint harness
 - test first
 
 ## Adapter Strategy
@@ -243,15 +252,17 @@ Current MoreVibe skills include:
 
 ### ClaudeCode
 
-- Planned adapter
-- Will likely need its own bootstrap rules and installation touchpoints
-- Should reuse the same `.morevibe/` project namespace and core harness rules
+- Documented adapter scaffold exists
+- Includes spec, bootstrap snippets, and global config template
+- Installer can export a ClaudeCode adapter package into the user home for manual hookup
+- In-place global config patching is still pending
 
 ### Antigravity
 
-- Planned adapter
-- Will likely need its own bootstrap rules and installation touchpoints
-- Should reuse the same `.morevibe/` project namespace and core harness rules
+- Documented adapter scaffold exists
+- Includes spec, bootstrap snippets, and global config template
+- Installer can export an Antigravity adapter package into the user home for manual hookup
+- In-place global config patching is still pending
 
 ## Safe Installation Principle
 
@@ -275,4 +286,4 @@ This principle applies to:
 1. Add a release-friendly Windows installer entrypoint.
 2. Define concrete global integration specs for ClaudeCode and Antigravity.
 3. Add release packaging guidance.
-4. Expand ingest, query, and lint skills.
+4. Add deeper tool-specific automatic triggering where the host supports it.

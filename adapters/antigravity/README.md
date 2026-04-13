@@ -1,17 +1,17 @@
 # Antigravity Adapter
 
-This adapter is planned but not implemented yet.
+This adapter is documented and scaffolded, but not implemented as an installer yet.
 
 ## Goal
 
 Reuse the same MoreVibe core model while adapting installation and bootstrap behavior to Antigravity.
 
-## Must define
+## Included documents
 
-- Antigravity global rule/config entrypoint
-- project-level bootstrap touchpoints
-- how `.morevibe/` should be referenced
-- how non-destructive install and merge should work
+- `SPEC.md`
+- `snippets/project-bootstrap.md`
+- `snippets/global-bootstrap.md`
+- `GLOBAL_CONFIG_TEMPLATE.md`
 
 ## Constraint
 

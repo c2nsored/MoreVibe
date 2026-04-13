@@ -68,6 +68,8 @@ Use this chain:
 - Use `morevibe-delegate-work` when parallel work genuinely helps.
 - Use `morevibe-test-first` when a test-first path is viable.
 - Use `morevibe-report-deployment` when the user asks about rollout or deployment state.
+- Use `morevibe-writeback-answer` when the result should survive beyond chat.
+- Use `morevibe-lint-harness` when you need to check harness health before or after major updates.
 
 ## Rules
 

@@ -15,7 +15,8 @@ Prefer canon over wiki when there is a conflict.
 
 1. ingest
 2. query
-3. lint
+3. write back reusable outputs
+4. lint
 
 ## Session entry
 
@@ -68,3 +69,5 @@ When a session starts on a MoreVibe project:
 - `morevibe-test-first`
 - `morevibe-report-deployment`
 - `morevibe-sync-memory`
+- `morevibe-writeback-answer`
+- `morevibe-lint-harness`

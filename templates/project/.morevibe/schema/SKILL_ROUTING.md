@@ -37,3 +37,5 @@ Use this file to quickly see which MoreVibe skills should be used for each kind 
 - `morevibe-test-first`
 - `morevibe-report-deployment`
 - `morevibe-sync-memory`
+- `morevibe-writeback-answer`
+- `morevibe-lint-harness`

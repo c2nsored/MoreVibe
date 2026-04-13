@@ -90,6 +90,7 @@ MoreVibe는 아직 초기 스캐폴딩 단계입니다.
 - `.morevibe/` 프로젝트 템플릿 네임스페이스
 - core/adapters 구조의 기본 설계
 - 메인 workflow 진입 skill과 skill-routing schema
+- ClaudeCode와 Antigravity 어댑터 스캐폴드
 
 ## 저장소 구조
 
@@ -118,7 +119,7 @@ adapters/      # 도구별 통합 가이드와 어댑터
 문서화만 되었고 아직 자동화되지 않은 것:
 
 - 도구별 전역 설정 파일 패치
-- 현재 Codex 중심 경로를 넘어서는 도구별 실제 지원
+- 현재 Codex 중심 경로를 넘어서는 도구별 실제 설치기 지원
 
 ## 프로젝트 통합 방식
 
@@ -229,6 +230,8 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 - finish task
 - report deployment
 - sync memory
+- write back answer
+- lint harness
 - test first
 
 ## 어댑터 전략
@@ -241,15 +244,15 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 
 ### ClaudeCode
 
-- 이후 추가할 어댑터
-- 자체 부트스트랩 규칙과 설치 지점이 필요할 가능성이 큼
-- 그래도 `.morevibe/`와 core 하네스 규칙은 공통으로 재사용해야 함
+- 문서화된 어댑터 스캐폴드 존재
+- spec, bootstrap snippet, global config template 포함
+- 실제 설치기 구현은 아직 남아 있음
 
 ### Antigravity
 
-- 이후 추가할 어댑터
-- 자체 부트스트랩 규칙과 설치 지점이 필요할 가능성이 큼
-- 그래도 `.morevibe/`와 core 하네스 규칙은 공통으로 재사용해야 함
+- 문서화된 어댑터 스캐폴드 존재
+- spec, bootstrap snippet, global config template 포함
+- 실제 설치기 구현은 아직 남아 있음
 
 ## 안전한 설치 원칙
 

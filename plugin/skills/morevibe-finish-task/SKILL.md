@@ -17,4 +17,6 @@ Do not treat code edits alone as completion.
 4. Canon updated
 5. Handoff updated
 6. `morevibe-sync-memory` completed
-7. Final report prepared
+7. `morevibe-lint-harness` run when the harness changed materially
+8. Reusable outputs written back when appropriate
+9. Final report prepared

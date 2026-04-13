@@ -8,6 +8,8 @@ This checklist captures the harness features extracted from Stick3r and maps the
 - [x] `.morevibe/` project namespace defined
 - [x] `ingest / query / lint` loop documented
 - [x] Codex adapter spec defined
+- [x] ClaudeCode adapter spec scaffolded
+- [x] Antigravity adapter spec scaffolded
 - [x] safe project `AGENTS.md` bootstrap insertion implemented
 
 ## Project memory requirements
@@ -44,8 +46,8 @@ This checklist captures the harness features extracted from Stick3r and maps the
 ## Still missing for full automation
 
 - [ ] automatic skill triggering outside tool support
-- [ ] automatic wiki write-back from every valuable answer
-- [ ] automatic canon/wiki drift repair
-- [ ] real ClaudeCode adapter implementation
-- [ ] real Antigravity adapter implementation
+- [x] scripted wiki write-back for reusable answers
+- [x] scripted harness lint and drift reporting
+- [x] ClaudeCode adapter export package installation
+- [x] Antigravity adapter export package installation
 - [ ] standalone `.exe` installer

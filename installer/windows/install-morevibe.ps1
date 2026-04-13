@@ -1,8 +1,9 @@
-param(
+﻿param(
     [string]$HomePath = $HOME,
     [string]$ProjectPath = "",
     [switch]$ForceProjectTemplate,
-    [switch]$ApplyProjectAgentsBootstrap
+    [switch]$ApplyProjectAgentsBootstrap,
+    [string[]]$ExportAdapters = @()
 )
 
 $ErrorActionPreference = "Stop"
@@ -110,7 +111,6 @@ function Merge-Marketplace {
         $name = "morevibe-local"
     }
 
-    $displayName = $null
     if ($null -ne $existing.interface -and -not [string]::IsNullOrWhiteSpace($existing.interface.displayName)) {
         $displayName = $existing.interface.displayName
     } else {
@@ -197,6 +197,60 @@ function Install-ProjectTemplate {
     }
 }
 
+function Install-AdapterExports {
+    param(
+        [string]$ScriptRootPath,
+        [string]$ResolvedHome,
+        [string[]]$Adapters
+    )
+
+    if ($null -eq $Adapters -or $Adapters.Count -eq 0) {
+        return @()
+    }
+
+    $results = @()
+    $exportRoot = Join-Path $ResolvedHome ".morevibe\adapters"
+    New-Item -ItemType Directory -Path $exportRoot -Force | Out-Null
+
+    foreach ($adapter in $Adapters) {
+        $normalized = $adapter.ToLowerInvariant()
+        if ($normalized -notin @("claudecode", "antigravity")) {
+            $results += [ordered]@{
+                adapter = $adapter
+                action = "skipped"
+                reason = "Unsupported adapter export target."
+            }
+            continue
+        }
+
+        $sourcePath = Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\adapters\$normalized")
+        if (-not (Test-Path -LiteralPath $sourcePath)) {
+            $results += [ordered]@{
+                adapter = $normalized
+                action = "skipped"
+                reason = "Adapter source not found."
+            }
+            continue
+        }
+
+        $targetPath = Join-Path $exportRoot $normalized
+        $backup = $null
+        if (Test-Path -LiteralPath $targetPath) {
+            $backup = Backup-PathIfExists -LiteralPath $targetPath
+        }
+
+        Copy-Item -LiteralPath $sourcePath -Destination $targetPath -Recurse -Force
+        $results += [ordered]@{
+            adapter = $normalized
+            action = "installed"
+            target = $targetPath
+            backup = $backup
+        }
+    }
+
+    return $results
+}
+
 function Apply-AgentsBootstrap {
     param(
         [string]$ProjectRoot,
@@ -276,6 +330,7 @@ if (Test-Path -LiteralPath $marketplacePath) {
 $marketplace = Merge-Marketplace -MarketplacePath $marketplacePath
 Write-JsonFile -LiteralPath $marketplacePath -Data $marketplace
 
+$adapterExportResults = Install-AdapterExports -ScriptRootPath $scriptRoot -ResolvedHome $resolvedHomePath -Adapters $ExportAdapters
 $templateResult = Install-ProjectTemplate -TemplateSource $templateSource -TargetProjectPath $ProjectPath -ForceTemplate $ForceProjectTemplate.IsPresent
 $agentsBootstrapResult = $null
 if ($ApplyProjectAgentsBootstrap.IsPresent) {
@@ -317,5 +372,20 @@ if ($null -ne $agentsBootstrapResult) {
     }
     if ($agentsBootstrapResult.reason) {
         Write-Host "AGENTS note: $($agentsBootstrapResult.reason)"
+    }
+}
+
+if ($null -ne $adapterExportResults -and $adapterExportResults.Count -gt 0) {
+    foreach ($result in $adapterExportResults) {
+        Write-Host "Adapter export [$($result.adapter)]: $($result.action)"
+        if ($result.target) {
+            Write-Host "Adapter export target: $($result.target)"
+        }
+        if ($result.backup) {
+            Write-Host "Adapter export backup: $($result.backup)"
+        }
+        if ($result.reason) {
+            Write-Host "Adapter export note: $($result.reason)"
+        }
     }
 }
