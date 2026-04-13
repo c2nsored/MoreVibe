@@ -10,6 +10,6 @@
                  IsReadOnly="True"
                  VerticalScrollBarVisibility="Auto"
                  TextWrapping="Wrap"
-                 Text="{Binding LogsText}" />
+                 Text="{Binding LogsText, Mode=OneWay}" />
     </StackPanel>
 </UserControl>
