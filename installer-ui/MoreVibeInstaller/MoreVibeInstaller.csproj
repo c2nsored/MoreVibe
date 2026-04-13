@@ -9,4 +9,7 @@
     <AssemblyName>MoreVibeInstaller</AssemblyName>
     <RootNamespace>MoreVibeInstaller</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <Using Remove="System.Windows.Forms" />
+  </ItemGroup>
 </Project>

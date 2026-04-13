@@ -11,40 +11,70 @@
     <Window.Resources>
         <conv:StepVisibilityConverter x:Key="StepVisibilityConverter" />
     </Window.Resources>
+
     <Grid Background="#F3F5F7">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="260" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        <Border Margin="24" Padding="20" Background="#0F172A" CornerRadius="20">
+
+        <Border Margin="24"
+                Padding="20"
+                Background="#0F172A"
+                CornerRadius="20">
             <StackPanel>
-                <TextBlock Foreground="White" FontSize="24" FontWeight="SemiBold" Text="MoreVibe" />
-                <TextBlock Margin="0,8,0,0" Foreground="#CBD5E1" Text="Windows Installer" />
-                <Separator Margin="0,20,0,20" Background="#334155" />
-                <TextBlock Foreground="#E2E8F0" FontWeight="SemiBold" Text="설치 단계" />
-                <ItemsControl Margin="0,14,0,0" ItemsSource="{Binding Steps}">
+                <TextBlock Foreground="White"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Text="MoreVibe" />
+                <TextBlock Margin="0,8,0,0"
+                           Foreground="#CBD5E1"
+                           Text="Windows Installer" />
+                <Separator Margin="0,20,0,20"
+                           Background="#334155" />
+                <TextBlock Foreground="#E2E8F0"
+                           FontWeight="SemiBold"
+                           Text="설치 단계" />
+                <ItemsControl Margin="0,14,0,0"
+                              ItemsSource="{Binding Steps}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Margin="0,0,0,10" Padding="12" Background="#111827" CornerRadius="12">
-                                <TextBlock Foreground="#E5E7EB" Text="{Binding}" />
+                            <Border Margin="0,0,0,10"
+                                    Padding="12"
+                                    Background="#111827"
+                                    CornerRadius="12">
+                                <TextBlock Foreground="#E5E7EB"
+                                           Text="{Binding}" />
                             </Border>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </StackPanel>
         </Border>
-        <Border Grid.Column="1" Margin="0,24,24,24" Padding="28" Background="White" CornerRadius="20">
+
+        <Border Grid.Column="1"
+                Margin="0,24,24,24"
+                Padding="28"
+                Background="White"
+                CornerRadius="20">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
+
                 <StackPanel>
-                    <TextBlock FontSize="28" FontWeight="SemiBold" Text="{Binding CurrentStepTitle}" />
-                    <TextBlock Margin="0,8,0,0" Foreground="#475569" Text="초보자도 따라갈 수 있도록 단계별로 설치를 진행합니다." />
+                    <TextBlock FontSize="28"
+                               FontWeight="SemiBold"
+                               Text="{Binding CurrentStepTitle}" />
+                    <TextBlock Margin="0,8,0,0"
+                               Foreground="#475569"
+                               Text="초보자도 따라갈 수 있도록 단계별로 설치를 진행합니다." />
                 </StackPanel>
-                <Grid Grid.Row="1" Margin="0,24,0,24">
+
+                <Grid Grid.Row="1"
+                      Margin="0,24,0,24">
                     <views:WelcomeView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Welcome}" />
                     <views:TargetSelectView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Targets}" />
                     <views:ProjectSetupView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Project}" />
@@ -52,8 +82,13 @@
                     <views:ProgressView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Progress}" />
                     <views:ResultView Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Result}" />
                 </Grid>
+
                 <DockPanel Grid.Row="2">
-                    <Button Width="110" Height="40" Margin="0,0,10,0" Command="{Binding BackCommand}" Content="이전" />
+                    <Button Width="110"
+                            Height="40"
+                            Margin="0,0,10,0"
+                            Command="{Binding BackCommand}"
+                            Content="이전" />
                     <Button Width="110"
                             Height="40"
                             Margin="0,0,10,0"
@@ -66,7 +101,11 @@
                             Command="{Binding CloseCommand}"
                             Content="닫기"
                             Visibility="{Binding CurrentStep, Converter={StaticResource StepVisibilityConverter}, ConverterParameter=Result}" />
-                    <Button Width="120" Height="40" HorizontalAlignment="Right" Command="{Binding NextCommand}" Content="다음" />
+                    <Button Width="120"
+                            Height="40"
+                            HorizontalAlignment="Right"
+                            Command="{Binding NextCommand}"
+                            Content="{Binding PrimaryActionText}" />
                 </DockPanel>
             </Grid>
         </Border>

@@ -9,6 +9,8 @@ __pycache__/
 # Installer build output
 dist/
 build/
+**/bin/
+**/obj/
 
 # Temporary files
 *.tmp

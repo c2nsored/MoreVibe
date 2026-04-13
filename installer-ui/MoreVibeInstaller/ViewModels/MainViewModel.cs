@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 using System.Windows.Input;
 using MoreVibeInstaller.Models;
@@ -39,18 +40,24 @@ public sealed class MainViewModel : ViewModelBase
         NextCommand = new RelayCommand(NextStep, CanMoveForward);
         BackCommand = new RelayCommand(BackStep, CanMoveBackward);
         BrowseProjectPathCommand = new RelayCommand(BrowseProjectPath, () => !SkipProjectBootstrap && !IsInstalling);
-        OpenProjectFolderCommand = new RelayCommand(OpenProjectFolder, () => !string.IsNullOrWhiteSpace(ProjectPath) && Directory.Exists(ProjectPath));
-        CloseCommand = new RelayCommand(() => CloseRequested?.Invoke(this, EventArgs.Empty));
+        OpenProjectFolderCommand = new RelayCommand(OpenProjectFolder, () => CurrentStep == WizardStep.Result && !string.IsNullOrWhiteSpace(ProjectPath) && Directory.Exists(ProjectPath));
+        CloseCommand = new RelayCommand(() => CloseRequested?.Invoke(this, EventArgs.Empty), () => CurrentStep == WizardStep.Result);
     }
 
     public event EventHandler? CloseRequested;
 
     public ReadOnlyCollection<string> Steps { get; }
+
     public ObservableCollection<string> Logs { get; }
+
     public ICommand NextCommand { get; }
+
     public ICommand BackCommand { get; }
+
     public ICommand BrowseProjectPathCommand { get; }
+
     public ICommand OpenProjectFolderCommand { get; }
+
     public ICommand CloseCommand { get; }
 
     public WizardStep CurrentStep
@@ -61,6 +68,7 @@ public sealed class MainViewModel : ViewModelBase
             if (SetProperty(ref _currentStep, value))
             {
                 OnPropertyChanged(nameof(CurrentStepTitle));
+                OnPropertyChanged(nameof(PrimaryActionText));
                 RaiseCommandStates();
             }
         }
@@ -75,6 +83,17 @@ public sealed class MainViewModel : ViewModelBase
         WizardStep.Progress => "설치 진행 중",
         WizardStep.Result => "설치 결과",
         _ => "MoreVibe Installer"
+    };
+
+    public string PrimaryActionText => CurrentStep switch
+    {
+        WizardStep.Welcome => "시작",
+        WizardStep.Targets => "다음",
+        WizardStep.Project => "다음",
+        WizardStep.Review => "설치 시작",
+        WizardStep.Progress => "설치 중",
+        WizardStep.Result => "완료",
+        _ => "다음"
     };
 
     public bool InstallCodex
@@ -340,5 +359,6 @@ public sealed class MainViewModel : ViewModelBase
         (BackCommand as RelayCommand)?.RaiseCanExecuteChanged();
         (BrowseProjectPathCommand as RelayCommand)?.RaiseCanExecuteChanged();
         (OpenProjectFolderCommand as RelayCommand)?.RaiseCanExecuteChanged();
+        (CloseCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
 }
