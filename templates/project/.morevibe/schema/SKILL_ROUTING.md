@@ -16,6 +16,7 @@ Use this file to quickly see which MoreVibe skills should be used for each kind 
 - `morevibe-verify-change`
 - `morevibe-update-docs`
 - `morevibe-update-handoff`
+- `morevibe-sync-memory`
 - `morevibe-finish-task`
 
 ## Bug work
@@ -27,6 +28,7 @@ Use this file to quickly see which MoreVibe skills should be used for each kind 
 - `morevibe-verify-change`
 - `morevibe-update-docs`
 - `morevibe-update-handoff`
+- `morevibe-sync-memory`
 - `morevibe-finish-task`
 
 ## Support skills
@@ -34,3 +36,4 @@ Use this file to quickly see which MoreVibe skills should be used for each kind 
 - `morevibe-delegate-work`
 - `morevibe-test-first`
 - `morevibe-report-deployment`
+- `morevibe-sync-memory`

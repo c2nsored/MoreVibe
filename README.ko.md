@@ -113,6 +113,7 @@ adapters/      # 도구별 통합 가이드와 어댑터
 - 계획, 실행, 리뷰, 검증, 문서, handoff, 배포, 분담을 위한 재사용 skill 세트
 - `.morevibe/schema/`, `.morevibe/canon/`, `.morevibe/wiki/` 기본 문서 세트
 - 기능/버그/문서 작업을 분기하는 메인 MoreVibe workflow router
+- state, log, handoff를 갱신하는 세션 메모리 sync 스크립트와 skill
 
 문서화만 되었고 아직 자동화되지 않은 것:
 
@@ -227,6 +228,7 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 - update handoff
 - finish task
 - report deployment
+- sync memory
 - test first
 
 ## 어댑터 전략

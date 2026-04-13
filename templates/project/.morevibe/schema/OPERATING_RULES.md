@@ -38,6 +38,7 @@ When a session starts on a MoreVibe project:
 - `morevibe-verify-change`
 - `morevibe-update-docs`
 - `morevibe-update-handoff`
+- `morevibe-sync-memory`
 - `morevibe-finish-task`
 
 ### Bug fix
@@ -49,6 +50,7 @@ When a session starts on a MoreVibe project:
 - `morevibe-verify-change`
 - `morevibe-update-docs`
 - `morevibe-update-handoff`
+- `morevibe-sync-memory`
 - `morevibe-finish-task`
 
 ### Document or operations change
@@ -57,6 +59,7 @@ When a session starts on a MoreVibe project:
 - `morevibe-verify-change`
 - `morevibe-update-docs`
 - `morevibe-update-handoff`
+- `morevibe-sync-memory`
 - `morevibe-finish-task`
 
 ## Extra skills
@@ -64,3 +67,4 @@ When a session starts on a MoreVibe project:
 - `morevibe-delegate-work`
 - `morevibe-test-first`
 - `morevibe-report-deployment`
+- `morevibe-sync-memory`

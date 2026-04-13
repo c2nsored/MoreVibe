@@ -115,6 +115,7 @@ Already implemented:
 - reusable workflow skills for planning, execution, review, verification, docs, handoff, deployment, and delegation
 - default `.morevibe/schema/`, `.morevibe/canon/`, and `.morevibe/wiki/` starter documents
 - a main MoreVibe workflow router for feature, bug, and document task chains
+- a session memory sync script and skill for state, log, and handoff updates
 
 Documented but not yet automated:
 
@@ -229,6 +230,7 @@ Current MoreVibe skills include:
 - update handoff
 - finish task
 - report deployment
+- sync memory
 - test first
 
 ## Adapter Strategy

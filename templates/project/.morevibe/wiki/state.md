@@ -1,14 +1,15 @@
 # MoreVibe State
 
-Use this file as the project's current compressed state.
+Last Updated: [TODO]
 
-## Include
+## Current Focus
+- [TODO]
 
-- current focus
-- active risks or unknowns
-- what changed recently
-- what the next session should pick up
+## Active Risks
+- [TODO]
 
-## Rule
+## Recent Changes
+- [TODO]
 
-Keep this short, current, and operational.
+## Next Session
+- [TODO]

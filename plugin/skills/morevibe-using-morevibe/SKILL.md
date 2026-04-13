@@ -35,7 +35,8 @@ Use this chain:
 6. `morevibe-verify-change`
 7. `morevibe-update-docs`
 8. `morevibe-update-handoff`
-9. `morevibe-finish-task`
+9. `morevibe-sync-memory`
+10. `morevibe-finish-task`
 
 ### Bug fix
 
@@ -48,7 +49,8 @@ Use this chain:
 5. `morevibe-verify-change`
 6. `morevibe-update-docs`
 7. `morevibe-update-handoff`
-8. `morevibe-finish-task`
+8. `morevibe-sync-memory`
+9. `morevibe-finish-task`
 
 ### Document or operations change
 
@@ -58,7 +60,8 @@ Use this chain:
 2. `morevibe-verify-change`
 3. `morevibe-update-docs`
 4. `morevibe-update-handoff`
-5. `morevibe-finish-task`
+5. `morevibe-sync-memory`
+6. `morevibe-finish-task`
 
 ## Extra routing
 

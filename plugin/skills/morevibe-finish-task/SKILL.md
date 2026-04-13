@@ -16,4 +16,5 @@ Do not treat code edits alone as completion.
 3. Review handled or explicitly skipped
 4. Canon updated
 5. Handoff updated
-6. Final report prepared
+6. `morevibe-sync-memory` completed
+7. Final report prepared
