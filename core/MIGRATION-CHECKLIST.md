@@ -49,6 +49,7 @@ This checklist captures the harness features extracted from Stick3r and maps the
 
 - [ ] automatic skill triggering outside tool support
 - [x] Claude Code session-start hook bootstrap
+- [x] Antigravity global and project rule bootstrap
 - [x] scripted ingest into `sources` or `canon`
 - [x] scripted harness query across `wiki / canon / sources`
 - [x] scripted session bootstrap summary

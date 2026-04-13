@@ -1,6 +1,6 @@
 # Antigravity Adapter
 
-This adapter is documented and scaffolded, but not implemented as an installer yet.
+This adapter now includes project integration assets based on Antigravity's global rule injection and CLI-driven execution model.
 
 ## Goal
 
@@ -12,6 +12,8 @@ Reuse the same MoreVibe core model while adapting installation and bootstrap beh
 - `snippets/project-bootstrap.md`
 - `snippets/global-bootstrap.md`
 - `GLOBAL_CONFIG_TEMPLATE.md`
+- `project/GEMINI.morevibe.md`
+- `project/rules/*`
 
 ## Constraint
 

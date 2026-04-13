@@ -10,6 +10,7 @@ The Antigravity adapter is responsible for:
 - defining how MoreVibe should be referenced from project-level instructions
 - keeping `.morevibe/` as the shared project-local namespace
 - applying non-destructive bootstrap changes
+- using Antigravity's global rules and CLI execution model to simulate lifecycle hooks
 
 ## Entry Model
 
@@ -32,6 +33,12 @@ Antigravity support should eventually define:
 - how MoreVibe should be referenced from that global context
 - how to avoid destructive replacement of existing user rules
 
+Current confirmed integration assumptions are:
+
+- global rules can be injected through `~/.gemini/GEMINI.md`
+- CLI execution can be enforced through rule text that instructs `run_command`
+- project-local rules can be scaffolded under `.agents/rules/`
+
 ## Project Integration
 
 Antigravity projects that adopt MoreVibe should be able to understand:
@@ -40,6 +47,8 @@ Antigravity projects that adopt MoreVibe should be able to understand:
 - `.morevibe/` is the internal harness namespace
 - `canon` is authoritative over `wiki`
 - `morevibe-using-morevibe` is the preferred workflow router when MoreVibe is present
+- lifecycle behavior should be driven through `run_command` rules for session start and session end
+- `.agents/rules/` can act as a project-local skill/subagent surrogate
 
 ## Non-destructive policy
 
@@ -50,4 +59,9 @@ Antigravity projects that adopt MoreVibe should be able to understand:
 
 ## Current status
 
-This adapter is documented but not yet implemented as an installer.
+This adapter now has project assets that can be installed into:
+
+- `~/.gemini/GEMINI.md`
+- project `GEMINI.md`
+- `.agents/rules/`
+- `.agents/morevibe/scripts/`

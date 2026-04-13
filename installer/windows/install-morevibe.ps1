@@ -2,6 +2,7 @@
     [string]$HomePath = $HOME,
     [string]$CodexHomePath = "",
     [string]$ClaudeHomePath = "",
+    [string]$GeminiHomePath = "",
     [string]$ProjectPath = "",
     [switch]$ForceProjectTemplate,
     [switch]$ApplyProjectAgentsBootstrap,
@@ -89,28 +90,22 @@ function New-MarketplaceObject {
         }
         category = "Productivity"
     }
-
     return [ordered]@{
         name = "morevibe-local"
-        interface = [ordered]@{
-            displayName = "MoreVibe Local"
-        }
+        interface = [ordered]@{ displayName = "MoreVibe Local" }
         plugins = @($pluginEntry)
     }
 }
 
 function Merge-Marketplace {
     param([string]$MarketplacePath)
-
     $existing = Read-JsonFile -LiteralPath $MarketplacePath
     if ($null -eq $existing) {
         return (New-MarketplaceObject)
     }
 
     $name = $existing.name
-    if ([string]::IsNullOrWhiteSpace($name)) {
-        $name = "morevibe-local"
-    }
+    if ([string]::IsNullOrWhiteSpace($name)) { $name = "morevibe-local" }
 
     if ($null -ne $existing.interface -and -not [string]::IsNullOrWhiteSpace($existing.interface.displayName)) {
         $displayName = $existing.interface.displayName
@@ -135,24 +130,12 @@ function Merge-Marketplace {
 
     $plugins += [ordered]@{
         name = "morevibe"
-        source = [ordered]@{
-            source = "local"
-            path = "./plugins/morevibe"
-        }
-        policy = [ordered]@{
-            installation = "AVAILABLE"
-            authentication = "ON_INSTALL"
-        }
+        source = [ordered]@{ source = "local"; path = "./plugins/morevibe" }
+        policy = [ordered]@{ installation = "AVAILABLE"; authentication = "ON_INSTALL" }
         category = "Productivity"
     }
 
-    return [ordered]@{
-        name = $name
-        interface = [ordered]@{
-            displayName = $displayName
-        }
-        plugins = $plugins
-    }
+    return [ordered]@{ name = $name; interface = [ordered]@{ displayName = $displayName }; plugins = $plugins }
 }
 
 function Install-ProjectTemplate {
@@ -161,10 +144,7 @@ function Install-ProjectTemplate {
         [string]$TargetProjectPath,
         [bool]$ForceTemplate
     )
-
-    if ([string]::IsNullOrWhiteSpace($TargetProjectPath)) {
-        return $null
-    }
+    if ([string]::IsNullOrWhiteSpace($TargetProjectPath)) { return $null }
 
     $resolvedProjectPath = Resolve-FullPath -PathValue $TargetProjectPath
     if (-not (Test-Path -LiteralPath $resolvedProjectPath)) {
@@ -174,27 +154,15 @@ function Install-ProjectTemplate {
     $templateTarget = Join-Path $resolvedProjectPath ".morevibe"
     if (Test-Path -LiteralPath $templateTarget) {
         if (-not $ForceTemplate) {
-            return [ordered]@{
-                target = $templateTarget
-                action = "skipped"
-                reason = ".morevibe already exists. Use -ForceProjectTemplate to overwrite it."
-            }
+            return [ordered]@{ target = $templateTarget; action = "skipped"; reason = ".morevibe already exists. Use -ForceProjectTemplate to overwrite it." }
         }
-
         $backupPath = Backup-PathIfExists -LiteralPath $templateTarget
         Copy-Item -LiteralPath $TemplateSource -Destination $templateTarget -Recurse -Force
-        return [ordered]@{
-            target = $templateTarget
-            action = "replaced"
-            backup = $backupPath
-        }
+        return [ordered]@{ target = $templateTarget; action = "replaced"; backup = $backupPath }
     }
 
     Copy-Item -LiteralPath $TemplateSource -Destination $templateTarget -Recurse -Force
-    return [ordered]@{
-        target = $templateTarget
-        action = "created"
-    }
+    return [ordered]@{ target = $templateTarget; action = "created" }
 }
 
 function Install-AdapterExports {
@@ -203,10 +171,7 @@ function Install-AdapterExports {
         [string]$ResolvedHome,
         [string[]]$Adapters
     )
-
-    if ($null -eq $Adapters -or $Adapters.Count -eq 0) {
-        return @()
-    }
+    if ($null -eq $Adapters -or $Adapters.Count -eq 0) { return @() }
 
     $results = @()
     $exportRoot = Join-Path $ResolvedHome ".morevibe\adapters"
@@ -218,19 +183,14 @@ function Install-AdapterExports {
             $results += [ordered]@{ adapter = $adapter; action = "skipped"; reason = "Unsupported adapter export target." }
             continue
         }
-
         $sourcePath = Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\adapters\$normalized")
         if (-not (Test-Path -LiteralPath $sourcePath)) {
             $results += [ordered]@{ adapter = $normalized; action = "skipped"; reason = "Adapter source not found." }
             continue
         }
-
         $targetPath = Join-Path $exportRoot $normalized
         $backup = $null
-        if (Test-Path -LiteralPath $targetPath) {
-            $backup = Backup-PathIfExists -LiteralPath $targetPath
-        }
-
+        if (Test-Path -LiteralPath $targetPath) { $backup = Backup-PathIfExists -LiteralPath $targetPath }
         Copy-Item -LiteralPath $sourcePath -Destination $targetPath -Recurse -Force
         $results += [ordered]@{ adapter = $normalized; action = "installed"; target = $targetPath; backup = $backup }
     }
@@ -250,7 +210,11 @@ function Apply-AgentsBootstrap {
 
     $agentsPath = Join-Path $ProjectRoot "AGENTS.md"
     if (-not (Test-Path -LiteralPath $agentsPath)) {
-        return [ordered]@{ action = "skipped"; target = $agentsPath; reason = "AGENTS.md does not exist." }
+        return [ordered]@{
+            action = "skipped"
+            target = $agentsPath
+            reason = "AGENTS.md does not exist."
+        }
     }
 
     $snippet = Read-TextFile -LiteralPath $BootstrapSnippetPath
@@ -259,67 +223,50 @@ function Apply-AgentsBootstrap {
         throw "Bootstrap snippet is empty: $BootstrapSnippetPath"
     }
     if ($existing -like "*## MoreVibe Bootstrap*") {
-        return [ordered]@{ action = "skipped"; target = $agentsPath; reason = "MoreVibe bootstrap block already exists." }
+        return [ordered]@{
+            action = "skipped"
+            target = $agentsPath
+            reason = "MoreVibe bootstrap block already exists."
+        }
     }
 
     $backupPath = Copy-Item -LiteralPath $agentsPath -Destination "$agentsPath.backup-$(New-Timestamp)" -Force -PassThru | ForEach-Object { $_.FullName }
     $newContent = "$($existing.TrimEnd())`r`n`r`n$($snippet.Trim())`r`n"
     Write-TextFile -LiteralPath $agentsPath -Value $newContent
-    return [ordered]@{ action = "updated"; target = $agentsPath; backup = $backupPath }
+    return [ordered]@{
+        action = "updated"
+        target = $agentsPath
+        backup = $backupPath
+    }
 }
 
-function Apply-CodexGlobalBootstrap {
-    param(
-        [string]$ResolvedCodexHomePath,
-        [string]$BootstrapSnippetPath
-    )
-
-    if ([string]::IsNullOrWhiteSpace($ResolvedCodexHomePath)) {
-        return [ordered]@{ action = "skipped"; target = ""; reason = "Codex home path is empty." }
-    }
-
-    Ensure-ParentDirectory -LiteralPath (Join-Path $ResolvedCodexHomePath "AGENTS.md")
-    $agentsPath = Join-Path $ResolvedCodexHomePath "AGENTS.md"
-    if (-not (Test-Path -LiteralPath $agentsPath)) {
-        Write-TextFile -LiteralPath $agentsPath -Value "# Global Codex Rules`r`n"
-    }
-
-    $snippet = Read-TextFile -LiteralPath $BootstrapSnippetPath
-    $existing = Read-TextFile -LiteralPath $agentsPath
-    if ([string]::IsNullOrWhiteSpace($snippet)) {
-        throw "Global bootstrap snippet is empty: $BootstrapSnippetPath"
-    }
-    if ($existing -like "*# MoreVibe Global Bootstrap for Codex*") {
-        return [ordered]@{ action = "skipped"; target = $agentsPath; reason = "MoreVibe global bootstrap block already exists." }
-    }
-
-    $backupPath = Copy-Item -LiteralPath $agentsPath -Destination "$agentsPath.backup-$(New-Timestamp)" -Force -PassThru | ForEach-Object { $_.FullName }
-    $newContent = "$($existing.TrimEnd())`r`n`r`n$($snippet.Trim())`r`n"
-    Write-TextFile -LiteralPath $agentsPath -Value $newContent
-    return [ordered]@{ action = "updated"; target = $agentsPath; backup = $backupPath }
-}
-
-function Apply-ClaudeMemoryImport {
+function Apply-TextBootstrap {
     param(
         [string]$LiteralPath,
-        [string]$ImportLine,
+        [string]$SnippetPath,
+        [string]$Marker,
         [string]$DefaultHeader,
-        [string]$BlockMarker
+        [string]$MissingReason
     )
 
     Ensure-ParentDirectory -LiteralPath $LiteralPath
     if (-not (Test-Path -LiteralPath $LiteralPath)) {
-        Write-TextFile -LiteralPath $LiteralPath -Value ($DefaultHeader + "`r`n`r`n" + $ImportLine + "`r`n")
-        return [ordered]@{ action = "created"; target = $LiteralPath }
+        if ([string]::IsNullOrWhiteSpace($DefaultHeader)) {
+            return [ordered]@{ action = "skipped"; target = $LiteralPath; reason = $MissingReason }
+        }
+        Write-TextFile -LiteralPath $LiteralPath -Value ($DefaultHeader + "`r`n")
     }
 
+    $snippet = Read-TextFile -LiteralPath $SnippetPath
     $existing = Read-TextFile -LiteralPath $LiteralPath
-    if ($existing -like "*$BlockMarker*") {
-        return [ordered]@{ action = "skipped"; target = $LiteralPath; reason = "MoreVibe import already exists." }
+    if ([string]::IsNullOrWhiteSpace($snippet)) {
+        throw "Bootstrap snippet is empty: $SnippetPath"
     }
-
+    if ($existing -like "*$Marker*") {
+        return [ordered]@{ action = "skipped"; target = $LiteralPath; reason = "Bootstrap block already exists." }
+    }
     $backupPath = Copy-Item -LiteralPath $LiteralPath -Destination "$LiteralPath.backup-$(New-Timestamp)" -Force -PassThru | ForEach-Object { $_.FullName }
-    $newContent = "$($existing.TrimEnd())`r`n`r`n$ImportLine`r`n"
+    $newContent = "$($existing.TrimEnd())`r`n`r`n$($snippet.Trim())`r`n"
     Write-TextFile -LiteralPath $LiteralPath -Value $newContent
     return [ordered]@{ action = "updated"; target = $LiteralPath; backup = $backupPath }
 }
@@ -330,9 +277,7 @@ function Install-ClaudeProjectIntegration {
         [string]$ScriptRootPath
     )
 
-    if ([string]::IsNullOrWhiteSpace($ProjectRoot)) {
-        return $null
-    }
+    if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return $null }
 
     $resolvedProjectRoot = Resolve-FullPath -PathValue $ProjectRoot
     $claudeRoot = Join-Path $resolvedProjectRoot ".claude"
@@ -344,20 +289,11 @@ function Install-ClaudeProjectIntegration {
     $projectMemoryPath = Join-Path $resolvedProjectRoot "CLAUDE.md"
 
     New-Item -ItemType Directory -Path $commandsRoot,$agentsRoot,$scriptsRoot -Force | Out-Null
-
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\commands\*") -Destination $commandsRoot -Force
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\*") -Destination $agentsRoot -Force
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\CLAUDE.morevibe.md") -Destination (Join-Path $morevibeRoot "CLAUDE.morevibe.md") -Force
 
-    $scriptFiles = @(
-        "bootstrap_morevibe_session.py",
-        "ingest_morevibe_item.py",
-        "query_morevibe.py",
-        "sync_morevibe_memory.py",
-        "writeback_morevibe_output.py",
-        "lint_morevibe.py"
-    )
-    foreach ($scriptFile in $scriptFiles) {
+    foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {
         Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\plugin\scripts\$scriptFile") -Destination (Join-Path $scriptsRoot $scriptFile) -Force
     }
 
@@ -367,7 +303,7 @@ function Install-ClaudeProjectIntegration {
     }
     & python (Join-Path $ScriptRootPath "..\..\plugin\scripts\merge_claude_settings.py") --settings-path $settingsPath | Out-Null
 
-    $memoryResult = Apply-ClaudeMemoryImport -LiteralPath $projectMemoryPath -ImportLine "@.claude/morevibe/CLAUDE.morevibe.md" -DefaultHeader "# Claude Project Memory" -BlockMarker "@.claude/morevibe/CLAUDE.morevibe.md"
+    $memoryResult = Apply-TextBootstrap -LiteralPath $projectMemoryPath -SnippetPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\CLAUDE.morevibe.md") -Marker "This project uses MoreVibe as an internal harness." -DefaultHeader "# Claude Project Memory" -MissingReason "Claude project memory file missing."
 
     return [ordered]@{
         action = "installed"
@@ -380,37 +316,38 @@ function Install-ClaudeProjectIntegration {
     }
 }
 
-function Apply-ClaudeGlobalBootstrap {
+function Install-AntigravityProjectIntegration {
     param(
-        [string]$ResolvedClaudeHomePath,
-        [string]$BootstrapSnippetPath
+        [string]$ProjectRoot,
+        [string]$ScriptRootPath
     )
 
-    if ([string]::IsNullOrWhiteSpace($ResolvedClaudeHomePath)) {
-        return [ordered]@{ action = "skipped"; target = ""; reason = "Claude home path is empty." }
+    if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return $null }
+
+    $resolvedProjectRoot = Resolve-FullPath -PathValue $ProjectRoot
+    $rulesRoot = Join-Path $resolvedProjectRoot ".agents\rules"
+    $morevibeRoot = Join-Path $resolvedProjectRoot ".agents\morevibe"
+    $scriptsRoot = Join-Path $morevibeRoot "scripts"
+    $geminiPath = Join-Path $resolvedProjectRoot "GEMINI.md"
+
+    New-Item -ItemType Directory -Path $rulesRoot,$scriptsRoot -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\rules\*") -Destination $rulesRoot -Force
+    Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\GEMINI.morevibe.md") -Destination (Join-Path $morevibeRoot "GEMINI.morevibe.md") -Force
+
+    foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {
+        Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\plugin\scripts\$scriptFile") -Destination (Join-Path $scriptsRoot $scriptFile) -Force
     }
 
-    $memoryPath = Join-Path $ResolvedClaudeHomePath "CLAUDE.md"
-    Ensure-ParentDirectory -LiteralPath $memoryPath
-    $snippet = Read-TextFile -LiteralPath $BootstrapSnippetPath
-    if ([string]::IsNullOrWhiteSpace($snippet)) {
-        throw "Claude global bootstrap snippet is empty: $BootstrapSnippetPath"
-    }
+    $geminiResult = Apply-TextBootstrap -LiteralPath $geminiPath -SnippetPath (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\GEMINI.morevibe.md") -Marker "This project uses MoreVibe as an internal harness." -DefaultHeader "# Gemini Project Rules" -MissingReason "Gemini project file missing."
 
-    if (-not (Test-Path -LiteralPath $memoryPath)) {
-        Write-TextFile -LiteralPath $memoryPath -Value ($snippet.Trim() + "`r`n")
-        return [ordered]@{ action = "created"; target = $memoryPath }
+    return [ordered]@{
+        action = "installed"
+        target = $morevibeRoot
+        rules = $rulesRoot
+        geminiAction = $geminiResult.action
+        geminiTarget = $geminiResult.target
+        geminiBackup = $geminiResult.backup
     }
-
-    $existing = Read-TextFile -LiteralPath $memoryPath
-    if ($existing -like "*# MoreVibe Global Bootstrap for ClaudeCode*") {
-        return [ordered]@{ action = "skipped"; target = $memoryPath; reason = "MoreVibe Claude global bootstrap already exists." }
-    }
-
-    $backupPath = Copy-Item -LiteralPath $memoryPath -Destination "$memoryPath.backup-$(New-Timestamp)" -Force -PassThru | ForEach-Object { $_.FullName }
-    $newContent = "$($existing.TrimEnd())`r`n`r`n$($snippet.Trim())`r`n"
-    Write-TextFile -LiteralPath $memoryPath -Value $newContent
-    return [ordered]@{ action = "updated"; target = $memoryPath; backup = $backupPath }
 }
 
 $scriptRoot = Resolve-FullPath -PathValue $PSScriptRoot
@@ -419,9 +356,11 @@ $templateSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\temp
 $projectAgentsBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\codex\snippets\project-agents-bootstrap.md")
 $codexGlobalBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\codex\snippets\global-bootstrap.md")
 $claudeGlobalBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\claudecode\snippets\global-bootstrap.md")
+$antigravityGlobalBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\antigravity\snippets\global-bootstrap.md")
 $resolvedHomePath = Resolve-FullPath -PathValue $HomePath
 $resolvedCodexHomePath = if ([string]::IsNullOrWhiteSpace($CodexHomePath)) { Join-Path $resolvedHomePath ".codex" } else { Resolve-FullPath -PathValue $CodexHomePath }
 $resolvedClaudeHomePath = if ([string]::IsNullOrWhiteSpace($ClaudeHomePath)) { Join-Path $resolvedHomePath ".claude" } else { Resolve-FullPath -PathValue $ClaudeHomePath }
+$resolvedGeminiHomePath = if ([string]::IsNullOrWhiteSpace($GeminiHomePath)) { Join-Path $resolvedHomePath ".gemini" } else { Resolve-FullPath -PathValue $GeminiHomePath }
 
 $pluginsDir = Join-Path $resolvedHomePath "plugins"
 $pluginTarget = Join-Path $pluginsDir "morevibe"
@@ -454,26 +393,21 @@ $agentsBootstrapResult = $null
 $codexGlobalBootstrapResult = $null
 $claudeProjectIntegrationResult = $null
 $claudeGlobalBootstrapResult = $null
+$antigravityProjectIntegrationResult = $null
+$antigravityGlobalBootstrapResult = $null
 
 if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
     $resolvedProjectPath = Resolve-FullPath -PathValue $ProjectPath
     $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource
     $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
+    $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
 } elseif ($ApplyProjectAgentsBootstrap.IsPresent) {
     throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
 }
 
-if ($ApplyCodexGlobalBootstrap.IsPresent -or (Test-Path -LiteralPath (Join-Path $resolvedCodexHomePath "AGENTS.md"))) {
-    $codexGlobalBootstrapResult = Apply-CodexGlobalBootstrap -ResolvedCodexHomePath $resolvedCodexHomePath -BootstrapSnippetPath $codexGlobalBootstrapSource
-}
-
-if ($ApplyProjectAgentsBootstrap.IsPresent -and [string]::IsNullOrWhiteSpace($ProjectPath)) {
-    throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
-}
-
-if ((Test-Path -LiteralPath $resolvedClaudeHomePath) -or -not [string]::IsNullOrWhiteSpace($ClaudeHomePath)) {
-    $claudeGlobalBootstrapResult = Apply-ClaudeGlobalBootstrap -ResolvedClaudeHomePath $resolvedClaudeHomePath -BootstrapSnippetPath $claudeGlobalBootstrapSource
-}
+$codexGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedCodexHomePath "AGENTS.md") -SnippetPath $codexGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for Codex" -DefaultHeader "# Global Codex Rules" -MissingReason "Codex global AGENTS missing."
+$claudeGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedClaudeHomePath "CLAUDE.md") -SnippetPath $claudeGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for ClaudeCode" -DefaultHeader "# Claude Global Memory" -MissingReason "Claude global memory missing."
+$antigravityGlobalBootstrapResult = Apply-TextBootstrap -LiteralPath (Join-Path $resolvedGeminiHomePath "GEMINI.md") -SnippetPath $antigravityGlobalBootstrapSource -Marker "# MoreVibe Global Bootstrap for Antigravity" -DefaultHeader "# Gemini Global Rules" -MissingReason "Gemini global rules missing."
 
 Write-Host ""
 Write-Host "MoreVibe installation complete." -ForegroundColor Green
@@ -495,11 +429,8 @@ if ($null -ne $agentsBootstrapResult) {
     if ($agentsBootstrapResult.reason) { Write-Host "AGENTS note: $($agentsBootstrapResult.reason)" }
 }
 
-if ($null -ne $codexGlobalBootstrapResult) {
-    Write-Host "Codex global bootstrap: $($codexGlobalBootstrapResult.action) -> $($codexGlobalBootstrapResult.target)"
-    if ($codexGlobalBootstrapResult.backup) { Write-Host "Codex global backup: $($codexGlobalBootstrapResult.backup)" }
-    if ($codexGlobalBootstrapResult.reason) { Write-Host "Codex global note: $($codexGlobalBootstrapResult.reason)" }
-}
+Write-Host "Codex global bootstrap: $($codexGlobalBootstrapResult.action) -> $($codexGlobalBootstrapResult.target)"
+if ($codexGlobalBootstrapResult.backup) { Write-Host "Codex global backup: $($codexGlobalBootstrapResult.backup)" }
 
 if ($null -ne $claudeProjectIntegrationResult) {
     Write-Host "Claude project integration: $($claudeProjectIntegrationResult.action) -> $($claudeProjectIntegrationResult.target)"
@@ -508,12 +439,17 @@ if ($null -ne $claudeProjectIntegrationResult) {
     Write-Host "Claude memory: $($claudeProjectIntegrationResult.memoryAction) -> $($claudeProjectIntegrationResult.memoryTarget)"
     if ($claudeProjectIntegrationResult.memoryBackup) { Write-Host "Claude memory backup: $($claudeProjectIntegrationResult.memoryBackup)" }
 }
+Write-Host "Claude global bootstrap: $($claudeGlobalBootstrapResult.action) -> $($claudeGlobalBootstrapResult.target)"
+if ($claudeGlobalBootstrapResult.backup) { Write-Host "Claude global backup: $($claudeGlobalBootstrapResult.backup)" }
 
-if ($null -ne $claudeGlobalBootstrapResult) {
-    Write-Host "Claude global bootstrap: $($claudeGlobalBootstrapResult.action) -> $($claudeGlobalBootstrapResult.target)"
-    if ($claudeGlobalBootstrapResult.backup) { Write-Host "Claude global backup: $($claudeGlobalBootstrapResult.backup)" }
-    if ($claudeGlobalBootstrapResult.reason) { Write-Host "Claude global note: $($claudeGlobalBootstrapResult.reason)" }
+if ($null -ne $antigravityProjectIntegrationResult) {
+    Write-Host "Antigravity project integration: $($antigravityProjectIntegrationResult.action) -> $($antigravityProjectIntegrationResult.target)"
+    Write-Host "Antigravity rules: $($antigravityProjectIntegrationResult.rules)"
+    Write-Host "Antigravity project memory: $($antigravityProjectIntegrationResult.geminiAction) -> $($antigravityProjectIntegrationResult.geminiTarget)"
+    if ($antigravityProjectIntegrationResult.geminiBackup) { Write-Host "Antigravity project memory backup: $($antigravityProjectIntegrationResult.geminiBackup)" }
 }
+Write-Host "Antigravity global bootstrap: $($antigravityGlobalBootstrapResult.action) -> $($antigravityGlobalBootstrapResult.target)"
+if ($antigravityGlobalBootstrapResult.backup) { Write-Host "Antigravity global backup: $($antigravityGlobalBootstrapResult.backup)" }
 
 if ($null -ne $adapterExportResults -and $adapterExportResults.Count -gt 0) {
     foreach ($result in $adapterExportResults) {

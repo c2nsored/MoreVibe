@@ -122,6 +122,7 @@ Already implemented:
 - scripted session bootstrap briefs from the harness
 - subagent orchestration guidance and schema
 - Claude Code project integration assets for `CLAUDE.md`, `.claude/settings.json`, commands, and agents
+- Antigravity project integration assets for `GEMINI.md`, `.agents/rules/`, and CLI-driven lifecycle commands
 
 Partially automated:
 
@@ -269,10 +270,9 @@ Current MoreVibe skills include:
 
 ### Antigravity
 
-- Documented adapter scaffold exists
-- Includes spec, bootstrap snippets, and global config template
-- Installer can export an Antigravity adapter package into the user home for manual hookup
-- In-place global config patching is still pending
+- Installer can create project `GEMINI.md`, `.agents/rules/`, and `.agents/morevibe/scripts/`
+- Installer can also create a Gemini global bootstrap in `~/.gemini/GEMINI.md`
+- Integration uses rule injection and `run_command`-driven lifecycle behavior instead of native hooks
 
 ## Safe Installation Principle
 
