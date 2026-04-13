@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$HomePath = $HOME,
     [string]$CodexHomePath = "",
     [string]$ClaudeHomePath = "",
@@ -292,8 +292,8 @@ function Install-ClaudeProjectIntegration {
     $projectMemoryPath = Join-Path $resolvedProjectRoot "CLAUDE.md"
 
     New-Item -ItemType Directory -Path $commandsRoot,$agentsRoot,$scriptsRoot -Force | Out-Null
-    Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\commands\*") -Destination $commandsRoot -Force
-    Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\*") -Destination $agentsRoot -Force
+    Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\commands\*") -Destination $commandsRoot -Force
+    Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\*") -Destination $agentsRoot -Force
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\CLAUDE.morevibe.md") -Destination (Join-Path $morevibeRoot "CLAUDE.morevibe.md") -Force
 
     foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {
@@ -334,7 +334,7 @@ function Install-AntigravityProjectIntegration {
     $geminiPath = Join-Path $resolvedProjectRoot "GEMINI.md"
 
     New-Item -ItemType Directory -Path $rulesRoot,$scriptsRoot -Force | Out-Null
-    Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\rules\*") -Destination $rulesRoot -Force
+    Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\rules\*") -Destination $rulesRoot -Force
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\GEMINI.morevibe.md") -Destination (Join-Path $morevibeRoot "GEMINI.morevibe.md") -Force
 
     foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {
