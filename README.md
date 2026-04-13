@@ -47,7 +47,7 @@ Adapters are responsible for tool-specific behavior such as:
 
 This means MoreVibe should not be treated as "Codex only".
 
-Instead, Codex is the first implemented adapter, while ClaudeCode and Antigravity are planned adapter targets.
+Codex was the first implemented adapter. ClaudeCode and Antigravity adapters are now also implemented.
 
 ## Why MoreVibe Exists
 
@@ -128,6 +128,7 @@ Already implemented:
 - scripted session bootstrap briefs from the harness
 - subagent orchestration guidance and schema
 - Claude Code project integration assets for `CLAUDE.md`, `.claude/settings.json`, commands, and agents
+- automatic Claude Code `UserPromptSubmit` hook registration for session-start context bootstrap with per-session TTL guard
 - Antigravity project integration assets for `GEMINI.md`, `.agents/rules/`, and CLI-driven lifecycle commands
 
 Partially automated:
@@ -138,7 +139,7 @@ Partially automated:
 
 Documented but not yet fully automatic:
 
-- guaranteed tool-level auto-triggering beyond what each host officially supports
+- guaranteed tool-level auto-triggering for Codex and Antigravity beyond what each host officially supports
 - host behaviors that depend on the tool always honoring project/global rule files in the same way
 
 ## Project Integration Model
@@ -288,7 +289,7 @@ Current MoreVibe skills include:
 ### ClaudeCode
 
 - Uses project/global `CLAUDE.md` as the primary startup lever
-- Uses `.claude/commands`, `.claude/agents`, and `Stop` hooks as supporting integration assets
+- Uses `.claude/commands`, `.claude/agents`, `UserPromptSubmit` hooks, and `Stop` hooks as supporting integration assets
 - Installer can create project `CLAUDE.md`, `.claude/settings.json`, commands, agents, and global bootstrap
 
 ### Antigravity

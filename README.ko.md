@@ -43,7 +43,7 @@ MoreVibe는 두 층으로 구성됩니다.
 - 전역 설정을 어떻게 안전하게 병합해야 하는지
 - 기존 프로젝트 파일을 덮어쓰지 않고 MoreVibe를 어떻게 붙일지
 
-즉 MoreVibe는 “Codex 전용 플러그인”이라기보다, 여러 AI 환경에 붙을 수 있는 공통 하네스 시스템이고, Codex는 그중 첫 번째로 구현된 어댑터입니다.
+즉 MoreVibe는 “Codex 전용 플러그인”이라기보다, 여러 AI 환경에 붙을 수 있는 공통 하네스 시스템입니다. Codex가 첫 번째로 구현된 어댑터이며, Claude Code와 Antigravity 어댑터도 현재 구현 완료 상태입니다.
 
 ## MoreVibe가 필요한 이유
 
@@ -122,10 +122,11 @@ plugin/        # Codex 전달용 manifest/skills/scripts 자산
 - `wiki`, `canon`, `sources` 기반 query 보고서
 - session brief 생성
 - subagent orchestration 규칙
+- Claude Code `UserPromptSubmit` hook 자동 등록 — 세션 시작 시 MoreVibe 컨텍스트 자동 주입, 1시간 TTL 중복 방지 포함
 
 문서화되어 있지만 아직 완전 자동이라고 말할 수 없는 것
 
-- 각 호스트가 공식적으로 지원하는 범위를 넘어서는 강제 자동 트리거
+- Codex 및 Antigravity에서 각 호스트가 공식적으로 지원하는 범위를 넘어서는 강제 자동 트리거
 - 모든 세션에서 호스트가 전역/프로젝트 규칙 파일을 동일하게 따를 것이라는 절대 보장
 
 ## 프로젝트 통합 방식
@@ -266,7 +267,7 @@ powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps
 ### Claude Code
 
 - 프로젝트/전역 `CLAUDE.md`를 주 진입점으로 사용
-- `.claude/commands`, `.claude/agents`, `Stop` hook은 보조 자산
+- `.claude/commands`, `.claude/agents`, `UserPromptSubmit` hook, `Stop` hook을 보조 자산으로 사용
 - 설치기가 프로젝트/전역 Claude 자산을 함께 생성
 
 ### Antigravity
