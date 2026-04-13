@@ -4,16 +4,20 @@ This project uses MoreVibe as an internal harness.
 
 ## Startup Rule
 
-- If `.morevibe/` exists, start by restoring context from MoreVibe before broad project rediscovery.
+- If `.morevibe/` exists, do not begin with broad project rediscovery.
+- First read `.morevibe/schema/SESSION_BOOTSTRAP.md`.
+- Then read `.morevibe/wiki/state.md`.
+- Then follow the `morevibe-start-session` flow before implementation.
 - Prefer the root `AGENTS.md` or project guide as the public entrypoint.
 - Prefer `.morevibe/canon/` over `.morevibe/wiki/` when they conflict.
 
 ## Preferred Flow
 
-1. Use `/morevibe-start`
+1. Restore context through `.morevibe/schema/SESSION_BOOTSTRAP.md`
 2. Review `.morevibe/wiki/state.md` and relevant canon docs
 3. Route non-trivial work through the MoreVibe workflow
-4. Use `/morevibe-sync` before wrapping up major work
+4. Use `/morevibe-start` only as an optional convenience command
+5. Use `/morevibe-sync` before wrapping up major work
 
 ## Subagent Rule
 

@@ -1,6 +1,6 @@
 # ClaudeCode Adapter
 
-This adapter now includes project integration assets based on Claude Code's documented memory, slash command, hook, and subagent model.
+This adapter now includes project integration assets based on Claude Code's documented memory, slash command, limited hook, and subagent model.
 
 ## Goal
 

@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 
 
-SESSION_START_COMMAND = 'python .claude/morevibe/scripts/bootstrap_morevibe_session.py --project-root . --write-report'
 SESSION_END_COMMAND = 'python .claude/morevibe/scripts/lint_morevibe.py --project-root .'
 
 
@@ -44,9 +43,7 @@ def main() -> None:
     settings_path = Path(args.settings_path).expanduser().resolve()
     settings = load_json(settings_path)
     hooks = settings.setdefault("hooks", {})
-
-    ensure_event(hooks, "SessionStart", SESSION_START_COMMAND)
-    ensure_event(hooks, "SessionEnd", SESSION_END_COMMAND)
+    ensure_event(hooks, "Stop", SESSION_END_COMMAND)
 
     settings_path.parent.mkdir(parents=True, exist_ok=True)
     settings_path.write_text(json.dumps(settings, indent=2) + "\n", encoding="utf-8")

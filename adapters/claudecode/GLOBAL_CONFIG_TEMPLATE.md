@@ -8,4 +8,5 @@ Use this as a reference when wiring MoreVibe into ClaudeCode's global instructio
 - Keep the root project guide as the main public entrypoint.
 - Prefer `.morevibe/canon/` over `.morevibe/wiki/` when they conflict.
 - Use `morevibe-using-morevibe` to route non-trivial work into the right workflow chain.
-- Prefer project hooks and slash commands that restore MoreVibe context at session start.
+- Use `CLAUDE.md` as the primary place to force MoreVibe startup behavior.
+- Treat hooks and slash commands as secondary helpers, not the primary startup guarantee.

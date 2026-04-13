@@ -265,7 +265,7 @@ Current MoreVibe skills include:
 ### ClaudeCode
 
 - Official Claude Code integration points are wired into the adapter
-- Installer can create project `CLAUDE.md` memory import, `.claude/settings.json` hooks, custom commands, and project agents
+- Installer can create project `CLAUDE.md` memory import, `.claude/settings.json` stop hook, custom commands, and project agents
 - Installer can also create a Claude global bootstrap in `~/.claude/CLAUDE.md`
 
 ### Antigravity
