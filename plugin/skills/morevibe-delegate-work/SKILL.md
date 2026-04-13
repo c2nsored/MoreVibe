@@ -16,6 +16,7 @@ Use subagents deliberately instead of by reflex.
 3. Avoid assigning the same file to multiple agents.
 4. Keep review-only roles read-only when possible.
 5. Let the main agent focus on planning and integration.
+6. Use `morevibe-orchestrate-subagents` when the task needs an explicit orchestrator-first split.
 
 ## Rules
 

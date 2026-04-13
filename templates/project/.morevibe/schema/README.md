@@ -7,6 +7,8 @@ This folder stores project-local MoreVibe operating rules.
 - explain how this project uses `.morevibe/`
 - define canon priorities
 - define wiki maintenance rules
+- define session bootstrap rules
+- define subagent orchestration rules
 - define any project-specific overrides
 
 ## Rule

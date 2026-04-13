@@ -1,8 +1,10 @@
 ﻿param(
     [string]$HomePath = $HOME,
+    [string]$CodexHomePath = "",
     [string]$ProjectPath = "",
     [switch]$ForceProjectTemplate,
     [switch]$ApplyProjectAgentsBootstrap,
+    [switch]$ApplyCodexGlobalBootstrap,
     [string[]]$ExportAdapters = @()
 )
 
@@ -299,11 +301,62 @@ function Apply-AgentsBootstrap {
     }
 }
 
+function Apply-CodexGlobalBootstrap {
+    param(
+        [string]$ResolvedCodexHomePath,
+        [string]$BootstrapSnippetPath
+    )
+
+    if ([string]::IsNullOrWhiteSpace($ResolvedCodexHomePath)) {
+        return [ordered]@{
+            action = "skipped"
+            target = ""
+            reason = "Codex home path is empty."
+        }
+    }
+
+    $agentsPath = Join-Path $ResolvedCodexHomePath "AGENTS.md"
+    if (-not (Test-Path -LiteralPath $agentsPath)) {
+        return [ordered]@{
+            action = "skipped"
+            target = $agentsPath
+            reason = "Codex global AGENTS.md does not exist."
+        }
+    }
+
+    $snippet = Read-TextFile -LiteralPath $BootstrapSnippetPath
+    $existing = Read-TextFile -LiteralPath $agentsPath
+
+    if ([string]::IsNullOrWhiteSpace($snippet)) {
+        throw "Global bootstrap snippet is empty: $BootstrapSnippetPath"
+    }
+
+    if ($existing -like "*# MoreVibe Global Bootstrap for Codex*") {
+        return [ordered]@{
+            action = "skipped"
+            target = $agentsPath
+            reason = "MoreVibe global bootstrap block already exists."
+        }
+    }
+
+    $backupPath = Copy-Item -LiteralPath $agentsPath -Destination "$agentsPath.backup-$(New-Timestamp)" -Force -PassThru | ForEach-Object { $_.FullName }
+    $newContent = "$($existing.TrimEnd())`r`n`r`n$($snippet.Trim())`r`n"
+    Write-TextFile -LiteralPath $agentsPath -Value $newContent
+
+    return [ordered]@{
+        action = "updated"
+        target = $agentsPath
+        backup = $backupPath
+    }
+}
+
 $scriptRoot = Resolve-FullPath -PathValue $PSScriptRoot
 $pluginSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\plugin")
 $templateSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\templates\project\.morevibe")
 $projectAgentsBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\codex\snippets\project-agents-bootstrap.md")
+$codexGlobalBootstrapSource = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\adapters\codex\snippets\global-bootstrap.md")
 $resolvedHomePath = Resolve-FullPath -PathValue $HomePath
+$resolvedCodexHomePath = if ([string]::IsNullOrWhiteSpace($CodexHomePath)) { Join-Path $resolvedHomePath ".codex" } else { Resolve-FullPath -PathValue $CodexHomePath }
 
 $pluginsDir = Join-Path $resolvedHomePath "plugins"
 $pluginTarget = Join-Path $pluginsDir "morevibe"
@@ -333,6 +386,7 @@ Write-JsonFile -LiteralPath $marketplacePath -Data $marketplace
 $adapterExportResults = Install-AdapterExports -ScriptRootPath $scriptRoot -ResolvedHome $resolvedHomePath -Adapters $ExportAdapters
 $templateResult = Install-ProjectTemplate -TemplateSource $templateSource -TargetProjectPath $ProjectPath -ForceTemplate $ForceProjectTemplate.IsPresent
 $agentsBootstrapResult = $null
+$codexGlobalBootstrapResult = $null
 if ($ApplyProjectAgentsBootstrap.IsPresent) {
     if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
         throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
@@ -340,6 +394,10 @@ if ($ApplyProjectAgentsBootstrap.IsPresent) {
 
     $resolvedProjectPath = Resolve-FullPath -PathValue $ProjectPath
     $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource
+}
+
+if ($ApplyCodexGlobalBootstrap.IsPresent) {
+    $codexGlobalBootstrapResult = Apply-CodexGlobalBootstrap -ResolvedCodexHomePath $resolvedCodexHomePath -BootstrapSnippetPath $codexGlobalBootstrapSource
 }
 
 Write-Host ""
@@ -372,6 +430,16 @@ if ($null -ne $agentsBootstrapResult) {
     }
     if ($agentsBootstrapResult.reason) {
         Write-Host "AGENTS note: $($agentsBootstrapResult.reason)"
+    }
+}
+
+if ($null -ne $codexGlobalBootstrapResult) {
+    Write-Host "Codex global bootstrap: $($codexGlobalBootstrapResult.action) -> $($codexGlobalBootstrapResult.target)"
+    if ($codexGlobalBootstrapResult.backup) {
+        Write-Host "Codex global backup: $($codexGlobalBootstrapResult.backup)"
+    }
+    if ($codexGlobalBootstrapResult.reason) {
+        Write-Host "Codex global note: $($codexGlobalBootstrapResult.reason)"
     }
 }
 

@@ -119,6 +119,8 @@ Already implemented:
 - a session memory sync script and skill for state, log, and handoff updates
 - scripted ingest into `sources` or `canon`
 - scripted harness query reports from `wiki`, `canon`, and `sources`
+- scripted session bootstrap briefs from the harness
+- subagent orchestration guidance and schema
 
 Partially automated:
 
@@ -242,6 +244,8 @@ Current MoreVibe skills include:
 - sync memory
 - ingest item
 - query harness
+- session brief
+- orchestrate subagents
 - write back answer
 - lint harness
 - test first

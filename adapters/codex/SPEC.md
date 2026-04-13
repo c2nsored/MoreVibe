@@ -30,6 +30,7 @@ Current Codex-specific install behavior:
 
 - install plugin to `~/plugins/morevibe`
 - ensure `~/.agents/plugins/marketplace.json` contains the `morevibe` entry
+- optionally append a MoreVibe bootstrap block to `~/.codex/AGENTS.md`
 
 Current rule:
 
@@ -67,3 +68,4 @@ Planned Codex adapter automation should eventually support:
 - inserting a minimal bootstrap block once
 - skipping duplicate inserts
 - reporting exactly what was changed
+- giving Codex a stronger default startup path through session bootstrap and query skills

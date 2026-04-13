@@ -30,10 +30,12 @@ This checklist captures the harness features extracted from Stick3r and maps the
 
 - [x] bootstrap
 - [x] start session
+- [x] session brief
 - [x] plan feature
 - [x] execute plan
 - [x] debug bug
 - [x] delegate work
+- [x] orchestrate subagents
 - [x] request review
 - [x] apply review fixes
 - [x] verify change
@@ -48,6 +50,7 @@ This checklist captures the harness features extracted from Stick3r and maps the
 - [ ] automatic skill triggering outside tool support
 - [x] scripted ingest into `sources` or `canon`
 - [x] scripted harness query across `wiki / canon / sources`
+- [x] scripted session bootstrap summary
 - [x] scripted wiki write-back for reusable answers
 - [x] scripted harness lint and drift reporting
 - [x] ClaudeCode adapter export package installation

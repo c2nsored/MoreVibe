@@ -5,6 +5,7 @@ Use this file to quickly see which MoreVibe skills should be used for each kind 
 ## Main entry skill
 
 - `morevibe-using-morevibe`
+- `morevibe-session-brief`
 - `morevibe-query-harness`
 
 ## Feature work
@@ -40,5 +41,7 @@ Use this file to quickly see which MoreVibe skills should be used for each kind 
 - `morevibe-sync-memory`
 - `morevibe-ingest-item`
 - `morevibe-query-harness`
+- `morevibe-session-brief`
+- `morevibe-orchestrate-subagents`
 - `morevibe-writeback-answer`
 - `morevibe-lint-harness`

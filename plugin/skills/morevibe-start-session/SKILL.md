@@ -13,14 +13,16 @@ Recover project context quickly before implementation starts.
 
 1. Confirm the current workspace, repo, and branch.
 2. Read the project's main public entrypoint first.
-3. Check current canon documents for:
+3. Use `morevibe-session-brief` when a quick, repeatable startup summary will help.
+4. Use `morevibe-query-harness` when you need to locate relevant memory before opening many files.
+5. Check current canon documents for:
    - project overview
    - active tasks
    - latest handoff
    - recent decisions when needed
-4. Restate the current goal in one short paragraph.
-5. Identify the code or document scope to touch.
-6. Note unknowns before implementation begins.
+6. Restate the current goal in one short paragraph.
+7. Identify the code or document scope to touch.
+8. Note unknowns before implementation begins.
 
 ## Rules
 
