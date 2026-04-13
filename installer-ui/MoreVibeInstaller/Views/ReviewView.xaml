@@ -1,0 +1,18 @@
+<UserControl x:Class="MoreVibeInstaller.Views.ReviewView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock FontSize="22" FontWeight="SemiBold" Text="설치 내용 확인" />
+        <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Text="아래 내용을 확인한 뒤 설치를 시작하세요." />
+        <Border Margin="0,20,0,0" Padding="16" Background="#F6F8FA" CornerRadius="12">
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold" Text="설치 대상" />
+                <TextBlock Margin="0,8,0,0" Text="{Binding TargetSummary}" />
+                <TextBlock Margin="0,16,0,0" FontWeight="SemiBold" Text="프로젝트 적용" />
+                <TextBlock Margin="0,8,0,0" Text="{Binding ProjectSummary}" />
+                <TextBlock Margin="0,16,0,0" FontWeight="SemiBold" Text="안전 원칙" />
+                <TextBlock Margin="0,8,0,0" TextWrapping="Wrap" Text="기존 파일은 가능한 한 병합하며, 덮어쓰기 전에는 백업을 남깁니다." />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

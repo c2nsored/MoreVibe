@@ -1,0 +1,16 @@
+<UserControl x:Class="MoreVibeInstaller.Views.ResultView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock FontSize="24" FontWeight="SemiBold" Text="{Binding ResultTitle}" />
+        <TextBlock Margin="0,12,0,0" TextWrapping="Wrap" Text="{Binding ResultMessage}" />
+        <Border Margin="0,20,0,0" Padding="16" Background="#F6F8FA" CornerRadius="12">
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold" Text="다음 단계" />
+                <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Text="1. 선택한 AI 도구를 다시 실행합니다." />
+                <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Text="2. 프로젝트에 설치했다면 해당 루트 폴더에서 새 세션을 시작합니다." />
+                <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Text="3. MoreVibe가 연결된 상태에서 작업을 시작합니다." />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

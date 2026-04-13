@@ -1,0 +1,18 @@
+<UserControl x:Class="MoreVibeInstaller.Views.WelcomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock FontSize="26" FontWeight="SemiBold" Text="MoreVibe Installer" />
+        <TextBlock Margin="0,12,0,0"
+                   TextWrapping="Wrap"
+                   Text="MoreVibe는 Codex, Claude Code, Antigravity에 project memory, wiki, workflow harness를 연결하는 설치기입니다." />
+        <Border Margin="0,20,0,0" Padding="16" Background="#F6F8FA" CornerRadius="12">
+            <StackPanel>
+                <TextBlock FontWeight="SemiBold" Text="설치 전에 알아둘 점" />
+                <TextBlock Margin="0,10,0,0" TextWrapping="Wrap" Text="1. 원하는 AI 환경만 선택해서 설치할 수 있습니다." />
+                <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Text="2. 프로젝트 루트를 지정하면 .morevibe와 프로젝트 규칙 연결도 함께 적용됩니다." />
+                <TextBlock Margin="0,4,0,0" TextWrapping="Wrap" Text="3. 기존 파일은 가능한 한 병합하고, 수정 전 백업을 남깁니다." />
+            </StackPanel>
+        </Border>
+    </StackPanel>
+</UserControl>

@@ -90,6 +90,7 @@ This repository already includes:
 - a Codex-oriented plugin manifest used as a delivery helper
 - a reusable MoreVibe skill set
 - a Windows installer starting point
+- a WPF installer UI scaffold for beginner-friendly Windows setup
 - a project template namespace for `.morevibe/`
 - a core/adapters architecture baseline
 - a main workflow entry skill and skill-routing schema
@@ -102,6 +103,7 @@ core/          # Tool-agnostic MoreVibe harness model
 adapters/      # Tool-specific integration guidance
 templates/     # Project bootstrap templates used by MoreVibe
 installer/     # Installation scripts and packaging entrypoints
+installer-ui/  # WPF Windows installer UI scaffold
 plugin/        # Codex delivery helper for skills/scripts/manifest
 ```
 
