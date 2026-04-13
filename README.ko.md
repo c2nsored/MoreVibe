@@ -1,302 +1,311 @@
 # MoreVibe
 
-[English](./README.md) | [한국어](./README.ko.md)
+**AI 코딩 도구를 위한 영구적인 프로젝트 메모리.**  
+MoreVibe는 **Claude Code**, **Codex**, **Antigravity**와 같은 도구를 활용하는 장기적인 바이브 코딩(vibe-coding) 워크플로우를 위한 비파괴적(non-destructive) 프로젝트 하네스(안전장치)입니다.
 
-MoreVibe는 모든 종류의 프로젝트에서 더 나은 바이브코딩을 돕기 위한 개인용 LLM 하네스 시스템입니다.
+이 시스템은 장기 세션 동안 AI 도구들이 일관성을 유지할 수 있도록 다음 요소들을 명확히 분리합니다:
 
-이 저장소는 사용자가 개발자가 아니어도, AI가 문서 구조와 작업 메모리를 계속 관리하면서 장기 프로젝트를 이어갈 수 있게 만드는 데 초점을 둡니다.
+- **sources (출처)** → 원시 근거 자료, 메모, 참고 문헌 및 입력 데이터
+- **canon (기준)** → 공식적인 현재 프로젝트의 진리(원본)
+- **wiki (위키)** → AI가 스스로 유지보수하는 작업 메모리와 상태 요약본
+- **schema (스키마)** → 시스템이 어떻게 동작해야 하는지 정의하는 운영 규칙
 
-MoreVibe는 LLM이 아래와 같은 안정적인 프로젝트 기억 구조 위에서 일하도록 설계되어 있습니다.
+모든 정보가 하나의 거대하고 비효율적인 대화 기록으로 무너지는 것을 방지하고, 프로젝트에 구조화된 메모리 모델을 제공하여 **작업 재개가 쉽고, 유지보수가 편리하며, 맥락 상실(context drift)에 강력하게 대비**할 수 있습니다.
 
-- `sources`: 근거 자료, 메모, 로그, 스냅샷
-- `canon`: 현재 프로젝트의 공식 기준 문서
-- `wiki`: LLM이 유지하는 작업 메모리와 연결 레이어
+---
 
-중요한 점은, MoreVibe의 목적이 먼저 사람용 위키를 예쁘게 만드는 것이 아니라는 점입니다.
+## MoreVibe가 존재하는 이유 (Why MoreVibe Exists)
 
-핵심은 세션이 바뀌어도 AI가 프로젝트를 다시 처음부터 재탐색하지 않도록, 내부 작업 기억과 규칙 구조를 안정적으로 유지하는 것입니다.
+장기적인 AI 코딩 프로젝트는 대체로 다음과 같은 동일한 이유로 무너집니다:
 
-## 핵심 모델
+- 중요한 설계 결정들이 오래된 채팅 기록 속에 파묻힙니다.
+- 동일한 프로젝트 사실(규칙)을 AI에게 끊임없이 반복해서 설명해야 합니다.
+- 문서는 늘어나지만 뿔뿔이 흩어지며 일관성을 잃습니다.
+- AI가 원시 메모, 가설, 프로젝트의 공식 진리를 혼동하기 시작합니다.
+- 컨텍스트 윈도우가 가득 차면서 세션 품질이 급격히 저하됩니다.
+- 비개발자에겐 프로젝트의 생명력을 유지할 안정적인 운영 모델이 없습니다.
 
-MoreVibe는 프로젝트 지식을 네 가지 역할로 나눕니다.
+MoreVibe는 바로 이 문제를 해결하기 위해 존재합니다.
 
-- `schema`: LLM이 하네스를 어떻게 읽고 쓰고 유지할지 정의하는 운영 규칙
-- `sources`: 주로 불변에 가까운 입력 자료와 근거
-- `canon`: AI가 작성했더라도 현재 프로젝트의 공식 기준이면 포함되는 문서층
-- `wiki`: sources와 canon을 바탕으로 LLM이 유지하는 작업 메모리층
+이것은 요술 방망이 같은 프롬프트 모음집이 아닙니다.  
+엔지니어링 능력을 대체하는 도구도 아닙니다.  
+완전한 자율형 에이전트 프레임워크도 아닙니다.
 
-이 구분은 누가 썼는지가 아니라, 그 문서가 무슨 역할을 맡는지로 결정됩니다.
+이것은 AI 코딩 도구에 기억, 규칙, 그리고 프로젝트 연속성을 위한 안정적인 구조를 제공하여 **도구들이 훨씬 더 신뢰성 있게 동작하도록 돕는 "실용적인 하네스"**입니다.
 
-## Core + Adapters 구조
+---
 
-MoreVibe는 두 층으로 구성됩니다.
+## 이런 분들에게 필요합니다 (Who This Is For)
 
-- `core`: 도구와 무관하게 유지되어야 하는 공통 하네스 모델
-- `adapters`: Codex, Claude Code, Antigravity 같은 도구별 통합 레이어
+MoreVibe는 다음을 위해 설계되었습니다:
 
-`core`는 웹, 게임, 앱, 자동화 프로젝트처럼 대상이 바뀌어도 그대로 재사용되는 쪽입니다.
+- AI 코딩 도구를 사용하여 실제 프로젝트를 구축하는 **비개발자**
+- 세션이 초기화되거나 방향성을 잃을 때 개발 동력을 상실하는 **1인 개발자 (Solo builders)**
+- 수많은 세션에 걸쳐 견고한 메모리가 필요한 **장기 프로젝트**
+- 단순히 "계속 채팅 치기" 방식을 넘어 보다 깔끔하고 안정적인 운영 모델을 원하는 사용자
 
-반대로 `adapters`는 아래 같은 차이를 담당합니다.
+특히 아래와 같은 현상을 경험해 보셨다면 MoreVibe가 압도적인 가치를 줄 것입니다:
 
-- 전역 규칙 파일이 어디에 있는지
-- 프로젝트 진입 파일을 어떤 이름으로 읽는지
-- 전역 설정을 어떻게 안전하게 병합해야 하는지
-- 기존 프로젝트 파일을 덮어쓰지 않고 MoreVibe를 어떻게 붙일지
+- 무시무시한 속도의 컨텍스트 고갈 (Context exhaustion)
+- AI에게 똑같은 규칙을 앵무새처럼 반복 설명하는 상황
+- 정돈되지 않은 문서들의 끝없는 증식 (Document sprawl)
+- 세션 간 끊어져 버린 작업 연속성
+- 작업 범위 모델이 잡히지 않아 AI가 여기저기 엉뚱한 코드를 건드리는 현상
 
-즉 MoreVibe는 “Codex 전용 플러그인”이라기보다, 여러 AI 환경에 붙을 수 있는 공통 하네스 시스템입니다. Codex가 첫 번째로 구현된 어댑터이며, Claude Code와 Antigravity 어댑터도 현재 구현 완료 상태입니다.
+---
 
-## MoreVibe가 필요한 이유
+## 이런 분들에게는 적합하지 않습니다 (Who This Is Not For)
 
-기존 LLM 작업 방식은 대체로 그때그때 찾아서 다시 종합하는 흐름에 가깝습니다.
+다음과 같은 상황이라면 아직 MoreVibe가 이상적이지 않을 수 있습니다:
 
-- 파일을 올리고
-- 질문하고
-- 관련 조각을 찾고
-- 다음 질문 때 다시 비슷한 종합을 반복합니다
+- 문서를 단 한 줄도 작성하지 않는 완전 프리스타일 워크플로우를 원하는 분
+- 모든 AI 도구와 버전에서 100% 동일한 행동 양식을 기대하는 분
+- 이미 내부 소프트웨어 엔지니어링 프로세스가 잘 확립된 팀이나 조직
+- AI 결과물에 대한 어떠한 리뷰도 없이 완전 100% 자율 동작을 기대하는 분
 
-MoreVibe는 다른 방향을 취합니다.
+MoreVibe는 프로젝트 구조와 연속성을 비약적으로 향상시킵니다.  
+하지만 인간의 **판단력, 리뷰 절차, 그리고 프로젝트에 대한 책임감(Ownership) 자체를 없애주지는 않습니다.**
 
-- 프로젝트의 근거 자료를 남기고
-- 현재 공식 기준 문서를 유지하고
-- LLM이 장기적으로 누적되는 작업 메모리를 유지하게 하며
-- 그 메모리를 반복적으로 점검하고 갱신합니다
+---
 
-이렇게 하면 장기 바이브코딩 프로젝트에서 세션 복구, 작업 방향 유지, 문서 정합성 관리가 훨씬 쉬워집니다.
+## MoreVibe가 하는 일 (What MoreVibe Does)
 
-## 기본 운영 루프
+MoreVibe는 프로젝트 로컬의 `.morevibe/` 폴더와 각 AI 도구에 최적화된 어댑터(부트스트랩) 파일들을 중심으로 구조화된 프로젝트를 조성합니다.
 
-MoreVibe는 세 가지 반복 작업을 중심으로 돌아갑니다.
+사용하는 AI 도구에 따라 다음과 같은 작업을 설치하거나 생성합니다:
 
-1. `ingest`
-새 정보를 하네스에 반영하고, `sources` 또는 `canon`에 분류한 뒤 `wiki`를 갱신합니다.
+- 프로젝트 로컬의 `.morevibe/` 구조 생성
+- `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`와 같은 도구 전용 진입점(Entry) 파일
+- 재사용 가능한 규칙 및 운영 지침
+- 영속적인 프로젝트 메모리 레이아웃 구성
+- 지원되는 도구를 위한 선택적 플러그인 또는 부트스트랩 헬퍼 기능
+- 비개발자도 쉽게 사용할 수 있는 Windows GUI 인스톨러 지원
 
-2. `query`
-먼저 `wiki`를 보고 답하고, 부족하면 `canon`과 `sources`까지 내려갑니다. 가치 있는 답변은 다시 하네스에 환원합니다.
+궁극적인 목표는 단 하나입니다:
 
-3. `lint`
-하네스 안의 오래된 정보, 중복, 연결 누락, `canon/wiki` 불일치 같은 문제를 점검합니다.
+> **"장기간 진행되는 AI 코딩 프로젝트를 더 쉽게 이어서 작업할 수 있게 하고, 망가진 상황에서도 복구를 쉽게 만들며, 컨텍스트의 낭비를 최소화한다."**
 
-## 현재 상태
+---
 
-MoreVibe는 아직 초기 단계이지만 실제 하네스 구조와 부트스트랩이 작동하는 상태입니다.
+## 핵심 모델 (Core Model)
 
-현재 저장소에는 아래가 포함되어 있습니다.
+MoreVibe는 프로젝트의 지식(Knowledge)을 각기 다른 책임을 가진 레이어로 완벽하게 분리하여 관리합니다.
 
-- Codex, Claude Code, Antigravity용 호스트 규칙 파일 부트스트랩
-- Codex용 플러그인 manifest와 전달 자산
-- 재사용 가능한 MoreVibe skill 세트
-- Windows 설치기 시작점
-- 초보자 친화적인 Windows 설치를 위한 WPF 설치 UI 골격
-- `.morevibe/` 프로젝트 템플릿 네임스페이스
-- core/adapters 구조
-- workflow 진입 skill과 skill routing 규칙
-- Claude Code와 Antigravity용 프로젝트/전역 통합 자산
+### `sources/` (출처/원시 데이터)
+가공되지 않은 자료들이 위치합니다.  
+회의록, 웹캡처 연구 자료, 참고용 초안, 스니펫 등 자동으로 '진리'가 되어서는 안 되는 모든 자료가 이곳에 속합니다.
 
-## 저장소 구조
+### `canon/` (공식/기준 원본)
+프로젝트의 공식적인 진리가 위치하는 곳입니다.  
+프로젝트 개요, 아키텍처 결정 사항, 확정된 워크플로우, 현재 목표, 그리고 진행 중인 활성 작업 목록(Tasks)이 살아 숨 쉬는 공간입니다.
 
-```text
-core/          # 도구 공통 MoreVibe 하네스 모델
-adapters/      # 도구별 통합 가이드와 어댑터
-templates/     # MoreVibe가 프로젝트에 주입할 템플릿
-installer/     # 설치 스크립트와 패키징 진입점
-installer-ui/  # WPF 기반 Windows 설치 UI 골격
-plugin/        # Codex 전달용 manifest/skills/scripts 자산
-```
+### `wiki/` (AI 작업 메모리)
+AI가 유지보수하는 활성 작업 메모리입니다.  
+AI가 직접 요약본을 작성하고, 현재 상태 스냅샷을 찍으며, 세션 간 연속성을 유지하는 메모를 남겨 미래의 세션이 가장 효율적으로 재개될 수 있도록 돕습니다.
 
-## 자동화된 것과 아직 완전 자동은 아닌 것
+### `schema/` (운영 규칙)
+하네스의 운영 규칙입니다.  
+무엇이 어디에 들어가야 하는지, 무엇을 가장 먼저 읽어야 하는지, 무엇을 가장 큰 권위로 삼아야 하는지, 그리고 AI가 시스템을 어떻게 갱신해야 하는지 정의합니다.
 
-이미 구현된 것
+이러한 레이어 분리는 아래와 같은 심각한 혼동들을 사전에 차단합니다:
 
-- 프로젝트 로컬 `.morevibe/` 부트스트랩
-- `-ProjectPath`를 주면 프로젝트 `AGENTS.md` 자동 부트스트랩
-- Codex 전역 `AGENTS.md` 자동 부트스트랩
-- Claude 프로젝트/전역 `CLAUDE.md` 자동 부트스트랩
-- Antigravity 프로젝트/전역 `GEMINI.md` 자동 부트스트랩
-- Codex용 로컬 플러그인 설치와 marketplace 병합
-- 현재 설치 대상에 대한 교체 전 백업
-- 계획, 실행, 리뷰, 검증, 문서, handoff, 배포, 분담을 위한 재사용 skill 세트
-- `.morevibe/schema/`, `.morevibe/canon/`, `.morevibe/wiki/` 기본 문서 세트
-- feature / bug / docs 작업을 분기하는 workflow router
-- state, log, handoff를 갱신하는 session memory sync
-- `sources` / `canon` 반영용 ingest 스크립트
-- `wiki`, `canon`, `sources` 기반 query 보고서
-- session brief 생성
-- subagent orchestration 규칙
-- Claude Code `UserPromptSubmit` hook 자동 등록 — 세션 시작 시 MoreVibe 컨텍스트 자동 주입, 1시간 TTL 중복 방지 포함
+- **증거(evidence)**와 **진리(truth)**의 혼동
+- **임시 메모리(temporary)**와 **안정적인 메모리(stable)**의 혼동
+- **초안 메모(notes)**와 **공식 결정(official decisions)**의 혼동
+- **프로젝트 구조(structure)**와 **단순 잡담 텍스트(chatter)**의 혼동
 
-문서화되어 있지만 아직 완전 자동이라고 말할 수 없는 것
+---
 
-- Codex 및 Antigravity에서 각 호스트가 공식적으로 지원하는 범위를 넘어서는 강제 자동 트리거
-- 모든 세션에서 호스트가 전역/프로젝트 규칙 파일을 동일하게 따를 것이라는 절대 보장
+## MoreVibe 적용 전과 후 비교
 
-## 프로젝트 통합 방식
+| MoreVibe 적용 전 (Without) | MoreVibe 적용 후 (With) |
+|---|---|
+| 프로젝트 규칙을 AI에게 매번 반복해서 가르쳐야 함 | 영구적인 프로젝트 메모리가 불필요한 반복을 제거함 |
+| 임시 채팅 히스토리가 메인 메모리 역할을 해버림 | 메모리는 잘 구조화된 프로젝트 파일에 영구 기록됨 |
+| 노트, 결정 사항, 단순 가정이 한 곳에 심하게 뒤섞임 | Sources, Canon, Wiki, Schema가 깔끔하게 분리됨 |
+| 세션이 초기화되거나 긴 공백기가 생기면 작업 방향을 잃음 | 세션 재개가 훨씬 안정적이고 예측 가능해짐 |
+| AI의 행동 양식이 깨지기 쉬운 대화 컨텍스트에 크게 의존함 | 프로젝트 뼈대 자체가 연속성을 유지하는 힘을 부여함 |
+| 기준 없이 폴더/문서만 끝없이 증식함 | Canon과 Schema가 어떤 문서가 1순위인지 확실한 권위를 제공함 |
 
-MoreVibe는 프로젝트 루트의 `AGENTS.md`를 대체하지 않습니다.
+---
 
-통합 방식은 이렇습니다.
+## 빠른 시작 (Quick Start)
 
-- 루트 `AGENTS.md`는 에이전트 도구가 읽는 표준 진입점으로 유지
-- 각 프로젝트 내부에서는 `.morevibe/`를 MoreVibe 전용 네임스페이스로 사용
-- 플러그인/marketplace 자산은 전달과 보조 실행 수단으로만 사용
+### 옵션 1 — Windows 권장 인스톨러 (가장 직관적)
 
-권장 프로젝트 로컬 구조는 아래와 같습니다.
+Windows에서 가장 쉽게 설치하는 방법입니다:
 
-```text
-project-root/
-  AGENTS.md
-  .morevibe/
-    schema/
-    sources/
-    canon/
-    wiki/
-```
+1. **GitHub Releases** 페이지로 이동합니다.
+2. 최신 **MoreVibe installer** (.exe) 나 릴리즈 압축 파일(ZIP)을 다운로드합니다.
+3. 인스톨러를 실행합니다.
+4. 연동하고 싶은 대상 AI 도구(Claude, Antigravity, Codex 등)를 선택합니다.
+5. 적용할 작업 중인 프로젝트 폴더를 선택합니다.
+6. 설치를 완료합니다.
+7. 프로젝트 루트 폴더에서 평소처럼 AI 도구를 시작합니다.
 
-이 구조를 쓰면 `src`, `docs`, `sources` 같은 일반 프로젝트 폴더명과 충돌을 줄일 수 있습니다.
+설치가 끝나면, MoreVibe가 알아서 해당 프로젝트 안에 하네스 뼈대와 AI가 알아들을 수 있는 설정 파일들을 완벽하게 세팅해 둡니다.
 
-## 레이어 규칙
+---
 
-- `schema`는 MoreVibe 로컬 운영 규칙입니다.
-- `sources`는 근거 자료, 외부 자료, 메모, 스냅샷, 로그 같은 입력층입니다.
-- `canon`은 현재 프로젝트의 공식 기준 문서층입니다.
-- `wiki`는 LLM이 유지하는 작업 메모리와 연결 레이어입니다.
-- 같은 규칙이 두 곳 이상에서 동시에 권위 원본이면 안 됩니다.
-- `wiki`와 `canon`이 충돌하면 먼저 `canon`을 점검합니다.
-- AI가 작성한 문서라도 프로젝트가 공식 기준으로 취급하면 `canon`이 될 수 있습니다.
+### 옵션 2 — PowerShell 스크립트
 
-## 목표 설치 방식
-
-장기적으로는 비개발자도 쉽게 설치할 수 있어야 합니다.
-
-1. GitHub Releases에서 MoreVibe를 다운로드합니다.
-2. 설치기를 실행합니다.
-3. 설치기가 호스트 규칙 파일과 프로젝트 `.morevibe/`를 연결합니다.
-4. 사용자는 별도 수작업 없이 MoreVibe 구조 위에서 대화를 시작합니다.
-
-## 현재 Windows GUI 설치기 (추천)
-
-이제 Windows 사용자들을 위해 직관적인 **WPF 기반 GUI 설치기**를 제공합니다.  
-[GitHub Releases](https://github.com/c2nsored/MoreVibe/releases/latest) 페이지에서 `MoreVibeInstaller.exe`를 다운로드 받아 실행하기만 하면 클릭 몇 번으로 모든 설치 과정과 부트스트랩을 완료할 수 있습니다.
-
-## 스크립트 기반 설치
-
-터미널을 선호하는 경우, 기존의 파워쉘 스크립트를 직접 사용할 수 있습니다.
-
-기본 설치 진입점:
+Windows 환경에서 터미널 스크립트를 선호하신다면:
 
 ```powershell
-installer/windows/install-morevibe.ps1
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\install-morevibe.ps1
 ```
 
-조금 더 쉽게 실행할 수 있는 배치 런처도 함께 제공합니다:
+사용하시는 환경과 릴리즈 구조에 따라 다양한 스위치(Flag) 옵션을 지원합니다.
 
-```text
-installer/windows/install-morevibe.bat
-```
+---
 
-이 배치 설치 파일을 더블클릭하면 이제 아래 순서로 진행됩니다.
+### 옵션 3 — 전체 수동 설치 (Manual Setup)
 
-- 기본 설치 안내 표시
-- 설치 계속 여부 확인
-- Codex / Claude Code / Antigravity / 전체 설치 대상 선택
-- 설치 대상 선택 후 실제 프로젝트 루트 경로를 선택적으로 입력
-- 성공 또는 실패 결과를 콘솔에 유지해서 확인 가능
+모든 과정을 직접 눈으로 확인하며 뼈대를 잡고 싶으시다면:
 
-기본 사용:
+1. 템플릿 폴더 복사: 프로젝트 루트에 설치 템플릿들을 가져옵니다.
+2. 폴더 구조 생성: `.morevibe/` 내부 폴더 구조를 만듭니다.
+3. 어댑터 추가: 사용하시는 AI 체계에 맞는 진입점(Entry) 파일을 추가합니다.
+4. 문서 맞춤 설정: 생성된 초기 문서들을 프로젝트 상황에 맞게 수정합니다.
+5. AI에게 지시: AI 도구를 켜고 "MoreVibe 구조를 따라서 작업해 줘"라고 지시합니다.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1
-```
+수동 설정은 번거롭지만, 어떤 파일들이 어떻게 배치되는지 100% 통제하고자 할 때 유용합니다.
 
-MoreVibe를 설치하고 `.morevibe/`를 부트스트랩합니다:
+---
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
-```
+## 권장하는 첫 실행 명령 (Recommended First Run)
 
-프로젝트에 이미 `.morevibe/`가 있는데 의도적으로 교체하고 싶다면:
+설치를 마친 후, 해당 프로젝트 경로에서 AI 코딩 툴을 켜고 다음과 같은 느낌으로 첫 마디를 던지세요:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project" -ForceProjectTemplate
-```
+> "먼저 이 프로젝트의 MoreVibe 파일들을 읽어봐 줘. 현재 `canon`과 `wiki`를 이해하고 나서 MoreVibe 구조를 따라 작업을 시작해 줘."
 
-현재 설치기는 다음을 수행합니다.
+또는 더 직설적으로 지시하셔도 좋습니다:
 
-- `-ProjectPath`를 주면 프로젝트에 `.morevibe/`를 부트스트랩
-- 프로젝트 루트 `AGENTS.md`에 MoreVibe 부트스트랩 블록 추가
-- Codex 전역 `AGENTS.md`에 MoreVibe 전역 부트스트랩 추가
-- Claude 프로젝트/전역 `CLAUDE.md`에 MoreVibe 부트스트랩 추가
-- Antigravity 프로젝트/전역 `GEMINI.md`에 MoreVibe 부트스트랩 추가
-- Codex 환경에서는 `~/plugins/morevibe`와 `~/.agents/plugins/marketplace.json`도 함께 정리
-- 기존 플러그인 디렉터리와 marketplace 파일은 수정 전 백업
+> "이 프로젝트는 MoreVibe로 부트스트랩될 거야. 어댑터 엔트리 파일부터 읽고, `.morevibe/schema`, `.morevibe/canon`, `.morevibe/wiki`를 순서대로 파악한 다음 현재 상태를 기준으로 이어가자."
 
-## 포함된 Skill 세트
+명령어의 토씨 하나가 중요한 게 아닙니다.  
+**핵심은 "AI가 당장 코드부터 짜기 전에 설치된 구조(기억의 궁전)부터 스캔하도록 유도하는 것" 입니다.**
 
-현재 MoreVibe에는 아래 skill이 포함되어 있습니다.
+---
 
-- using-morevibe
-- bootstrap
-- start session
-- plan feature
-- execute plan
-- debug bug
-- delegate work
-- request review
-- apply review fixes
-- verify change
-- update docs
-- update handoff
-- finish task
-- report deployment
-- sync memory
-- ingest item
-- query harness
-- session brief
-- orchestrate subagents
-- write back answer
-- lint harness
-- test first
+## 지원되는 AI 도구 (Supported Tools)
 
-## 어댑터 전략
-
-### Codex
-
-- 전역 `~/.codex/AGENTS.md`와 프로젝트 `AGENTS.md`를 주 진입점으로 사용
-- `.morevibe/`를 프로젝트 내부 하네스 네임스페이스로 사용
-- `plugin/`과 marketplace는 Codex 전용 자산 전달 수단으로만 사용
+MoreVibe는 현존하는 주요 AI 코딩 워크플로우들과 긴밀하게 통합될 수 있도록 어댑터(Adapter) 기반으로 설계되었습니다.
 
 ### Claude Code
+Claude 지향적인 파일 구조와 부트스트랩 가이드를 통해 프로젝트 단위 및 글로벌 엔트리 연동을 완벽히 지원합니다.
 
-- 프로젝트/전역 `CLAUDE.md`를 주 진입점으로 사용
-- `.claude/commands`, `.claude/agents`, `UserPromptSubmit` hook, `Stop` hook을 보조 자산으로 사용
-- 설치기가 프로젝트/전역 Claude 자산을 함께 생성
+### Codex
+Codex에 특화된 엔트리 가이드라인을 지원하며, 사용 가능한 경우 플러그인 또는 헬퍼 구조와 강력하게 통합됩니다.
 
 ### Antigravity
+Antigravity 고유의 부트스트랩 동작과 CLI 훅을 받아주도록 설계된 프로젝트 단위의 어댑터 연동을 전폭 지원합니다.
 
-- 프로젝트/전역 `GEMINI.md`를 주 진입점으로 사용
-- `.agents/rules/`와 `run_command` 규칙은 보조 자산
-- 설치기가 프로젝트/전역 Gemini 자산을 함께 생성
+---
 
-## 안전한 설치 원칙
+## 호환성 참고 (Compatibility Notes)
 
-MoreVibe는 기본적으로 비파괴적 설치를 지향합니다.
+MoreVibe는 도구를 깊이 이해하고 통합하도록 설계되었지만, 도구 간 편차가 발생할 수 있습니다. 호환성은 다음 요인에 따라 달라질 수 있습니다:
 
-- 기존 진입 파일을 명시적 의도 없이 덮어쓰지 않음
-- 사용자 전역 설정을 무조건 교체하지 않음
-- 교체 전 백업
-- 가능하면 병합
-- 각 도구에 필요한 최소 부트스트랩만 추가
+* 도구의 버전 업데이트
+* 사용자의 로컬 설정 파일 상태
+* 도구가 프로젝트 레벨 vs 글로벌 레벨 가이드 문서를 어떻게 우선순위를 매기는지 여부
+* 해당 환경에서 CLI Hook이나 Plugin 기능을 활성화할 수 있는지 여부
+* 해당 도구가 과거의 컨텍스트를 얼마나 공격적으로 압축(Compress)하거나 날려버리는지
 
-이 원칙은 아래 모두에 적용됩니다.
+MoreVibe는 최대한 이런 변수들을 통제하는 방어막 역할을 하지만, 각 호스트 환경의 모든 한계를 해킹해서 뛰어넘을 수는 없다는 점을 참고해 주세요.
 
-- 사용자 전역 에이전트 설정
-- 프로젝트 루트 `AGENTS.md`
-- 프로젝트 루트 `CLAUDE.md`
-- 프로젝트 루트 `GEMINI.md`
-- 프로젝트 내부 `.morevibe/`
-- 플러그인 등록 및 marketplace 파일
+---
 
-## 현재 다음 단계
+## 현재 진행 상황 (Current Reality)
 
-1. Codex 설명도 `AGENTS.md + .morevibe` 중심으로 더 정리하기
-2. 실제 호스트별 자동 발동 한계를 문서화하고 검증 사례 늘리기
-3. 릴리스 패키지와 설치 검증 가이드를 다듬기
+MoreVibe는 지금 이 순간에도 충분히 강력하고 유용하지만, 솔직한 현재 상태를 공유합니다.
+
+### 이미 완벽히 준비된 것
+* 작동 가능한 기반 하네스(뼈대) 구조
+* 부트스트랩 템플릿
+* 어댑터(Adapter) 특화 연동 구조
+* Windows GUI 인스톨러 지원
+* PowerShell 설치 흐름 자동화
+* 실제 실무 프로젝트에 즉시 투입 가능한 폴더 레이아웃
+
+### 여전히 발전 중인 것 (진행 중)
+* 지원되는 모든 AI 도구 간의 완벽에 가까운 일관성 자동화
+* 초보자를 배려한 온보딩(Onboarding) 시각 자료들
+* 스크린샷과 모범 사례 가이드라인 보강
+* 에지 케이스(예외 상황) 및 롤백에 대비한 문서화
+* 시간에 따라 진화하는 각 호스트(AI)의 고유 행동 패턴 보정
+
+이 프로젝트는 단지 아이디어 수준이 아니라 **실전에서 쓸 수 있도록 구축되었으며, 현재 활발히 발전하고 있습니다.**
+
+---
+
+## 레포지토리 구조 (Repository Structure)
+
+MoreVibe 오픈소스의 고수준 레이아웃은 다음과 같습니다:
+
+```text
+.
+├─ adapters/
+├─ core/
+├─ docs/
+├─ installer-ui/
+├─ release/
+├─ scripts/
+├─ templates/
+└─ README.md
+```
+
+### 주요 디렉토리
+
+* **`adapters/`** – 각 AI 도구(Claude, Codex 등)별 맞춤형 통합 로직 및 연동 에셋
+* **`core/`** – 핵심 개념, 공통 컨텐츠 및 시스템 레벨 구조
+* **`templates/`** – 신규 프로젝트에 이식될 `.morevibe` 초기 파일들
+* **`scripts/`** – 설치 및 패키징용 스크립트 모음
+* **`installer-ui/`** – Windows 전용 GUI 인스톨러 소스 코드
+* **`release/`** – 배포를 위해 만들어진 완성형 에셋 타겟
+* **`docs/`** – MoreVibe 자체의 구조 및 릴리즈 가이드, 사용자용 문서
+
+---
+
+## 추천하는 실무 운영 패턴 (Recommended Usage Pattern)
+
+실제 AI 개발 과정에서 추천하는 가장 완벽한 워크플로우입니다:
+
+1. **내 프로젝트에 MoreVibe 인스톨러로 세팅을 끼워 넣습니다.**
+2. **`canon`폴더의 뼈대를 나의 실제 목표로 업데이트합니다.**
+   * 프로젝트 개요 (Overview)
+   * 목표
+   * 현재 아키텍처 결정 사항
+   * 할 일 목록 (Tasks)
+3. **잡다한 인터넷 복붙 글, 조사 메모는 모두 `sources`에 때려 박습니다.**
+4. **세션을 끝낼 때마다 AI에게 "현재 상태를 `wiki` 폴더에 요약해 줘"라고 명령합니다.**
+5. **`schema` 규칙 파일은 건드리지 않고 안정적으로 유지합니다.**
+6. **코드를 바꿀지 말지의 고민 기준은 항상 `canon`을 최고 권위자(Authority)로 두고 판단하게 만듭니다.**
+7. **다음 날 새로운 세션을 켰을 때, 더러워진 과거 채팅 히스토리를 불러오는 대신 새로 잡힌 MoreVibe 문서 구조를 토대로 작업을 이어갑니다.**
+
+이 방식은 시간이 지나도 프로젝트가 무너지는 것을 막아주며, 매번 새로운 세션을 켤 때마다 AI를 앉혀놓고 똑같은 과거 이야기를 재교육하는 낭비를 압도적으로 줄여줍니다.
+
+---
+
+## 삭제 및 원상복구 (Rollback / Removal)
+
+만약 프로젝트에서 MoreVibe를 없애고 단독 실행 체계로 돌아가고 싶다면, 삭제는 매우 간단합니다:
+
+1. 프로젝트 루트에 설치한 해당 AI 도구용 진입 파일(예: `AGENTS.md`)을 수정/삭제합니다.
+2. 프로젝트 루트의 `.morevibe/` 폴더를 통째로 삭제합니다.
+3. 인스톨러가 백업해 둔 기존 파일이 있다면 원상 복구하시면 됩니다.
+4. 평소처럼 AI를 마구 부립니다. 하네스의 흔적은 남지 않습니다!
+
+*(참고: 템플릿 설치 전 Git 커밋 1번을 해주시면 매우 안전하게 롤백이 가능합니다.)*
+
+---
+
+## 맺음말 (Final Note)
+
+MoreVibe는 아주 실용적이고 체감적인 경험에서 탄생했습니다:
+
+**"AI 코딩 도구는 미치도록 강력하지만, 규모가 조금만 커져도 AI 머릿속의 기억, 우선순위, 권위가 뒤죽박죽 꼬여서 결국 프로젝트 전체가 무너져 내린다."**
+
+MoreVibe는 그 무너져 내림을 고치기 위해 만들어졌습니다. 매우 심플한 콘셉트지만 실무에서는 미치도록 강력하며, 특히 전통적인 소프트웨어 공학 지식(문서화, 에픽 단위 쪼개기 등)이 없는 **보통 사람**이 AI로 무언가를 창조하려 할 때 압도적인 방어막이 되어 줄 것입니다. 🚀

@@ -1,323 +1,525 @@
 # MoreVibe
 
-[English](./README.md) | [한국어](./README.ko.md)
+**Persistent project memory for AI coding tools.**  
+MoreVibe is a non-destructive project harness for long-running vibe-coding workflows with tools like **Claude Code**, **Codex**, and **Antigravity**.
 
-MoreVibe is a personal LLM harness system for better vibe coding across any project.
+It helps AI tools stay consistent across long sessions by separating:
 
-It is designed for a workflow where the user may not be a programmer and delegates most structure, writing, and maintenance work to AI.
+- **sources** → raw evidence, notes, references, and inputs
+- **canon** → official current project truth
+- **wiki** → AI-maintained working memory and state summaries
+- **schema** → operating rules for how the system behaves
 
-MoreVibe helps LLM agents work with a stable project memory model:
+Instead of letting everything collapse into one giant, wasteful conversation history, MoreVibe gives your project a structured memory model that is easier to resume, easier to maintain, and more resistant to context drift.
 
-- `sources`: evidence, references, notes, snapshots
-- `canon`: authoritative project documents
-- `wiki`: compiled LLM working memory
-
-The point is not to build a human-facing wiki first.
-
-The point is to give the LLM a reliable internal harness so knowledge compounds across sessions instead of being rediscovered from scratch every time.
-
-## Core Model
-
-MoreVibe separates project knowledge into four roles:
-
-- `schema`: the operating rules that tell the LLM how to read, write, and maintain the harness
-- `sources`: mostly immutable inputs and evidence
-- `canon`: the current authoritative project documents, even if they are written by AI
-- `wiki`: the LLM-maintained memory layer built from sources and canon
-
-These roles are separated by function, not by who wrote the files.
-
-An AI-written document can still be part of `canon` if it is the project's current official reference.
-
-## Core + Adapters
-
-MoreVibe is structured around two layers:
-
-- `core`: the shared harness model that should work across different agent tools
-- `adapters`: tool-specific integration layers for Codex, ClaudeCode, and Antigravity
-
-The core should stay stable across project types such as web apps, games, tools, and automation systems.
-
-Adapters are responsible for tool-specific behavior such as:
-
-- where global rules live
-- how project entrypoints are discovered
-- how installation should modify user-level config
-- how MoreVibe should attach to a project without overwriting existing files
-
-This means MoreVibe should not be treated as "Codex only".
-
-Codex was the first implemented adapter. ClaudeCode and Antigravity adapters are now also implemented.
+---
 
 ## Why MoreVibe Exists
 
-Most LLM workflows behave like ad hoc retrieval:
+Long-running AI coding projects usually break down in the same ways:
 
-- upload some files
-- ask a question
-- retrieve fragments
-- repeat the synthesis every time
+- important decisions get buried in old chat history
+- the same project facts must be re-explained again and again
+- documents multiply but become scattered and inconsistent
+- AI starts mixing raw notes, assumptions, and official project truth
+- session quality drops as context windows fill up
+- non-programmers have no stable operating model for keeping projects alive
 
-MoreVibe is built around a different idea:
+MoreVibe exists to solve that.
 
-- keep the project's evidence
-- maintain an authoritative current canon
-- let the LLM compile persistent working memory
-- keep that memory healthy through repeated maintenance
+It is not a magic prompt pack.  
+It is not a replacement for engineering skill.  
+It is not a fully autonomous agent framework.
 
-This makes long-running vibe-coding projects easier to resume, steer, and evolve.
+It is a **practical harness** that helps AI coding tools work more reliably by giving them a stable structure for memory, rules, and project continuity.
 
-## Standard Operating Loop
+---
 
-MoreVibe is built around three recurring operations:
+## Who This Is For
 
-1. `ingest`
-Bring new information into the harness, classify it, and update the wiki.
+MoreVibe is designed for:
 
-2. `query`
-Answer questions from the wiki first, then fall back to canon and sources when needed. Valuable answers should be written back into the harness.
+- **non-programmers** using AI coding tools to build real projects
+- **solo builders** who lose momentum when sessions reset or drift
+- **long-running projects** that need durable memory across many sessions
+- users who want a cleaner operating model than “just keep chatting”
 
-3. `lint`
-Check the harness for drift, outdated claims, duplication, missing links, and canon/wiki mismatch.
+MoreVibe may be especially useful if you have already experienced:
 
-## Status
+- context exhaustion
+- repeated explanations to the AI
+- document sprawl
+- broken continuity across sessions
+- unstable edits caused by poorly scoped agent behavior
 
-MoreVibe is currently an active early-stage harness system.
+---
 
-This repository already includes:
+## Who This Is Not For
 
-- host-native bootstrap rules for Codex, Claude Code, and Antigravity
-- a Codex-oriented plugin manifest used as a delivery helper
-- a reusable MoreVibe skill set
-- a Windows installer starting point
-- a WPF installer UI scaffold for beginner-friendly Windows setup
-- a project template namespace for `.morevibe/`
-- a core/adapters architecture baseline
-- a main workflow entry skill and skill-routing schema
-- ClaudeCode and Antigravity adapter scaffolds
+MoreVibe may not be ideal yet for:
 
-## Repository Layout
+- users who want a completely document-free workflow
+- users expecting identical behavior across every AI tool and version
+- teams that already have a mature internal engineering process
+- users who want full autonomy with no need to review AI output
 
-```text
-core/          # Tool-agnostic MoreVibe harness model
-adapters/      # Tool-specific integration guidance
-templates/     # Project bootstrap templates used by MoreVibe
-installer/     # Installation scripts and packaging entrypoints
-installer-ui/  # WPF Windows installer UI scaffold
-plugin/        # Codex delivery helper for skills/scripts/manifest
-```
+MoreVibe improves structure and continuity.  
+It does **not** remove the need for judgment, review, or project ownership.
 
-## What Is Automated vs Not Yet Automated
+---
 
-Already implemented:
+## What MoreVibe Does
 
-- project-local `.morevibe/` bootstrap
-- automatic project `AGENTS.md` bootstrap when `-ProjectPath` is provided
-- automatic Codex global `AGENTS.md` bootstrap
-- automatic Claude project `CLAUDE.md` bootstrap and global `CLAUDE.md` bootstrap
-- automatic Antigravity project `GEMINI.md` bootstrap and global `GEMINI.md` bootstrap
-- local Codex-style plugin installation as a delivery helper
-- marketplace registration merge/update for Codex environments
-- backup before replacement for current installer targets
-- reusable workflow skills for planning, execution, review, verification, docs, handoff, deployment, and delegation
-- default `.morevibe/schema/`, `.morevibe/canon/`, and `.morevibe/wiki/` starter documents
-- a main MoreVibe workflow router for feature, bug, and document task chains
-- a session memory sync script and skill for state, log, and handoff updates
-- scripted ingest into `sources` or `canon`
-- scripted harness query reports from `wiki`, `canon`, and `sources`
-- scripted session bootstrap briefs from the harness
-- subagent orchestration guidance and schema
-- Claude Code project integration assets for `CLAUDE.md`, `.claude/settings.json`, commands, and agents
-- automatic Claude Code `UserPromptSubmit` hook registration for session-start context bootstrap with per-session TTL guard
-- Antigravity project integration assets for `GEMINI.md`, `.agents/rules/`, and CLI-driven lifecycle commands
+MoreVibe provides a structured project harness built around a local `.morevibe/` folder and adapter-specific bootstrap files for supported AI tools.
 
-Partially automated:
+Depending on the tool, it can install or generate:
 
-- write-back of reusable answers into `wiki/outputs/` through a dedicated script and skill
-- repeatable harness lint reports into `wiki/lint/` through a dedicated script and skill
-- adapter export packages for ClaudeCode and Antigravity from the installer
+- project-local `.morevibe/` structure
+- tool-specific entry files such as `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md`
+- reusable rules and operating instructions
+- durable project memory layout
+- optional bootstrap or plugin helpers for supported tools
+- Windows installer support for guided setup
 
-Documented but not yet fully automatic:
+The goal is simple:
 
-- guaranteed tool-level auto-triggering for Codex and Antigravity beyond what each host officially supports
-- host behaviors that depend on the tool always honoring project/global rule files in the same way
+> Make long-running AI coding projects easier to continue, easier to recover, and less wasteful in context usage.
 
-## Project Integration Model
+---
 
-MoreVibe should not replace the project's root `AGENTS.md`.
+## Core Model
 
-Instead, the intended integration model is:
+MoreVibe works by separating project knowledge into different layers with different responsibilities.
 
-- keep the root `AGENTS.md` as the standard entrypoint used by agent tools
-- use `.morevibe/` inside each project as the MoreVibe-managed namespace
-- treat installer-added plugin assets as secondary delivery helpers, not the primary source of authority
+### `sources/`
+Raw material.  
+This includes notes, references, drafts, logs, meeting notes, copied research, and anything that should **not** automatically become official truth.
 
-Recommended project-local layout:
+### `canon/`
+Official project truth.  
+This is where the current source of truth lives: project overview, architecture decisions, accepted workflows, current goals, and active task definitions.
 
-```text
-project-root/
-  AGENTS.md
-  .morevibe/
-    schema/
-    sources/
-    canon/
-    wiki/
-```
+### `wiki/`
+AI-maintained working memory.  
+This is where the AI can write summaries, current state snapshots, session continuity notes, and compiled memory that helps future sessions resume efficiently.
 
-This avoids collisions with common project folders such as `src`, `docs`, or `sources`.
+### `schema/`
+Operating rules.  
+This defines how the harness should behave: what belongs where, what should be read first, what can be treated as authoritative, and how the AI should update the system.
 
-## Layer Rules
+This separation reduces confusion between:
 
-- `schema` stores MoreVibe-local operating rules.
-- `sources` stores evidence, external material, notes, snapshots, and raw inputs.
-- `canon` stores the project's current official reference documents.
-- `wiki` stores the LLM's compiled internal memory and cross-linked summaries.
-- The same rule should not be authoritative in more than one place.
-- If `wiki` conflicts with `canon`, update or inspect `canon` first.
-- If `canon` was generated by AI, it is still canon if the project treats it as official.
+- **evidence** and **truth**
+- **temporary memory** and **stable memory**
+- **notes** and **official decisions**
+- **project structure** and **session chatter**
 
-## Intended Installation Model
+---
 
-The long-term goal is simple installation for non-technical users:
+## Without MoreVibe vs With MoreVibe
 
-1. Download MoreVibe from GitHub Releases.
-2. Run the installer.
-3. Let the installer wire the host-native rule files and project-local `.morevibe/`.
-4. Start working in the project without manually rebuilding the harness structure.
+| Without MoreVibe | With MoreVibe |
+|---|---|
+| Project facts are repeatedly re-explained | Durable project memory reduces repetition |
+| Chat history becomes the main memory system | Memory is written into structured project files |
+| Notes, decisions, and assumptions get mixed together | Sources, canon, wiki, and schema are separated |
+| Sessions drift after resets or long gaps | Resumption is more stable and predictable |
+| AI behavior depends too much on fragile chat context | The project itself carries more of the continuity |
+| Document sprawl grows without clear authority | Canon and schema define clearer authority |
 
-## Current Windows GUI Installer (Recommended)
+---
 
-For Windows users, we now provide an intuitive **WPF-based GUI installer**.
-You can download `MoreVibeInstaller.exe` from the [GitHub Releases](https://github.com/c2nsored/MoreVibe/releases/latest) page. Just run it, and you can finish the installation and project bootstrap with a few clicks.
+## Quick Start
 
-## Script-based Installation
+## Option 1 — Windows Installer (Recommended)
 
-If you prefer the terminal, you can use the raw PowerShell script.
+If you want the easiest path on Windows:
 
-The current script installer entrypoint is:
+1. Go to **GitHub Releases**
+2. Download the latest **MoreVibe installer** or packaged release ZIP
+3. Run the installer
+4. Choose your target AI tool(s)
+5. Select your project folder
+6. Complete installation
+7. Start your AI tool from the project root
+
+After installation, MoreVibe will place the project harness and supported adapter files into the selected project.
+
+---
+
+## Option 2 — PowerShell Script
+
+If you prefer script-based installation on Windows:
 
 ```powershell
-installer/windows/install-morevibe.ps1
-```
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\install-morevibe.ps1
+````
 
-For easier Windows usage, a batch launcher is also provided:
+You may also use supported flags depending on your setup and release structure.
 
-```text
-installer/windows/install-morevibe.bat
-```
+---
 
-When launched by double-click, the batch installer now:
+## Option 3 — Manual Setup
 
-- shows a basic installation guide
-- asks whether to continue
-- lets the user choose Codex, Claude Code, Antigravity, or all targets
-- asks for an optional real project root path after target selection
-- keeps the console open so success or failure is visible
+If you want to inspect everything and install manually:
 
-Basic usage:
+1. Copy the project template into your target repository
+2. Create the `.morevibe/` folder structure
+3. Add the adapter entry files for your tool
+4. Review and customize the initial documents
+5. Start your AI tool and instruct it to follow the MoreVibe structure
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1
-```
+Manual setup is slower, but useful if you want full control over every installed file.
 
-Install MoreVibe and also bootstrap a project-local `.morevibe/` folder:
+---
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
-```
+## Recommended First Run
 
-Install MoreVibe for a project. This bootstraps `.morevibe/` and also updates the project's root `AGENTS.md` automatically:
+After installation, start your AI tool in the project root and do something like this:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project"
-```
+> Read the project’s MoreVibe files first, understand the current canon and wiki, and continue work using the MoreVibe structure.
 
-If a project already has a `.morevibe/` folder and you intentionally want to replace it:
+You can also be more explicit:
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\installer\windows\install-morevibe.ps1 -ProjectPath "C:\path\to\project" -ForceProjectTemplate
-```
+> Bootstrap this project using MoreVibe.
+> Read the adapter entry file, then `.morevibe/schema`, `.morevibe/canon`, and `.morevibe/wiki`, and continue from the current project state.
 
-The installer currently:
+The exact wording is less important than the behavior.
+The goal is to make the AI read the installed structure before it begins editing.
 
-- bootstraps `.morevibe/` into a project when `-ProjectPath` is provided
-- appends the MoreVibe bootstrap block to the project's root `AGENTS.md` when `-ProjectPath` is provided
-- appends the MoreVibe global bootstrap block to Codex global `AGENTS.md`
-- appends the MoreVibe bootstrap block to project and global Claude memory files
-- appends the MoreVibe bootstrap block to project and global Gemini rule files
-- installs the MoreVibe Codex plugin into `~/plugins/morevibe` as a delivery helper
-- creates or updates `~/.agents/plugins/marketplace.json` for Codex environments
-- backs up an existing plugin directory before replacing it
-- backs up the current marketplace file before writing updates
-- can export adapter packages for ClaudeCode and Antigravity
+---
 
-## Included Skill Set
+## Supported Tools
 
-Current MoreVibe skills include:
+MoreVibe is built around adapter-specific integration for major AI coding workflows.
 
-- using-morevibe
-- bootstrap
-- start session
-- plan feature
-- execute plan
-- debug bug
-- delegate work
-- request review
-- apply review fixes
-- verify change
-- update docs
-- update handoff
-- finish task
-- report deployment
-- sync memory
-- ingest item
-- query harness
-- session brief
-- orchestrate subagents
-- write back answer
-- lint harness
-- test first
+### Claude Code
 
-## Adapter Strategy
+Supports project and global entry behavior through Claude-oriented files and bootstrap guidance.
 
 ### Codex
 
-- Uses `~/.codex/AGENTS.md` and project `AGENTS.md` as the primary startup lever
-- Uses `.morevibe/` as the project-local harness namespace
-- Uses `plugin/` and marketplace registration as secondary delivery helpers for Codex-specific assets
-
-### ClaudeCode
-
-- Uses project/global `CLAUDE.md` as the primary startup lever
-- Uses `.claude/commands`, `.claude/agents`, `UserPromptSubmit` hooks, and `Stop` hooks as supporting integration assets
-- Installer can create project `CLAUDE.md`, `.claude/settings.json`, commands, agents, and global bootstrap
+Supports Codex-oriented entry files and plugin/helper structure where applicable.
 
 ### Antigravity
 
-- Uses project/global `GEMINI.md` as the primary startup lever
-- Uses `.agents/rules/` and `run_command`-driven lifecycle behavior as supporting integration assets
-- Installer can create project `GEMINI.md`, `.agents/rules/`, `.agents/morevibe/scripts/`, and global bootstrap
+Supports Antigravity-oriented bootstrap behavior and adapter-level project entry.
 
-## Safe Installation Principle
+---
 
-MoreVibe should follow a strict non-destructive installation rule:
+## Compatibility Notes
 
-- do not overwrite existing project entry files without explicit intent
-- do not replace user config blindly
-- back up before replacing
-- merge when possible
-- add only the minimum bootstrap needed for the target tool
+Current support is strongest for workflows built around the adapters already included in this repository.
 
-This principle applies to:
+Behavior may vary depending on:
 
-- global user-level agent config
-- project root `AGENTS.md`
-- project root `CLAUDE.md`
-- project root `GEMINI.md`
-- project-local `.morevibe/`
-- plugin marketplace and registration files
+* tool version
+* local configuration
+* whether project-level or global-level files are respected
+* whether hooks or plugins are available in that environment
+* how aggressively the tool compresses or ignores prior context
 
-## Current Next Steps
+MoreVibe is designed to be **tool-aware**, but not every host exposes the same automation surface.
 
-1. Add deeper tool-specific automatic triggering where the host supports it.
-2. Turn adapter exports into tool-specific in-place installers when those hosts are fully confirmed.
+---
+
+## Current Reality
+
+MoreVibe is already useful, but it is important to describe its current state honestly.
+
+### What already exists
+
+* a working MoreVibe core structure
+* project templates
+* adapter-specific integration structure
+* Windows installer support
+* PowerShell install flow
+* repository layout intended for real-world project bootstrap
+
+### What is still evolving
+
+* stronger automation parity across all supported tools
+* more polished onboarding flows
+* better screenshots and guided examples
+* expanded documentation for edge cases and rollback
+* more refined host-specific behavior over time
+
+This project is real and usable, but still actively maturing.
+
+---
+
+## Repository Structure
+
+A typical high-level layout looks like this:
+
+```text
+.
+├─ adapters/
+├─ core/
+├─ docs/
+├─ installer-ui/
+├─ release/
+├─ scripts/
+├─ templates/
+└─ README.md
+```
+
+### Key areas
+
+* **`adapters/`**
+  Tool-specific integration logic and bootstrap assets
+
+* **`core/`**
+  Core MoreVibe concepts, shared content, and system-level structure
+
+* **`templates/`**
+  Template files used to initialize a project with MoreVibe
+
+* **`scripts/`**
+  Installation and packaging scripts
+
+* **`installer-ui/`**
+  Windows GUI installer source
+
+* **`release/`**
+  Packaged release assets or release-oriented build outputs
+
+* **`docs/`**
+  Supporting project documentation, release guidance, and future user docs
+
+---
+
+## Typical Project Layout After Installation
+
+A MoreVibe-enabled project will usually contain something like:
+
+```text
+your-project/
+├─ .morevibe/
+│  ├─ schema/
+│  ├─ sources/
+│  ├─ canon/
+│  └─ wiki/
+├─ AGENTS.md / CLAUDE.md / GEMINI.md
+└─ ...your project files...
+```
+
+### What each folder is for
+
+| Path                 | Purpose                                     |
+| -------------------- | ------------------------------------------- |
+| `.morevibe/schema/`  | rules, conventions, and operating behavior  |
+| `.morevibe/sources/` | raw inputs, evidence, notes, and references |
+| `.morevibe/canon/`   | official current project truth              |
+| `.morevibe/wiki/`    | AI-maintained summaries and working memory  |
+
+---
+
+## Recommended Usage Pattern
+
+A practical workflow looks like this:
+
+1. **Install MoreVibe into the project**
+2. **Define or update canon**
+
+   * project overview
+   * goals
+   * current architecture
+   * current tasks
+3. **Store raw notes in sources**
+4. **Let the AI summarize active state into wiki**
+5. **Keep schema stable**
+6. **Use canon as the authority**
+7. **Resume future sessions from the installed structure instead of raw chat history**
+
+This keeps the project more stable over time and reduces the need to “re-teach” the same context in every session.
+
+---
+
+## Example Workflow
+
+### Without structure
+
+You spend 2 weeks building a project with an AI tool.
+By the third or fourth major session:
+
+* the AI forgets prior decisions
+* task state is fuzzy
+* old explanations must be repeated
+* documents exist, but nobody knows which one is authoritative
+
+### With MoreVibe
+
+You install MoreVibe and maintain:
+
+* `sources/` for raw notes and imports
+* `canon/` for project truth
+* `wiki/` for current summarized state
+* `schema/` for operating rules
+
+Now a new session can begin by reading the project harness first, instead of depending on fragile chat memory alone.
+
+---
+
+## Design Principles
+
+MoreVibe is built around a few strong principles:
+
+### 1. Non-destructive by default
+
+It should avoid unnecessary overwrites and preserve existing project work whenever possible.
+
+### 2. Authority must be explicit
+
+Not every document should have the same status.
+Canon exists so the project can have a clearer source of truth.
+
+### 3. AI memory should be externalized
+
+Important project continuity should live in files, not only in chat history.
+
+### 4. Raw evidence should not automatically become truth
+
+Sources and canon are intentionally separated.
+
+### 5. Resume quality matters
+
+A long-running project is only useful if it can survive session breaks, context compression, and tool changes.
+
+### 6. Non-programmers need structure even more
+
+MoreVibe is especially motivated by users who do not already have professional engineering habits or infrastructure.
+
+---
+
+## Safety and Expectation Setting
+
+MoreVibe improves continuity and organization, but it does **not** guarantee:
+
+* correct code
+* correct architecture
+* safe edits
+* perfect agent behavior
+* automatic project success
+
+You should still:
+
+* review generated changes
+* use version control
+* keep backups
+* test important behavior
+* treat AI output as something to validate, not blindly trust
+
+---
+
+## FAQ
+
+### Does MoreVibe replace normal documentation?
+
+No.
+It gives your documentation system clearer structure and clearer responsibilities.
+
+### Does MoreVibe work only for programmers?
+
+No.
+In fact, one of its main goals is helping non-programmers run long AI-assisted projects more reliably.
+
+### Is this just a prompt pack?
+
+No.
+It is a project harness and memory structure, not just a collection of prompts.
+
+### Does it fully automate every supported tool?
+
+Not yet.
+Support depends on the tool and the automation surface it exposes.
+
+### Can I use MoreVibe manually?
+
+Yes.
+You can install and maintain the structure manually if you prefer.
+
+### Do I still need Git?
+
+Yes, strongly recommended.
+MoreVibe is not a replacement for version control.
+
+---
+
+## Rollback / Removal
+
+If you want to remove MoreVibe from a project:
+
+1. Delete the adapter entry files you added for your AI tool
+2. Remove the `.morevibe/` folder
+3. Restore any backed-up files if you replaced or merged existing project files
+4. Confirm your project still starts normally without the harness files
+
+If you are using the installer or scripts in a production workflow, it is wise to commit your project before installation so rollback is easy.
+
+---
+
+## Documentation
+
+Additional project documentation lives in the `docs/` directory.
+
+Suggested reading order for new users:
+
+1. `README.md`
+2. `docs/RELEASE_GUIDE.md`
+3. template documentation under `templates/`
+4. adapter-specific files under `adapters/`
+
+As the project matures, more user-facing guides, examples, and troubleshooting docs will be added there.
+
+---
+
+## Roadmap Direction
+
+The long-term goal of MoreVibe is not to become “the most complex AI workflow system.”
+
+The goal is narrower and more practical:
+
+* make long-running AI coding projects more durable
+* reduce context waste
+* improve session resumption
+* help non-programmers keep projects coherent
+* provide a reusable harness that can adapt across multiple AI coding tools
+
+In other words:
+
+> MoreVibe is about making AI coding projects easier to continue without falling apart.
+
+---
+
+## Contributing
+
+Contributions, issue reports, and practical feedback are welcome.
+
+Especially useful feedback includes:
+
+* installer problems
+* adapter-specific behavior differences
+* onboarding confusion
+* documentation gaps
+* examples of what worked or failed in real usage
+* suggestions that make MoreVibe easier for non-programmers to adopt
+
+If you open an issue, practical reproduction steps are extremely helpful.
+
+---
+
+## License
+
+Please see the repository license file for current licensing terms.
+
+---
+
+## Final Note
+
+MoreVibe was created from a very practical observation:
+
+AI coding tools are powerful, but long projects often fail because memory, authority, and continuity are poorly structured.
+
+MoreVibe is an attempt to fix that with a project harness that is simple in concept, durable in practice, and especially useful for people trying to build with AI without a traditional engineering background.
