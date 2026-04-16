@@ -253,6 +253,98 @@ function Configure-AgentFocusPathsForProjectType {
     }
 }
 
+function Get-ProjectRoleModel {
+    param(
+        [string]$ProjectType,
+        [hashtable]$DomainPaths
+    )
+
+    $frontendScope = if ($null -ne $DomainPaths -and $null -ne $DomainPaths.frontend) { ($DomainPaths.frontend -join ', ') } else { 'Frontend directories' }
+    $backendScope = if ($null -ne $DomainPaths -and $null -ne $DomainPaths.backend) { ($DomainPaths.backend -join ', ') } else { 'Backend directories' }
+    $normalizedType = if ([string]::IsNullOrWhiteSpace($ProjectType)) { "" } else { $ProjectType.ToLowerInvariant() }
+
+    switch ($normalizedType) {
+        "webapp" {
+            return @(
+                [ordered]@{ name = "pm-lead"; responsibility = "Orchestrates, plans, integrates, syncs canon/wiki"; scope = "All -- does not own files directly" },
+                [ordered]@{ name = "frontend-worker"; responsibility = "UI, routes, components, layout, and user flows"; scope = $frontendScope },
+                [ordered]@{ name = "backend-worker"; responsibility = "API, server logic, DB, integrations, and service contracts"; scope = $backendScope },
+                [ordered]@{ name = "qa-reviewer"; responsibility = "Read-only regression, risk, and documentation gap checks"; scope = "All -- read-only" }
+            )
+        }
+        "ecommerce" {
+            return @(
+                [ordered]@{ name = "pm-lead"; responsibility = "Orchestrates storefront, operations, orders, and canon/wiki sync"; scope = "All -- does not own files directly" },
+                [ordered]@{ name = "storefront-worker"; responsibility = "Customer-facing storefront, catalog, cart, and checkout UI"; scope = $frontendScope },
+                [ordered]@{ name = "admin-worker"; responsibility = "Admin screens, catalog controls, and operational dashboards"; scope = $frontendScope },
+                [ordered]@{ name = "orders-worker"; responsibility = "Checkout APIs, order lifecycle, payment-adjacent backend logic"; scope = $backendScope },
+                [ordered]@{ name = "qa-reviewer"; responsibility = "Read-only regression, order-flow risk, and documentation gap checks"; scope = "All -- read-only" }
+            )
+        }
+        "blog" {
+            return @(
+                [ordered]@{ name = "pm-lead"; responsibility = "Orchestrates content, layout, review, and canon/wiki sync"; scope = "All -- does not own files directly" },
+                [ordered]@{ name = "content-worker"; responsibility = "Content structure, publishing flow, article presentation"; scope = $frontendScope },
+                [ordered]@{ name = "layout-worker"; responsibility = "Templates, navigation, layout polish, presentation consistency"; scope = $frontendScope },
+                [ordered]@{ name = "qa-reviewer"; responsibility = "Read-only regression, publishing risk, and documentation gap checks"; scope = "All -- read-only" }
+            )
+        }
+        "api" {
+            return @(
+                [ordered]@{ name = "pm-lead"; responsibility = "Orchestrates contracts, data flow, review, and canon/wiki sync"; scope = "All -- does not own files directly" },
+                [ordered]@{ name = "routes-worker"; responsibility = "Route handlers, HTTP behavior, request/response contracts"; scope = $backendScope },
+                [ordered]@{ name = "data-worker"; responsibility = "Data flow, storage, schema usage, integration logic"; scope = $backendScope },
+                [ordered]@{ name = "qa-reviewer"; responsibility = "Read-only regression, contract risk, and documentation gap checks"; scope = "All -- read-only" }
+            )
+        }
+        default {
+            return @(
+                [ordered]@{ name = "pm-lead"; responsibility = "Orchestrates, plans, integrates, syncs canon/wiki"; scope = "All -- does not own files directly" },
+                [ordered]@{ name = "frontend-worker"; responsibility = "UI, pages, components, and layout work"; scope = $frontendScope },
+                [ordered]@{ name = "backend-worker"; responsibility = "API, server logic, DB, and integrations"; scope = $backendScope },
+                [ordered]@{ name = "qa-reviewer"; responsibility = "Read-only regression, risk, and documentation gap checks"; scope = "All -- read-only" }
+            )
+        }
+    }
+}
+
+function Configure-AntigravityRulesForProjectType {
+    param(
+        [string]$RulesRoot,
+        [string]$ProjectType,
+        [hashtable]$DomainPaths
+    )
+
+    if ([string]::IsNullOrWhiteSpace($RulesRoot)) { return }
+
+    $rulePath = Join-Path $RulesRoot "20-morevibe-subagents.md"
+    if (-not (Test-Path -LiteralPath $rulePath)) { return }
+
+    $roleRows = Get-ProjectRoleModel -ProjectType $ProjectType -DomainPaths $DomainPaths
+    $workerNames = @($roleRows | Where-Object { $_.name -ne "pm-lead" -and $_.name -ne "qa-reviewer" } | ForEach-Object { $_.name })
+    $teamTable = ($roleRows | ForEach-Object { "| **$($_.name)** | $($_.responsibility) | $($_.scope) |" }) -join "`r`n"
+    $focusSwitchGuide = if ($workerNames.Count -gt 0) {
+        "Switch focus to the appropriate worker role for implementation: " + (($workerNames | ForEach-Object { [char]96 + $_ + [char]96 }) -join ', ') + "."
+    } else {
+        "Switch focus to the appropriate worker role for implementation."
+    }
+
+    $normalizedType = if ([string]::IsNullOrWhiteSpace($ProjectType)) { "" } else { $ProjectType.ToLowerInvariant() }
+    $typeSpecificHints = switch ($normalizedType) {
+        "webapp" { '- Prefer `frontend-worker` for screen flow and `backend-worker` for API or data concerns.' }
+        "ecommerce" { '- Prefer `storefront-worker` for customer flows, `admin-worker` for operator tools, and `orders-worker` for checkout or order-state logic.' }
+        "blog" { '- Prefer `content-worker` for publishing structure and `layout-worker` for presentation or template changes.' }
+        "api" { '- Prefer `routes-worker` for contract changes and `data-worker` for storage or integration flow changes.' }
+        default { '- Prefer `frontend-worker` for UI scope and `backend-worker` for API, DB, or integration scope.' }
+    }
+
+    $content = Get-Content -LiteralPath $rulePath -Raw -Encoding UTF8
+    $content = $content.Replace("[TEAM_MODEL_ROWS]", $teamTable)
+    $content = $content.Replace("[FOCUS_SWITCH_GUIDE]", $focusSwitchGuide)
+    $content = $content.Replace("[TYPE_SPECIFIC_HINTS]", $typeSpecificHints)
+    Set-Content -LiteralPath $rulePath -Value $content -Encoding UTF8
+}
+
 function Install-ProjectSkills {
     param(
         [string]$ProjectRoot,
@@ -471,7 +563,10 @@ function Install-ClaudeProjectIntegration {
         Write-Host "  [agents] Project type preset '$($ProjectType.ToLower())' applied."
         Configure-AgentFocusPathsForProjectType -AgentsRoot $agentsRoot -ProjectType $ProjectType -DomainPaths $domainPaths
     } else {
-        Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\*") -Destination $agentsRoot -Recurse:$false -Force
+        $genericAgentsSource = Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents"
+        Get-ChildItem -LiteralPath $genericAgentsSource -File -Filter *.md | ForEach-Object {
+            Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $agentsRoot $_.Name) -Force
+        }
         Configure-AgentFocusPathsForProjectType -AgentsRoot $agentsRoot -ProjectType "" -DomainPaths $domainPaths
     }
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\CLAUDE.morevibe.md") -Destination (Join-Path $morevibeRoot "CLAUDE.morevibe.md") -Force
@@ -618,7 +713,8 @@ function Get-ProjectBootstrapHealth {
 function Install-AntigravityProjectIntegration {
     param(
         [string]$ProjectRoot,
-        [string]$ScriptRootPath
+        [string]$ScriptRootPath,
+        [string]$ProjectType = ""
     )
 
     if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return $null }
@@ -636,6 +732,9 @@ function Install-AntigravityProjectIntegration {
     foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {
         Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\plugin\scripts\$scriptFile") -Destination (Join-Path $scriptsRoot $scriptFile) -Force
     }
+
+    $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
+    Configure-AntigravityRulesForProjectType -RulesRoot $rulesRoot -ProjectType $ProjectType -DomainPaths $domainPaths
 
     $geminiResult = Apply-TextBootstrap -LiteralPath $geminiPath -SnippetPath (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\GEMINI.morevibe.md") -Marker "This project uses MoreVibe as an internal harness." -DefaultHeader "# Gemini Project Rules" -MissingReason "Gemini project file missing."
 
@@ -726,7 +825,7 @@ if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
         $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectType $ProjectType
     }
     if ($InstallAntigravity) {
-        $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
+        $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectType $ProjectType
     }
     & python (Join-Path $scriptRoot '..\..\plugin\scripts\render_morevibe_project_schema.py') --project-root $resolvedProjectPath | Out-Null
     $projectBootstrapHealth = Get-ProjectBootstrapHealth -ProjectRoot $resolvedProjectPath -ExpectCodex $InstallCodex -ExpectClaude $InstallClaudeCode -ProjectType $ProjectType

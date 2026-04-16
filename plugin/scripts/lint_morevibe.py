@@ -129,6 +129,14 @@ def main() -> None:
             passes.append("- Specialist skill section detected in `schema/PROJECT_SKILLS.md`.")
         else:
             warnings.append("- No specialist skill section detected in `schema/PROJECT_SKILLS.md`.")
+        if "Active skills" in project_skills_text:
+            passes.append("- Active skill section detected in `schema/PROJECT_SKILLS.md`.")
+        else:
+            warnings.append("- No active skill section detected in `schema/PROJECT_SKILLS.md`.")
+        if "Fallback skills" in project_skills_text:
+            passes.append("- Fallback skill section detected in `schema/PROJECT_SKILLS.md`.")
+        else:
+            warnings.append("- No fallback skill section detected in `schema/PROJECT_SKILLS.md`.")
         if "Natural-language routing notes" in project_skills_text:
             passes.append("- Natural-language routing notes detected in `schema/PROJECT_SKILLS.md`.")
         else:
@@ -141,6 +149,10 @@ def main() -> None:
             passes.append("- Natural-language examples detected in `schema/SKILL_ROUTING.md`.")
         else:
             warnings.append("- No natural-language examples detected in `schema/SKILL_ROUTING.md`.")
+        if "Fallback skills" in routing_text:
+            passes.append("- Fallback skill section detected in `schema/SKILL_ROUTING.md`.")
+        else:
+            warnings.append("- No fallback skill section detected in `schema/SKILL_ROUTING.md`.")
 
     summary_line = f"- Issues: {len(issues)} | Warnings: {len(warnings)} | Passes: {len(passes)}"
     report_lines = [

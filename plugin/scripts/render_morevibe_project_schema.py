@@ -39,6 +39,10 @@ def pick_many(existing: set[str], *names: str) -> list[str]:
     return [name for name in names if name in existing]
 
 
+def unique(items: list[str]) -> list[str]:
+    return list(dict.fromkeys(items))
+
+
 def choose_skill_map(existing: set[str]) -> dict[str, object]:
     start = pick_first(existing, 'start-session', 'morevibe-start-session', 'morevibe-session-brief')
     bootstrap = pick_first(existing, 'project-bootstrap', 'morevibe-session-brief')
@@ -74,11 +78,11 @@ def choose_skill_map(existing: set[str]) -> dict[str, object]:
     support = [name for name in [delegate, test_first, report, query, sync, ingest, writeback, lint] if name]
 
     feature = [name for name in [start, bootstrap, plan, execute, review, review_fix, verify, finish, update_docs, update_handoff, sync] if name]
-    feature = list(dict.fromkeys(feature))
+    feature = unique(feature)
     bug = [name for name in [start, bootstrap, debug, review, review_fix, verify, finish, update_docs, update_handoff, sync] if name]
-    bug = list(dict.fromkeys(bug))
+    bug = unique(bug)
     docs_flow = [name for name in [start, bootstrap, verify, finish, update_docs, update_handoff, sync] if name]
-    docs_flow = list(dict.fromkeys(docs_flow))
+    docs_flow = unique(docs_flow)
     known_specialist = [
         name for name in [
             review_risk,
@@ -93,8 +97,13 @@ def choose_skill_map(existing: set[str]) -> dict[str, object]:
             onboard_project,
         ] if name
     ]
+    active = unique(startup + feature + bug + docs_flow + support + known_specialist)
+    active_set = set(active)
+    fallback = sorted(name for name in existing if name.startswith('morevibe-') and name not in active_set)
+    fallback_set = set(fallback)
     claimed = set(feature + bug + docs_flow + support + known_specialist)
     specialist = list(dict.fromkeys(known_specialist + sorted(name for name in existing if name not in claimed and not name.startswith('morevibe-'))))
+    dormant = sorted(name for name in existing if name not in active_set and name not in fallback_set and name not in specialist)
 
     return {
         'startup': startup,
@@ -103,6 +112,9 @@ def choose_skill_map(existing: set[str]) -> dict[str, object]:
         'docs': docs_flow,
         'support': support,
         'specialist': specialist,
+        'active': active,
+        'fallback': fallback,
+        'dormant': dormant,
         'delegate': delegate,
         'query': query,
         'sync': sync,
@@ -114,7 +126,12 @@ def choose_role_model(agents: dict[str, list[str]]) -> dict[str, object]:
     all_agents = agents['all']
     lead = 'pm-lead' if 'pm-lead' in all_agents else ('morevibe-orchestrator' if 'morevibe-orchestrator' in all_agents else 'main-agent')
     reviewer = 'qa-reviewer' if 'qa-reviewer' in all_agents else ('morevibe-reviewer' if 'morevibe-reviewer' in all_agents else None)
-    worker_candidates = [a for a in all_agents if a not in {lead, reviewer}]
+    alias_exclusions: set[str] = set()
+    if lead == 'pm-lead' and 'morevibe-orchestrator' in all_agents:
+        alias_exclusions.add('morevibe-orchestrator')
+    if reviewer == 'qa-reviewer' and 'morevibe-reviewer' in all_agents:
+        alias_exclusions.add('morevibe-reviewer')
+    worker_candidates = [a for a in all_agents if a not in {lead, reviewer} and a not in alias_exclusions]
     if not worker_candidates:
         worker_candidates = ['implementation-owner']
     return {
@@ -219,6 +236,18 @@ def build_skill_routing(skill_map: dict[str, object]) -> str:
         '',
         bullets(skill_map['specialist'], 'No specialist skills detected.'),
         '',
+        '## Active skills',
+        '',
+        bullets(skill_map['active'], 'No active skills detected.'),
+        '',
+        '## Fallback skills',
+        '',
+        bullets(skill_map['fallback'], 'No fallback compatibility skills detected.'),
+        '',
+        '## Dormant skills',
+        '',
+        bullets(skill_map['dormant'], 'No dormant skills detected.'),
+        '',
         '## Natural-language examples',
         '',
         '- "plan this feature first" -> feature work + specialist planning skills',
@@ -282,6 +311,18 @@ def build_project_skills(skill_map: dict[str, object], role_map: dict[str, objec
         '## Detected specialist skills',
         '',
         bullets(skill_map['specialist'], 'No specialist skills detected.'),
+        '',
+        '## Active skills',
+        '',
+        bullets(skill_map['active'], 'No active skills detected.'),
+        '',
+        '## Fallback skills',
+        '',
+        bullets(skill_map['fallback'], 'No fallback compatibility skills detected.'),
+        '',
+        '## Dormant skills',
+        '',
+        bullets(skill_map['dormant'], 'No dormant skills detected.'),
         '',
         '## Natural-language routing notes',
         '',

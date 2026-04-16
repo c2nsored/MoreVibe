@@ -8,10 +8,7 @@ and use `run_command` where MoreVibe scripts are available.
 
 | Role | Responsibility | File scope |
 |---|---|---|
-| **pm-lead** | Orchestrates, plans, integrates, syncs canon/wiki | All — does not own files directly |
-| **frontend-worker** | UI, pages, components, layout | Frontend directories (customize per project) |
-| **backend-worker** | API, server logic, DB, integrations | Backend directories (customize per project) |
-| **qa-reviewer** | Read-only regression, risk, and documentation gap checks | All — read-only |
+[TEAM_MODEL_ROWS]
 
 ## Ownership rules
 
@@ -25,7 +22,7 @@ and use `run_command` where MoreVibe scripts are available.
 Since Antigravity runs as a single agent, apply the team model as a mental partitioning strategy:
 
 1. Start as `pm-lead` — restore context from `.morevibe/`, plan the work, decide ownership.
-2. Switch focus to the appropriate worker role for implementation.
+2. [FOCUS_SWITCH_GUIDE]
 3. Switch to `qa-reviewer` focus for regression and risk checks before finalizing.
 4. Return to `pm-lead` to integrate, update canon/wiki, and report.
 
@@ -40,3 +37,5 @@ Even within a single Antigravity session, apply the split when:
 - The task touches both frontend and backend boundaries.
 - A documentation sync is needed alongside implementation.
 - A regression check should happen before the final answer.
+
+[TYPE_SPECIFIC_HINTS]
