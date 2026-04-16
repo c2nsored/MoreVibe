@@ -112,6 +112,7 @@ set "PROJECT_PATH="
 set /p "PROJECT_PATH=Project root path (optional): "
 
 set "PROJECT_TYPE="
+set "PROJECT_PRESET="
 if not "%PROJECT_PATH%"=="" (
   echo.
   echo What type of project is this?
@@ -127,11 +128,21 @@ if not "%PROJECT_PATH%"=="" (
   if errorlevel 3 if not errorlevel 4 set "PROJECT_TYPE=blog"
   if errorlevel 2 if not errorlevel 3 set "PROJECT_TYPE=ecommerce"
   if errorlevel 1 if not errorlevel 2 set "PROJECT_TYPE=webapp"
+
+  echo.
+  echo Apply the "기본 스타일" preset?
+  echo   This installs a stronger native workflow:
+  echo   start-session, project-bootstrap, plan-feature, execute-plan,
+  echo   and preset-specific agent roles.
+  echo.
+  choice /C YN /M "Enable 기본 스타일 preset"
+  if errorlevel 1 if not errorlevel 2 set "PROJECT_PRESET=default-style"
 )
 
 set "INSTALL_ARGS="
 if not "%PROJECT_PATH%"=="" set "INSTALL_ARGS=-ProjectPath ""%PROJECT_PATH%"""
 if not "%PROJECT_TYPE%"=="" set "INSTALL_ARGS=%INSTALL_ARGS% -ProjectType ""%PROJECT_TYPE%"""
+if not "%PROJECT_PRESET%"=="" set "INSTALL_ARGS=%INSTALL_ARGS% -ProjectPreset ""%PROJECT_PRESET%"""
 
 echo ------------------------------------------
 if "%PROJECT_PATH%"=="" (
@@ -142,6 +153,11 @@ if "%PROJECT_PATH%"=="" (
     echo Project type : Generic (auto-detect)
   ) else (
     echo Project type : %PROJECT_TYPE%
+  )
+  if "%PROJECT_PRESET%"=="" (
+    echo Project preset : [none]
+  ) else (
+    echo Project preset : %PROJECT_PRESET% ^(기본 스타일^)
   )
 )
 echo Targets      : %TARGET_SUMMARY%

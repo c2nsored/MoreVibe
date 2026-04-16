@@ -58,8 +58,8 @@ public sealed class InstallerService
             Success = process.ExitCode == 0,
             ExitCode = process.ExitCode,
             Summary = process.ExitCode == 0
-                ? "설치가 완료되었습니다. 이제 선택한 AI 환경에서 새 세션을 시작할 수 있습니다."
-                : $"설치가 실패했습니다. 종료 코드: {process.ExitCode}"
+                ? "설치가 완료되었습니다. 이제 선택한 AI 도구에서 새 세션을 시작할 수 있습니다."
+                : $"설치에 실패했습니다. 종료 코드: {process.ExitCode}"
         };
     }
 
@@ -76,6 +76,7 @@ public sealed class InstallerService
         if (request.InstallAntigravity) parts.Add("-InstallAntigravity");
         if (!string.IsNullOrWhiteSpace(request.ProjectPath)) parts.Add($"-ProjectPath \"{request.ProjectPath}\"");
         if (!string.IsNullOrWhiteSpace(request.ProjectType)) parts.Add($"-ProjectType \"{request.ProjectType}\"");
+        if (!string.IsNullOrWhiteSpace(request.ProjectPreset)) parts.Add($"-ProjectPreset \"{request.ProjectPreset}\"");
         if (request.ForceProjectTemplate) parts.Add("-ForceProjectTemplate");
 
         return string.Join(" ", parts);

@@ -1,0 +1,15 @@
+# MoreVibe project-scoped Codex config
+# 기본 스타일 preset: lead-first orchestration with a richer native workflow.
+
+model = "gpt-5.4"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+[agents]
+max_threads = 6
+max_depth = 1
+
+[env]
+TZ = "Asia/Tokyo"
+LANG = "ko_KR.UTF-8"
+LC_ALL = "ko_KR.UTF-8"

@@ -18,6 +18,7 @@ public sealed class MainViewModel : ViewModelBase
     private bool _skipProjectBootstrap;
     private bool _forceProjectTemplate;
     private string _projectType = "webapp";
+    private bool _useDefaultStylePreset;
     private bool _isInstalling;
     private bool _installSucceeded;
     private string _projectPath = string.Empty;
@@ -193,14 +194,34 @@ public sealed class MainViewModel : ViewModelBase
         set { if (value) SetProjectType(""); }
     }
 
+    public bool UseDefaultStylePreset
+    {
+        get => _useDefaultStylePreset;
+        set
+        {
+            if (SetProperty(ref _useDefaultStylePreset, value))
+            {
+                OnPropertyChanged(nameof(ProjectPresetSummary));
+                OnPropertyChanged(nameof(ProjectSummary));
+            }
+        }
+    }
+
+    public string? ProjectPreset => UseDefaultStylePreset ? "default-style" : null;
+
     public string ProjectTypeSummary => _projectType switch
     {
-        "webapp" => "웹 앱 (일반) — frontend-worker + backend-worker",
-        "ecommerce" => "쇼핑몰 / 이커머스 — storefront-worker + admin-worker + orders-worker",
-        "blog" => "블로그 / 콘텐츠 — content-worker + layout-worker",
-        "api" => "API 서버 — routes-worker + data-worker",
-        _ => "기타 (자동 감지) — 프로젝트 구조를 분석하여 경로 자동 설정"
+        "webapp" => "웹앱(일반): frontend-worker + backend-worker",
+        "ecommerce" => "이커머스: storefront-worker + admin-worker + orders-worker",
+        "blog" => "블로그/콘텐츠: content-worker + layout-worker",
+        "api" => "API 서버: routes-worker + data-worker",
+        _ => "기타(자동 감지): 프로젝트 구조를 분석해 기본 경로를 설정"
     };
+
+    public string ProjectPresetSummary =>
+        UseDefaultStylePreset
+            ? "기본 스타일 preset 활성화"
+            : "프리셋 없음";
 
     private void SetProjectType(string type)
     {
@@ -281,7 +302,7 @@ public sealed class MainViewModel : ViewModelBase
     public string ProjectSummary =>
         SkipProjectBootstrap || string.IsNullOrWhiteSpace(ProjectPath)
             ? "프로젝트 부트스트랩 건너뜀"
-            : $"{ProjectPath}  |  유형: {ProjectTypeSummary.Split('—')[0].Trim()}";
+            : $"{ProjectPath}  |  유형: {ProjectTypeSummary.Split(':')[0].Trim()}  |  프리셋: {ProjectPresetSummary}";
 
     private void BrowseProjectPath()
     {
@@ -376,6 +397,7 @@ public sealed class MainViewModel : ViewModelBase
                 InstallAntigravity = InstallAntigravity,
                 ProjectPath = SkipProjectBootstrap ? null : ProjectPath,
                 ProjectType = SkipProjectBootstrap ? null : (string.IsNullOrEmpty(_projectType) ? null : _projectType),
+                ProjectPreset = SkipProjectBootstrap ? null : ProjectPreset,
                 ForceProjectTemplate = ForceProjectTemplate
             },
             AddLog,

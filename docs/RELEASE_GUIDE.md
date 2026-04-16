@@ -34,6 +34,7 @@ The release package should reflect the current install behavior:
 - install default MoreVibe project skills into `.agents/skills/`
 - install `.claude/skills/` for Claude Code targets
 - install project-local `.codex/` files for Codex targets
+- support an optional `default-style` preset that installs native workflow aliases and richer role templates
 - print a project bootstrap health summary after installation
 
 ## Future release target

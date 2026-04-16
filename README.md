@@ -148,6 +148,13 @@ If you want the easiest path on Windows:
 After installation, MoreVibe will place the project harness and supported adapter files into the selected project.
 For a new or empty project, it can also create a starter `AGENTS.md`, install the default MoreVibe skill set, and generate project-local role files for supported tools.
 
+If you enable the **default style** preset during installation, MoreVibe also adds:
+
+- native workflow aliases such as `start-session`, `project-bootstrap`, `plan-feature`, and `execute-plan`
+- a stronger preset-specific `AGENTS.md`
+- richer project-local roles such as `pm-lead`, `storefront-ui`, `custom-editor`, `payments-orders`, and `qa-reviewer`
+- matching Codex and Claude role models for the same project
+
 ---
 
 ## Option 2 — PowerShell Script
@@ -328,6 +335,13 @@ Depending on the selected target tools, installation may also add:
 - `.agents/skills/` with the default MoreVibe workflow skills
 - `.claude/skills/` and `.claude/agents/` for Claude Code
 - `.codex/config.toml` and `.codex/agents/*.toml` for Codex
+
+If the **default style** preset is enabled, installation may additionally add:
+
+- native alias skills layered on top of the generic `morevibe-*` skills
+- preset-specific project `AGENTS.md` guidance
+- `storefront-ui`, `custom-editor`, and `payments-orders` role templates for both Codex and Claude Code
+- a generated project schema that prefers the native startup chain over generic fallback names
 
 ---
 

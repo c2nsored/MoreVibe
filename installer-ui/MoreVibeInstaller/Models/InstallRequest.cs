@@ -7,5 +7,6 @@ public sealed class InstallRequest
     public bool InstallAntigravity { get; init; }
     public string? ProjectPath { get; init; }
     public string? ProjectType { get; init; }
+    public string? ProjectPreset { get; init; }
     public bool ForceProjectTemplate { get; init; }
 }

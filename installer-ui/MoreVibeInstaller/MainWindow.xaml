@@ -70,7 +70,7 @@
                                Text="{Binding CurrentStepTitle}" />
                     <TextBlock Margin="0,8,0,0"
                                Foreground="#475569"
-                               Text="초보자도 따라갈 수 있도록 단계별로 설치를 진행합니다." />
+                               Text="초보자도 따라가기 쉽도록 단계별로 설치를 진행합니다." />
                 </StackPanel>
 
                 <Grid Grid.Row="1"
