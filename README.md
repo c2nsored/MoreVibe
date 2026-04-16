@@ -1,29 +1,29 @@
 # MoreVibe
 
-**A structured project memory harness for long-running AI coding workflows.**
+**A project memory and workflow harness for long-running AI coding.**
 
-MoreVibe helps AI coding tools such as **Claude Code**, **Codex**, and **Antigravity** work more consistently over long projects by moving project memory out of fragile chat history and into a maintainable project structure.
+MoreVibe helps tools such as **Codex**, **Claude Code**, and **Antigravity** keep working consistently across long projects by moving important context out of fragile chat history and into a durable project structure.
 
-It is designed for builders who want:
+It is designed for people who want:
 
-- durable project continuity across sessions
-- clear authority between raw notes and official project truth
-- reusable workflow skills and role-based delegation
-- a setup that non-programmers can install and use without hand-building an operating model
+- better continuity across many sessions
+- clear separation between raw notes, working memory, and authoritative project truth
+- reusable workflow skills instead of repeating the same process in every chat
+- a setup that non-programmers can install without building an operating model by hand
 
 ---
 
 ## What MoreVibe Solves
 
-Long-running AI projects often degrade in predictable ways:
+Long AI coding projects often lose quality in predictable ways:
 
-- important decisions disappear into old chat logs
-- the same context must be re-explained repeatedly
-- notes, plans, and official documentation become mixed together
-- agent behavior becomes inconsistent across sessions
-- non-programmers have no stable project operating model
+- important decisions disappear into old conversations
+- the same context must be re-explained over and over
+- notes, plans, and official documentation get mixed together
+- agent behavior becomes inconsistent between sessions
+- non-programmers have no stable structure for planning, review, and handoff
 
-MoreVibe addresses that by giving the project itself a structured memory system.
+MoreVibe addresses that by giving the project its own memory system and workflow scaffolding.
 
 ---
 
@@ -32,19 +32,19 @@ MoreVibe addresses that by giving the project itself a structured memory system.
 MoreVibe separates project knowledge into four layers:
 
 - `sources/`
-  Raw inputs, references, notes, logs, and research. Useful, but not automatically authoritative.
+  Raw references, research, notes, logs, and imported material.
 - `canon/`
   The current source of truth for the project: overview, architecture, tasks, decisions, operations, and handoff.
 - `wiki/`
-  AI-maintained working memory that helps future sessions resume quickly.
+  AI-maintained working memory that helps future sessions resume faster.
 - `schema/`
-  Operating rules that define what should be read first, how the harness behaves, and how project memory should be maintained.
+  Operating rules that define what to read first, how the harness behaves, and how memory should be maintained.
 
-This distinction reduces confusion between:
+This reduces confusion between:
 
 - evidence and truth
 - temporary memory and durable memory
-- private notes and official decisions
+- raw notes and official decisions
 - session chatter and project structure
 
 ---
@@ -55,39 +55,54 @@ Depending on the selected tools, MoreVibe can create or update:
 
 - a project-local `.morevibe/` harness
 - a root `AGENTS.md` entrypoint when one does not already exist
-- `.agents/skills/` project workflow skills
+- `.agents/skills/` with both generic `morevibe-*` skills and native workflow aliases
 - `.claude/skills/` and `.claude/agents/`
 - `.codex/config.toml` and `.codex/agents/*.toml`
-- session bootstrap and schema files generated from the actual installed workflow
+- rendered schema files that reflect the workflow and delegation model actually installed
 
-The result is a project that carries more of its own operating context, instead of depending on a single conversation thread.
+The result is a project that carries more of its own operating context instead of depending on a single conversation thread.
 
 ---
 
-## Default Style Preset
+## Native Workflow
 
-MoreVibe includes a user-facing **default style** preset for teams or solo builders who want a stronger project operating model out of the box.
+MoreVibe installs a shared native workflow layer that can be used across project types:
 
-When enabled, it adds:
+- `start-session`
+- `project-bootstrap`
+- `plan-feature`
+- `execute-plan`
+- `debug-bug`
+- `request-code-review`
+- `apply-review-fixes`
+- `verify-change`
+- `finish-task`
+- `update-docs`
+- `update-handoff`
+- `delegate-work`
+- `tdd-or-test-first`
+- `report-deployment-status`
 
-- native workflow aliases such as:
-  - `start-session`
-  - `project-bootstrap`
-  - `plan-feature`
-  - `execute-plan`
-  - `debug-bug`
-  - `request-code-review`
-  - `verify-change`
-- a stronger project `AGENTS.md`
-- richer role templates such as:
-  - `pm-lead`
-  - `storefront-ui`
-  - `custom-editor`
-  - `payments-orders`
-  - `qa-reviewer`
-- aligned Codex and Claude project-local role models for the same project
+These aliases sit on top of the generic `morevibe-*` skills so a project can keep a readable, repeatable operating model without being tied to a special-purpose domain preset.
 
-This makes a new or empty project feel much closer to a real operating environment from the first session.
+---
+
+## Project Type Presets
+
+MoreVibe keeps the workflow consistent while adapting role templates to the project type.
+
+- `webapp`
+  `pm-lead`, `frontend-worker`, `backend-worker`, `qa-reviewer`
+- `ecommerce`
+  `pm-lead`, `storefront-worker`, `admin-worker`, `orders-worker`, `qa-reviewer`
+- `blog`
+  `pm-lead`, `content-worker`, `layout-worker`, `qa-reviewer`
+- `api`
+  `pm-lead`, `routes-worker`, `data-worker`, `qa-reviewer`
+- `generic`
+  fallback role model when no specific project type is selected
+
+This keeps MoreVibe broadly useful for non-programmers while avoiding project-specific custom roles that only make sense in one product.
 
 ---
 
@@ -96,7 +111,7 @@ This makes a new or empty project feel much closer to a real operating environme
 MoreVibe is especially useful for:
 
 - non-programmers building real products with AI coding tools
-- solo builders running long projects across many sessions
+- solo builders running long projects over many sessions
 - teams or individuals who want explicit workflow, memory, and ownership rules
 - projects where continuity matters more than one-off prompting
 
@@ -116,7 +131,7 @@ It is less suitable for users who want:
 2. Run `MoreVibeInstaller.exe` or extract the packaged ZIP.
 3. Choose your target AI tool(s).
 4. Choose the target project folder.
-5. Optionally choose a project type and the **default style** preset.
+5. Choose the project type that best matches the project.
 6. Complete installation.
 7. Start your AI tool from the project root.
 
@@ -126,13 +141,7 @@ The installer prints a bootstrap health summary so you can confirm that entrypoi
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass
-.\scripts\install-morevibe.ps1
-```
-
-Useful options include project type selection and:
-
-```powershell
--ProjectPreset default-style
+.\installer\windows\install-morevibe.ps1 -InstallCodex -InstallClaudeCode -ProjectPath "C:\path\to\your-project" -ProjectType webapp
 ```
 
 ---
@@ -152,8 +161,6 @@ your-project/
 ├─ AGENTS.md
 └─ ...project files...
 ```
-
-If the **default style** preset is enabled, native skill aliases and preset-specific agent templates are added on top of the base MoreVibe structure.
 
 ---
 
@@ -190,7 +197,7 @@ If the **default style** preset is enabled, native skill aliases and preset-spec
 - **Workflow should be reusable**
   Common task patterns should be installed as skills and repeatable operating rules.
 - **Non-programmers need structure**
-  The product is intentionally designed to reduce the hidden process burden on users without a formal engineering background.
+  The product is intentionally designed to reduce hidden process burden.
 
 ---
 
@@ -221,7 +228,7 @@ Recommended reading order:
 
 ## Final Note
 
-MoreVibe was created from a practical observation:
+MoreVibe comes from a simple practical observation:
 
 > AI coding tools are powerful, but long projects fail when memory, authority, workflow, and ownership are not structured well enough.
 

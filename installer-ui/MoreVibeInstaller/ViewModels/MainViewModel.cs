@@ -18,7 +18,6 @@ public sealed class MainViewModel : ViewModelBase
     private bool _skipProjectBootstrap;
     private bool _forceProjectTemplate;
     private string _projectType = "webapp";
-    private bool _useDefaultStylePreset;
     private bool _isInstalling;
     private bool _installSucceeded;
     private string _projectPath = string.Empty;
@@ -43,8 +42,12 @@ public sealed class MainViewModel : ViewModelBase
         NextCommand = new RelayCommand(NextStep, CanMoveForward);
         BackCommand = new RelayCommand(BackStep, CanMoveBackward);
         BrowseProjectPathCommand = new RelayCommand(BrowseProjectPath, () => !SkipProjectBootstrap && !IsInstalling);
-        OpenProjectFolderCommand = new RelayCommand(OpenProjectFolder, () => CurrentStep == WizardStep.Result && !string.IsNullOrWhiteSpace(ProjectPath) && Directory.Exists(ProjectPath));
-        CloseCommand = new RelayCommand(() => CloseRequested?.Invoke(this, EventArgs.Empty), () => CurrentStep == WizardStep.Result);
+        OpenProjectFolderCommand = new RelayCommand(
+            OpenProjectFolder,
+            () => CurrentStep == WizardStep.Result && !string.IsNullOrWhiteSpace(ProjectPath) && Directory.Exists(ProjectPath));
+        CloseCommand = new RelayCommand(
+            () => CloseRequested?.Invoke(this, EventArgs.Empty),
+            () => CurrentStep == WizardStep.Result);
     }
 
     public event EventHandler? CloseRequested;
@@ -92,9 +95,6 @@ public sealed class MainViewModel : ViewModelBase
     public string PrimaryActionText => CurrentStep switch
     {
         WizardStep.Welcome => "시작",
-        WizardStep.Targets => "다음",
-        WizardStep.Project => "다음",
-        WizardStep.ProjectType => "다음",
         WizardStep.Review => "설치 시작",
         WizardStep.Progress => "설치 중",
         WizardStep.Result => "완료",
@@ -190,38 +190,18 @@ public sealed class MainViewModel : ViewModelBase
 
     public bool ProjectTypeGeneric
     {
-        get => _projectType == "";
-        set { if (value) SetProjectType(""); }
+        get => _projectType == string.Empty;
+        set { if (value) SetProjectType(string.Empty); }
     }
-
-    public bool UseDefaultStylePreset
-    {
-        get => _useDefaultStylePreset;
-        set
-        {
-            if (SetProperty(ref _useDefaultStylePreset, value))
-            {
-                OnPropertyChanged(nameof(ProjectPresetSummary));
-                OnPropertyChanged(nameof(ProjectSummary));
-            }
-        }
-    }
-
-    public string? ProjectPreset => UseDefaultStylePreset ? "default-style" : null;
 
     public string ProjectTypeSummary => _projectType switch
     {
-        "webapp" => "웹앱(일반): frontend-worker + backend-worker",
-        "ecommerce" => "이커머스: storefront-worker + admin-worker + orders-worker",
-        "blog" => "블로그/콘텐츠: content-worker + layout-worker",
-        "api" => "API 서버: routes-worker + data-worker",
-        _ => "기타(자동 감지): 프로젝트 구조를 분석해 기본 경로를 설정"
+        "webapp" => "웹앱: frontend-worker + backend-worker + qa-reviewer",
+        "ecommerce" => "이커머스: storefront-worker + admin-worker + orders-worker + qa-reviewer",
+        "blog" => "블로그: content-worker + layout-worker + qa-reviewer",
+        "api" => "API 서버: routes-worker + data-worker + qa-reviewer",
+        _ => "기타(자동 감지): 프로젝트 구조를 바탕으로 범용 역할을 배치합니다."
     };
-
-    public string ProjectPresetSummary =>
-        UseDefaultStylePreset
-            ? "기본 스타일 preset 활성화"
-            : "프리셋 없음";
 
     private void SetProjectType(string type)
     {
@@ -295,14 +275,14 @@ public sealed class MainViewModel : ViewModelBase
             if (InstallCodex) targets.Add("Codex");
             if (InstallClaudeCode) targets.Add("Claude Code");
             if (InstallAntigravity) targets.Add("Antigravity");
-            return targets.Count == 0 ? "선택된 대상 없음" : string.Join(", ", targets);
+            return targets.Count == 0 ? "선택된 대상이 없습니다." : string.Join(", ", targets);
         }
     }
 
     public string ProjectSummary =>
         SkipProjectBootstrap || string.IsNullOrWhiteSpace(ProjectPath)
-            ? "프로젝트 부트스트랩 건너뜀"
-            : $"{ProjectPath}  |  유형: {ProjectTypeSummary.Split(':')[0].Trim()}  |  프리셋: {ProjectPresetSummary}";
+            ? "프로젝트 부트스트랩을 건너뜁니다."
+            : $"{ProjectPath} | 유형: {ProjectTypeSummary.Split(':')[0].Trim()}";
 
     private void BrowseProjectPath()
     {
@@ -397,14 +377,13 @@ public sealed class MainViewModel : ViewModelBase
                 InstallAntigravity = InstallAntigravity,
                 ProjectPath = SkipProjectBootstrap ? null : ProjectPath,
                 ProjectType = SkipProjectBootstrap ? null : (string.IsNullOrEmpty(_projectType) ? null : _projectType),
-                ProjectPreset = SkipProjectBootstrap ? null : ProjectPreset,
                 ForceProjectTemplate = ForceProjectTemplate
             },
             AddLog,
             CancellationToken.None);
 
         InstallSucceeded = result.Success;
-        ResultTitle = result.Success ? "설치가 완료되었습니다" : "설치 중 문제가 발생했습니다";
+        ResultTitle = result.Success ? "설치가 완료되었습니다." : "설치 중 문제가 발생했습니다.";
         ResultMessage = result.Summary;
         StatusText = result.Summary;
         CurrentStep = WizardStep.Result;

@@ -1,0 +1,21 @@
+# MoreVibe project-scoped Codex config
+# Shared project facts live in AGENTS.md.
+# Project-local Codex role definitions live in .codex/agents/*.toml.
+
+model = "gpt-5.4"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+
+# Operating model:
+# - The main Codex in the user-facing thread acts as an orchestrator first.
+# - All work should be routed through pm-lead first, unless the task is trivial.
+# - pm-lead decides whether to handle the task directly or assign worker agents.
+
+[agents]
+max_threads = 6
+max_depth = 1
+
+[env]
+TZ = "Asia/Tokyo"
+LANG = "ko_KR.UTF-8"
+LC_ALL = "ko_KR.UTF-8"

@@ -5,7 +5,7 @@
         <TextBlock FontSize="22" FontWeight="SemiBold" Text="프로젝트 유형 선택" />
         <TextBlock Margin="0,10,0,0"
                    TextWrapping="Wrap"
-                   Text="프로젝트 유형을 선택하면 그에 맞는 기본 에이전트 구성이 함께 설치됩니다." />
+                   Text="프로젝트 유형을 고르면 그에 맞는 기본 역할 구성과 문서 중심 workflow가 함께 설치됩니다." />
 
         <StackPanel Margin="0,20,0,0">
             <RadioButton GroupName="ProjectType"
@@ -13,7 +13,7 @@
                          IsChecked="{Binding ProjectTypeWebApp}">
                 <StackPanel>
                     <TextBlock FontWeight="SemiBold" Text="웹앱(일반)" />
-                    <TextBlock Foreground="#475569" Text="프론트엔드와 백엔드가 함께 있는 일반적인 웹 서비스" />
+                    <TextBlock Foreground="#475569" Text="프론트엔드와 백엔드가 함께 있는 일반적인 웹 서비스 프로젝트" />
                 </StackPanel>
             </RadioButton>
 
@@ -33,7 +33,7 @@
                          IsChecked="{Binding ProjectTypeBlog}">
                 <StackPanel>
                     <TextBlock FontWeight="SemiBold" Text="블로그 / 콘텐츠 사이트" />
-                    <TextBlock Foreground="#475569" Text="글과 콘텐츠 전달이 중심인 사이트" />
+                    <TextBlock Foreground="#475569" Text="글과 콘텐츠 발행이 중심인 사이트 또는 문서형 프로젝트" />
                 </StackPanel>
             </RadioButton>
 
@@ -43,7 +43,7 @@
                          IsChecked="{Binding ProjectTypeApi}">
                 <StackPanel>
                     <TextBlock FontWeight="SemiBold" Text="API 서버" />
-                    <TextBlock Foreground="#475569" Text="REST API 또는 백엔드 중심 서비스" />
+                    <TextBlock Foreground="#475569" Text="라우트, 데이터 계층, 백엔드 계약이 중심인 서비스" />
                 </StackPanel>
             </RadioButton>
 
@@ -53,7 +53,7 @@
                          IsChecked="{Binding ProjectTypeGeneric}">
                 <StackPanel>
                     <TextBlock FontWeight="SemiBold" Text="기타(자동 감지)" />
-                    <TextBlock Foreground="#475569" Text="정해진 유형이 아니면 프로젝트 구조를 기준으로 기본 경로를 잡습니다." />
+                    <TextBlock Foreground="#475569" Text="정해진 유형이 아니면 프로젝트 구조를 바탕으로 범용 역할을 배치합니다." />
                 </StackPanel>
             </RadioButton>
         </StackPanel>
@@ -62,19 +62,6 @@
             <StackPanel>
                 <TextBlock FontWeight="SemiBold" Text="현재 선택" />
                 <TextBlock Margin="0,8,0,0" Text="{Binding ProjectTypeSummary}" />
-            </StackPanel>
-        </Border>
-
-        <Border Margin="0,16,0,0" Padding="16" Background="#FFF7ED" CornerRadius="12" BorderBrush="#FDBA74" BorderThickness="1">
-            <StackPanel>
-                <CheckBox IsChecked="{Binding UseDefaultStylePreset}"
-                          FontWeight="SemiBold"
-                          Content="기본 스타일 preset 적용" />
-                <TextBlock Margin="0,8,0,0"
-                           Foreground="#9A3412"
-                           TextWrapping="Wrap"
-                           Text="기본 스타일은 native workflow alias(start-session, project-bootstrap, plan-feature 등)와 richer agent roles를 함께 설치합니다." />
-                <TextBlock Margin="0,8,0,0" Text="{Binding ProjectPresetSummary}" />
             </StackPanel>
         </Border>
     </StackPanel>

@@ -76,7 +76,6 @@ public sealed class InstallerService
         if (request.InstallAntigravity) parts.Add("-InstallAntigravity");
         if (!string.IsNullOrWhiteSpace(request.ProjectPath)) parts.Add($"-ProjectPath \"{request.ProjectPath}\"");
         if (!string.IsNullOrWhiteSpace(request.ProjectType)) parts.Add($"-ProjectType \"{request.ProjectType}\"");
-        if (!string.IsNullOrWhiteSpace(request.ProjectPreset)) parts.Add($"-ProjectPreset \"{request.ProjectPreset}\"");
         if (request.ForceProjectTemplate) parts.Add("-ForceProjectTemplate");
 
         return string.Join(" ", parts);

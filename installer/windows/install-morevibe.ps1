@@ -5,7 +5,6 @@
     [string]$GeminiHomePath = "",
     [string]$ProjectPath = "",
     [string]$ProjectType = "",
-    [string]$ProjectPreset = "",
     [switch]$InstallCodex,
     [switch]$InstallClaudeCode,
     [switch]$InstallAntigravity,
@@ -20,21 +19,6 @@ $ErrorActionPreference = "Stop"
 function Resolve-FullPath {
     param([string]$PathValue)
     return [System.IO.Path]::GetFullPath($PathValue)
-}
-
-function Normalize-ProjectPreset {
-    param([string]$PresetValue)
-
-    if ([string]::IsNullOrWhiteSpace($PresetValue)) {
-        return ""
-    }
-
-    $normalized = $PresetValue.Trim().ToLowerInvariant()
-    if ($normalized -in @("default-style", "basic-style", "default", "basic")) {
-        return "default-style"
-    }
-
-    return ""
 }
 
 function New-Timestamp {
@@ -222,12 +206,58 @@ function Set-AgentFocusPaths {
     Set-Content -LiteralPath $AgentFilePath -Value ($newLines -join "`n") -Encoding UTF8
 }
 
+function Configure-AgentFocusPathsForProjectType {
+    param(
+        [string]$AgentsRoot,
+        [string]$ProjectType,
+        [hashtable]$DomainPaths
+    )
+
+    if ([string]::IsNullOrWhiteSpace($AgentsRoot) -or $null -eq $DomainPaths) {
+        return
+    }
+
+    switch ($ProjectType.ToLowerInvariant()) {
+        "webapp" {
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "frontend-worker.md") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "backend-worker.md") -Paths $DomainPaths.backend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "frontend-worker.toml") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "backend-worker.toml") -Paths $DomainPaths.backend
+        }
+        "ecommerce" {
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "storefront-worker.md") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "admin-worker.md") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "orders-worker.md") -Paths $DomainPaths.backend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "storefront-worker.toml") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "admin-worker.toml") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "orders-worker.toml") -Paths $DomainPaths.backend
+        }
+        "blog" {
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "content-worker.md") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "layout-worker.md") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "content-worker.toml") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "layout-worker.toml") -Paths $DomainPaths.frontend
+        }
+        "api" {
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "routes-worker.md") -Paths $DomainPaths.backend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "data-worker.md") -Paths $DomainPaths.backend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "routes-worker.toml") -Paths $DomainPaths.backend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "data-worker.toml") -Paths $DomainPaths.backend
+        }
+        default {
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "frontend-worker.md") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "backend-worker.md") -Paths $DomainPaths.backend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "frontend-worker.toml") -Paths $DomainPaths.frontend
+            Set-AgentFocusPaths -AgentFilePath (Join-Path $AgentsRoot "backend-worker.toml") -Paths $DomainPaths.backend
+        }
+    }
+}
+
 function Install-ProjectSkills {
     param(
         [string]$ProjectRoot,
         [string]$ScriptRootPath,
-        [string[]]$TargetRelativePaths,
-        [string]$ProjectPreset = ""
+        [string[]]$TargetRelativePaths
     )
 
     if ([string]::IsNullOrWhiteSpace($ProjectRoot) -or $null -eq $TargetRelativePaths -or $TargetRelativePaths.Count -eq 0) {
@@ -235,25 +265,19 @@ function Install-ProjectSkills {
     }
 
     $sourceRoot = Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\plugin\skills")
-    $normalizedPreset = Normalize-ProjectPreset -PresetValue $ProjectPreset
-    $presetSkillsRoot = if ([string]::IsNullOrWhiteSpace($normalizedPreset)) {
-        $null
-    } else {
-        Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\templates\project\presets\$normalizedPreset\.agents\skills")
-    }
+    $nativeAliasRoot = Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\templates\project\.agents\skills")
     $results = @()
 
     foreach ($relativePath in $TargetRelativePaths) {
         $targetRoot = Join-Path $ProjectRoot $relativePath
         New-Item -ItemType Directory -Path $targetRoot -Force | Out-Null
         Copy-Item -Path (Join-Path $sourceRoot "*") -Destination $targetRoot -Recurse -Force
-        if ($null -ne $presetSkillsRoot -and (Test-Path -LiteralPath $presetSkillsRoot)) {
-            Copy-Item -Path (Join-Path $presetSkillsRoot "*") -Destination $targetRoot -Recurse -Force
+        if (Test-Path -LiteralPath $nativeAliasRoot) {
+            Copy-Item -Path (Join-Path $nativeAliasRoot "*") -Destination $targetRoot -Recurse -Force
         }
         $results += [ordered]@{
             target = $targetRoot
             action = "installed"
-            preset = $normalizedPreset
         }
     }
 
@@ -399,8 +423,7 @@ function Install-ClaudeProjectIntegration {
     param(
         [string]$ProjectRoot,
         [string]$ScriptRootPath,
-        [string]$ProjectType = "",
-        [string]$ProjectPreset = ""
+        [string]$ProjectType = ""
     )
 
     if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return $null }
@@ -418,34 +441,22 @@ function Install-ClaudeProjectIntegration {
     New-Item -ItemType Directory -Path $commandsRoot,$agentsRoot,$skillsRoot,$scriptsRoot -Force | Out-Null
     Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\commands\*") -Destination $commandsRoot -Force
     Copy-Item -Path (Join-Path $ScriptRootPath "..\..\plugin\skills\*") -Destination $skillsRoot -Recurse -Force
-    $normalizedPreset = Normalize-ProjectPreset -PresetValue $ProjectPreset
-    if (-not [string]::IsNullOrWhiteSpace($normalizedPreset)) {
-        $presetSkillsSource = Join-Path $ScriptRootPath "..\..\templates\project\presets\$normalizedPreset\.agents\skills"
-        if (Test-Path -LiteralPath $presetSkillsSource) {
-            Copy-Item -Path (Join-Path $presetSkillsSource "*") -Destination $skillsRoot -Recurse -Force
-        }
+    $nativeAliasSkillsSource = Join-Path $ScriptRootPath "..\..\templates\project\.agents\skills"
+    if (Test-Path -LiteralPath $nativeAliasSkillsSource) {
+        Copy-Item -Path (Join-Path $nativeAliasSkillsSource "*") -Destination $skillsRoot -Recurse -Force
     }
 
-    # Copy agent files: use explicit project preset first, then project type preset, else generic agents with auto-detection
+    # Copy agent files: use project type presets when available, else generic agents with auto-detection.
     $validPresets = @("webapp","ecommerce","blog","api")
-    if (-not [string]::IsNullOrWhiteSpace($normalizedPreset)) {
-        $presetAgentsSource = Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\presets\$normalizedPreset"
-        Copy-Item -Path (Join-Path $presetAgentsSource "*") -Destination $agentsRoot -Force
-        Write-Host "  [agents] Project preset '$normalizedPreset' applied."
-        $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
-        Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "storefront-ui.md") -Paths $domainPaths.frontend
-        Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "custom-editor.md") -Paths $domainPaths.frontend
-        Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "payments-orders.md") -Paths $domainPaths.backend
-    } elseif (-not [string]::IsNullOrWhiteSpace($ProjectType) -and $validPresets -contains $ProjectType.ToLower()) {
+    $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
+    if (-not [string]::IsNullOrWhiteSpace($ProjectType) -and $validPresets -contains $ProjectType.ToLower()) {
         $presetAgentsSource = Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\presets\$($ProjectType.ToLower())"
         Copy-Item -Path (Join-Path $presetAgentsSource "*") -Destination $agentsRoot -Force
         Write-Host "  [agents] Project type preset '$($ProjectType.ToLower())' applied."
+        Configure-AgentFocusPathsForProjectType -AgentsRoot $agentsRoot -ProjectType $ProjectType -DomainPaths $domainPaths
     } else {
         Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\agents\*") -Destination $agentsRoot -Recurse:$false -Force
-        # Auto-configure worker agent file paths from project structure
-        $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
-        Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "frontend-worker.md") -Paths $domainPaths.frontend
-        Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "backend-worker.md") -Paths $domainPaths.backend
+        Configure-AgentFocusPathsForProjectType -AgentsRoot $agentsRoot -ProjectType "" -DomainPaths $domainPaths
     }
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\CLAUDE.morevibe.md") -Destination (Join-Path $morevibeRoot "CLAUDE.morevibe.md") -Force
 
@@ -470,7 +481,7 @@ function Install-ClaudeProjectIntegration {
         memoryAction = $memoryResult.action
         memoryTarget = $memoryResult.target
         memoryBackup = $memoryResult.backup
-        preset = $normalizedPreset
+        projectType = $ProjectType
     }
 }
 
@@ -478,7 +489,7 @@ function Install-CodexProjectIntegration {
     param(
         [string]$ProjectRoot,
         [string]$ScriptRootPath,
-        [string]$ProjectPreset = ""
+        [string]$ProjectType = ""
     )
 
     if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return $null }
@@ -486,10 +497,11 @@ function Install-CodexProjectIntegration {
     $resolvedProjectRoot = Resolve-FullPath -PathValue $ProjectRoot
     $codexRoot = Join-Path $resolvedProjectRoot ".codex"
     $agentsRoot = Join-Path $codexRoot "agents"
-    $normalizedPreset = Normalize-ProjectPreset -PresetValue $ProjectPreset
-    if (-not [string]::IsNullOrWhiteSpace($normalizedPreset)) {
-        $configSource = Join-Path $ScriptRootPath "..\..\adapters\codex\project\presets\$normalizedPreset\config.toml"
-        $agentsSource = Join-Path $ScriptRootPath "..\..\adapters\codex\project\presets\$normalizedPreset\agents"
+    $validPresets = @("webapp","ecommerce","blog","api")
+    $normalizedType = if ([string]::IsNullOrWhiteSpace($ProjectType)) { "" } else { $ProjectType.ToLowerInvariant() }
+    if ($validPresets -contains $normalizedType) {
+        $configSource = Join-Path $ScriptRootPath "..\..\adapters\codex\project\presets\$normalizedType\config.toml"
+        $agentsSource = Join-Path $ScriptRootPath "..\..\adapters\codex\project\presets\$normalizedType\agents"
     } else {
         $configSource = Join-Path $ScriptRootPath "..\..\adapters\codex\project\config.toml"
         $agentsSource = Join-Path $ScriptRootPath "..\..\adapters\codex\project\agents"
@@ -501,18 +513,14 @@ function Install-CodexProjectIntegration {
     Copy-Item -Path (Join-Path $agentsSource "*") -Destination $agentsRoot -Force
 
     $domainPaths = Get-ProjectDomainPaths -ProjectRoot $resolvedProjectRoot
-    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "frontend-worker.toml") -Paths $domainPaths.frontend
-    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "backend-worker.toml") -Paths $domainPaths.backend
-    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "storefront-ui.toml") -Paths $domainPaths.frontend
-    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "custom-editor.toml") -Paths $domainPaths.frontend
-    Set-AgentFocusPaths -AgentFilePath (Join-Path $agentsRoot "payments-orders.toml") -Paths $domainPaths.backend
+    Configure-AgentFocusPathsForProjectType -AgentsRoot $agentsRoot -ProjectType $normalizedType -DomainPaths $domainPaths
 
     return [ordered]@{
         action = "installed"
         target = $codexRoot
         config = $configTarget
         agents = $agentsRoot
-        preset = $normalizedPreset
+        projectType = $normalizedType
     }
 }
 
@@ -669,7 +677,6 @@ if ($InstallCodex) {
 
 $adapterExportResults = Install-AdapterExports -ScriptRootPath $scriptRoot -ResolvedHome $resolvedHomePath -Adapters $ExportAdapters
 $templateResult = Install-ProjectTemplate -TemplateSource $templateSource -TargetProjectPath $ProjectPath -ForceTemplate $ForceProjectTemplate.IsPresent
-$normalizedProjectPreset = Normalize-ProjectPreset -PresetValue $ProjectPreset
 $projectSkillResults = @()
 $agentsBootstrapResult = $null
 $codexProjectIntegrationResult = $null
@@ -683,20 +690,14 @@ $projectBootstrapHealth = @()
 if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
     $resolvedProjectPath = Resolve-FullPath -PathValue $ProjectPath
     $projectAgentsTemplateSource = $defaultProjectAgentsTemplateSource
-    if (-not [string]::IsNullOrWhiteSpace($normalizedProjectPreset)) {
-        $presetAgentsTemplate = Resolve-FullPath -PathValue (Join-Path $scriptRoot "..\..\templates\project\presets\$normalizedProjectPreset\AGENTS.md")
-        if (Test-Path -LiteralPath $presetAgentsTemplate) {
-            $projectAgentsTemplateSource = $presetAgentsTemplate
-        }
-    }
     $projectSkillTargets = @(".agents\skills")
-    $projectSkillResults = Install-ProjectSkills -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -TargetRelativePaths $projectSkillTargets -ProjectPreset $normalizedProjectPreset
+    $projectSkillResults = Install-ProjectSkills -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -TargetRelativePaths $projectSkillTargets
     $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource -DefaultAgentsTemplatePath $projectAgentsTemplateSource
     if ($InstallCodex) {
-        $codexProjectIntegrationResult = Install-CodexProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectPreset $normalizedProjectPreset
+        $codexProjectIntegrationResult = Install-CodexProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectType $ProjectType
     }
     if ($InstallClaudeCode) {
-        $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectType $ProjectType -ProjectPreset $normalizedProjectPreset
+        $claudeProjectIntegrationResult = Install-ClaudeProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectType $ProjectType
     }
     if ($InstallAntigravity) {
         $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
@@ -731,10 +732,6 @@ if ($null -ne $templateResult) {
     Write-Host "Project template: $($templateResult.action) -> $($templateResult.target)"
     if ($templateResult.backup) { Write-Host "Project template backup: $($templateResult.backup)" }
     if ($templateResult.reason) { Write-Host "Project template note: $($templateResult.reason)" }
-}
-
-if (-not [string]::IsNullOrWhiteSpace($normalizedProjectPreset)) {
-    Write-Host "Project preset: $normalizedProjectPreset"
 }
 
 if ($null -ne $agentsBootstrapResult) {

@@ -1,5 +1,5 @@
 name = "pm-lead"
-description = "Lead orchestrator for the 기본 스타일 preset. Owns planning, routing, delegation, and final synthesis."
+description = "Lead orchestrator for a blog or content site. Owns planning, routing, delegation, and final synthesis."
 developer_instructions = """
 Read `AGENTS.md` first.
 
@@ -15,9 +15,8 @@ Treat the native workflow as the default:
 - Finish flow: `request-code-review` -> `apply-review-fixes` -> `verify-change` -> `finish-task`
 
 Team model:
-- `storefront-ui`
-- `custom-editor`
-- `payments-orders`
+- `content-worker`
+- `layout-worker`
 - `qa-reviewer`
 
 Do not start implementation immediately. First classify the task type and route it through the native workflow.
