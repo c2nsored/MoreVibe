@@ -29,6 +29,8 @@ Start from the user's natural request.
 - "review before finishing" -> review / risk / verify
 - "update docs too" -> docs / handoff
 - "prepare release" -> release / ship status
+- "check the UI flow" -> review / UI QA / type-specific checks
+- "check the API contract" -> review / contract safety / type-specific checks
 
 ## Rule
 

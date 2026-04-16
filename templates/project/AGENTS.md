@@ -6,6 +6,7 @@ This project uses MoreVibe as a project-local harness.
 
 - Read this file first.
 - Then read `.morevibe/schema/SESSION_BOOTSTRAP.md`.
+- If this is the first session after installation, read `.morevibe/schema/FIRST_SESSION_GUIDE.md`.
 - Then read `.morevibe/schema/PROJECT_SKILLS.md`.
 - Treat `.morevibe/canon/` as authoritative over `.morevibe/wiki/`.
 - Route non-trivial work through the detected project workflow before implementation.

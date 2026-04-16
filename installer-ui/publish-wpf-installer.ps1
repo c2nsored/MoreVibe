@@ -1,5 +1,5 @@
 ﻿param(
-    [string]$Version = "v0.5.1",
+    [string]$Version = "v1.0.0",
     [string]$Runtime = "win-x64",
     [switch]$SkipZip
 )

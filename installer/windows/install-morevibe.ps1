@@ -648,6 +648,9 @@ function Get-ProjectBootstrapHealth {
     $results = @()
     $agentsPath = Join-Path $ProjectRoot "AGENTS.md"
     $projectSkillsPath = Join-Path $ProjectRoot ".morevibe\schema\PROJECT_SKILLS.md"
+    $firstSessionGuidePath = Join-Path $ProjectRoot ".morevibe\schema\FIRST_SESSION_GUIDE.md"
+    $subagentOrchestrationPath = Join-Path $ProjectRoot ".morevibe\schema\SUBAGENT_ORCHESTRATION.md"
+    $projectSkillMapPath = Join-Path $ProjectRoot ".morevibe\schema\project_skill_map.json"
     $sharedSkillsRoot = Join-Path $ProjectRoot ".agents\skills"
     $codexAgentsRoot = Join-Path $ProjectRoot ".codex\agents"
     $claudeSkillsRoot = Join-Path $ProjectRoot ".claude\skills"
@@ -661,6 +664,11 @@ function Get-ProjectBootstrapHealth {
         label = "Project skill map"
         ok = (Test-Path -LiteralPath $projectSkillsPath)
         detail = $projectSkillsPath
+    }
+    $results += [ordered]@{
+        label = "First-session guide"
+        ok = (Test-Path -LiteralPath $firstSessionGuidePath)
+        detail = $firstSessionGuidePath
     }
 
     $sharedSkillCount = if (Test-Path -LiteralPath $sharedSkillsRoot) { (Get-ChildItem -LiteralPath $sharedSkillsRoot -Directory -ErrorAction SilentlyContinue).Count } else { 0 }
@@ -689,6 +697,16 @@ function Get-ProjectBootstrapHealth {
         }
     }
 
+    if ((Test-Path -LiteralPath $firstSessionGuidePath)) {
+        $firstSessionGuideText = Read-TextFile -LiteralPath $firstSessionGuidePath
+        $hasOrchestratorModel = $firstSessionGuideText.Contains("orchestrator") -and $firstSessionGuideText.Contains("pm-lead")
+        $results += [ordered]@{
+            label = "First-session orchestration model"
+            ok = $hasOrchestratorModel
+            detail = $firstSessionGuidePath
+        }
+    }
+
     if ($ExpectCodex) {
         $codexAgentCount = if (Test-Path -LiteralPath $codexAgentsRoot) { (Get-ChildItem -LiteralPath $codexAgentsRoot -File -ErrorAction SilentlyContinue).Count } else { 0 }
         $results += [ordered]@{
@@ -704,6 +722,31 @@ function Get-ProjectBootstrapHealth {
             label = "Claude project skills"
             ok = ($claudeSkillCount -gt 0)
             detail = "$claudeSkillsRoot ($claudeSkillCount)"
+        }
+    }
+
+    if ((Test-Path -LiteralPath $projectSkillMapPath)) {
+        $projectSkillMap = Read-JsonFile -LiteralPath $projectSkillMapPath
+        if ($null -ne $projectSkillMap -and $null -ne $projectSkillMap.roles) {
+            $claudeAgents = @()
+            $codexAgents = @()
+            if ($null -ne $projectSkillMap.roles.claude_agents) { $claudeAgents = @($projectSkillMap.roles.claude_agents) }
+            if ($null -ne $projectSkillMap.roles.codex_agents) { $codexAgents = @($projectSkillMap.roles.codex_agents) }
+            if ($claudeAgents.Count -gt 0 -and $codexAgents.Count -gt 0) {
+                $missingInCodex = @($claudeAgents | Where-Object { $_ -notin $codexAgents })
+                $missingInClaude = @($codexAgents | Where-Object { $_ -notin $claudeAgents })
+                $parityOk = ($missingInCodex.Count -eq 0 -and $missingInClaude.Count -eq 0)
+                $detail = if ($parityOk) {
+                    "$projectSkillMapPath (Claude/Codex role sets aligned)"
+                } else {
+                    "$projectSkillMapPath (Claude-only: $($missingInCodex -join ', '); Codex-only: $($missingInClaude -join ', '))"
+                }
+                $results += [ordered]@{
+                    label = "Claude/Codex role parity"
+                    ok = $parityOk
+                    detail = $detail
+                }
+            }
         }
     }
 

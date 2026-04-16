@@ -13,6 +13,8 @@ You can start with natural requests like:
 - "find the cause of this bug first"
 - "review this before we finish"
 - "update the docs and handoff too"
+- "check the UI flow before release"
+- "make sure the API change is still compatible"
 
 MoreVibe is designed so the AI can map these requests onto the correct workflow.
 
@@ -30,6 +32,8 @@ MoreVibe is designed so the AI can map these requests onto the correct workflow.
 - "check what could break if we change this"
 - "finish this and leave the next session ready"
 - "prepare this for release and tell me what is still missing"
+- "check whether the order flow could break before release"
+- "review this API change for compatibility before we ship it"
 
 ## Optional Command Shortcuts
 
@@ -52,6 +56,14 @@ You can also be more specific:
 - "read the project first and plan this feature before coding"
 - "restore context and review what could break before we change anything"
 - "understand this project and leave the next session ready when you finish"
+
+The installed project also includes `.morevibe/schema/FIRST_SESSION_GUIDE.md`.
+
+Use it if you want a quick reminder of:
+
+- what to read first
+- how the orchestrator / lead / worker flow works
+- which plain-language first requests work well
 
 ## What MoreVibe Helps With
 

@@ -1,6 +1,7 @@
 ﻿from __future__ import annotations
 
 import argparse
+import json
 from datetime import datetime
 from pathlib import Path
 
@@ -19,6 +20,7 @@ REQUIRED_FILES = [
     "schema/README.md",
     "schema/OPERATING_RULES.md",
     "schema/SESSION_BOOTSTRAP.md",
+    "schema/FIRST_SESSION_GUIDE.md",
     "schema/SKILL_ROUTING.md",
     "schema/PROJECT_SKILLS.md",
     "canon/PROJECT_OVERVIEW.md",
@@ -38,6 +40,8 @@ REQUIRED_FILES = [
     "canon/README.md",
 ]
 
+TODO_MARKERS = ("[TODO]", "TODO", "[no ", "One-sentence summary of the product")
+
 
 def file_has_content(path: Path) -> bool:
     if not path.exists() or not path.is_file():
@@ -50,6 +54,22 @@ def check_timestamp_header(path: Path) -> bool:
         return False
     text = path.read_text(encoding="utf-8")
     return "Last Updated:" in text or "Created:" in text
+
+
+def has_placeholder_markers(path: Path) -> bool:
+    if not path.exists() or not path.is_file():
+        return False
+    text = path.read_text(encoding="utf-8")
+    return any(marker in text for marker in TODO_MARKERS)
+
+
+def read_json_file(path: Path) -> dict | None:
+    if not path.exists() or not path.is_file():
+        return None
+    raw = path.read_text(encoding="utf-8").strip()
+    if not raw:
+        return None
+    return json.loads(raw)
 
 
 def append_log(log_path: Path, timestamp: str, summary: str, details: str) -> None:
@@ -112,6 +132,14 @@ def main() -> None:
             else:
                 warnings.append(f"- No timestamp header found in `{rel}`.")
 
+    for rel in ["canon/PROJECT_OVERVIEW.md", "canon/TASKS.md", "canon/HANDOFF.md", "wiki/state.md"]:
+        path = morevibe_root / rel
+        if path.exists() and file_has_content(path):
+            if has_placeholder_markers(path):
+                warnings.append(f"- Placeholder text still exists in `{rel}`.")
+            else:
+                passes.append(f"- No obvious placeholder text detected in `{rel}`.")
+
     agents_path = project_root / "AGENTS.md"
     if agents_path.exists():
         text = agents_path.read_text(encoding="utf-8")
@@ -153,6 +181,49 @@ def main() -> None:
             passes.append("- Fallback skill section detected in `schema/SKILL_ROUTING.md`.")
         else:
             warnings.append("- No fallback skill section detected in `schema/SKILL_ROUTING.md`.")
+
+    first_session_path = morevibe_root / "schema" / "FIRST_SESSION_GUIDE.md"
+    if first_session_path.exists() and file_has_content(first_session_path):
+        first_session_text = first_session_path.read_text(encoding="utf-8")
+        if "orchestrator" in first_session_text and "pm-lead" in first_session_text:
+            passes.append("- First-session guide includes the orchestrator -> pm-lead model.")
+        else:
+            warnings.append("- First-session guide exists but does not clearly explain the orchestrator -> pm-lead model.")
+
+    role_map_path = morevibe_root / "schema" / "project_skill_map.json"
+    role_map_data = read_json_file(role_map_path)
+    if role_map_data and isinstance(role_map_data, dict):
+        roles = role_map_data.get("roles") or {}
+        lead = roles.get("lead")
+        claude_agents = roles.get("claude_agents") or []
+        codex_agents = roles.get("codex_agents") or []
+        workers = roles.get("workers") or []
+        reviewer = roles.get("reviewer")
+
+        if lead == "pm-lead":
+            passes.append("- Generated role map uses `pm-lead` as the internal lead.")
+        else:
+            warnings.append("- Generated role map does not use `pm-lead` as the internal lead.")
+
+        if workers:
+            passes.append("- Generated role map includes worker ownership.")
+        else:
+            warnings.append("- Generated role map does not include workers.")
+
+        if reviewer == "qa-reviewer":
+            passes.append("- Generated role map includes `qa-reviewer`.")
+        else:
+            warnings.append("- Generated role map does not include `qa-reviewer`.")
+
+        if claude_agents and codex_agents:
+            claude_set = set(claude_agents)
+            codex_set = set(codex_agents)
+            if claude_set == codex_set:
+                passes.append("- Claude and Codex agent sets are aligned.")
+            else:
+                warnings.append("- Claude and Codex agent sets are not fully aligned.")
+        elif claude_agents or codex_agents:
+            warnings.append("- Only one tool-specific agent set was detected; parity could not be fully checked.")
 
     summary_line = f"- Issues: {len(issues)} | Warnings: {len(warnings)} | Passes: {len(passes)}"
     report_lines = [

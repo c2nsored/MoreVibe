@@ -51,11 +51,16 @@ Expected routing:
 
 - "review this before we finish"
 - "what could break?"
+- "check the UI too"
+- "check the order flow too"
+- "make sure this API change is still compatible"
 
 Expected routing:
 
 - `request-code-review`
 - `review-risk`
+- `qa-ui` for user-facing work
+- project-type specialist checks when relevant, such as `webapp-ui-flow-check`, `ecommerce-order-flow-check`, `blog-publishing-check`, or `api-contract-check`
 - `verify-change`
 
 ## Docs and Handoff
@@ -74,9 +79,11 @@ Expected routing:
 
 - "prepare this for release"
 - "what is the actual ship status?"
+- "is this safe to ship?"
 
 Expected routing:
 
 - `prepare-release`
 - `ship-change`
 - `report-deployment-status`
+- project-type specialist checks when release risk depends on UI, order flow, publishing flow, or API compatibility

@@ -206,6 +206,51 @@ def build_session_bootstrap(skill_map: dict[str, object]) -> str:
     return '\n'.join(lines) + '\n'
 
 
+def build_first_session_guide(skill_map: dict[str, object], role_map: dict[str, object]) -> str:
+    worker_text = ', '.join(f'`{worker}`' for worker in role_map['workers']) if role_map['workers'] else '`implementation-owner`'
+    reviewer_text = f"`{role_map['reviewer']}`" if role_map['reviewer'] else 'the lead'
+    lines = [
+        '# First Session Guide',
+        '',
+        'Use this file when MoreVibe was just installed and you want a safe first conversation.',
+        '',
+        '## Team model',
+        '',
+        '- The main user-facing agent acts as the orchestrator.',
+        f"- `{role_map['lead']}` is the internal lead who classifies work, decides delegation, and integrates results.",
+        f'- Workers handle focused execution: {worker_text}',
+        f'- Review should stay with {reviewer_text} unless the lead keeps it directly.',
+        '',
+        '## What to do first',
+        '',
+        '1. Read the root `AGENTS.md`.',
+        '2. Read `.morevibe/schema/SESSION_BOOTSTRAP.md` and `.morevibe/schema/PROJECT_SKILLS.md`.',
+        '3. Read `.morevibe/wiki/state.md`, `.morevibe/canon/HANDOFF.md`, and `.morevibe/canon/TASKS.md`.',
+        '4. Tell the user the safest next step before changing code.',
+        '',
+        '## Good first messages',
+        '',
+        '- "start by understanding this project and tell me the safest next step"',
+        '- "restore context first and plan this before coding"',
+        '- "understand the project, then review what could break before we change anything"',
+        '- "prepare a safe plan and leave docs ready for the next session"',
+        '',
+        '## Natural-language routing reminders',
+        '',
+        '- You do not need command syntax to get the main MoreVibe benefits.',
+        '- Interpret the user request first, then map it to the closest workflow.',
+        '- Keep planning, review, docs, and handoff visible in the response.',
+    ]
+    if skill_map['specialist']:
+        lines.extend([
+            '',
+            '## Specialist help available',
+            '',
+            bullets(skill_map['specialist'], 'No specialist skills detected.'),
+        ])
+    return '\n'.join(lines) + '\n'
+
+
 def build_skill_routing(skill_map: dict[str, object]) -> str:
     lines = [
         '# MoreVibe Skill Routing',
@@ -268,6 +313,7 @@ def build_subagent_orchestration(role_map: dict[str, object], skill_map: dict[st
         '',
         '## Default model',
         '',
+        '- The main user-facing agent is the orchestrator.',
         f"- Lead: `{role_map['lead']}`",
         f"- Workers: {', '.join(f'`{w}`' for w in role_map['workers'])}",
     ]
@@ -280,9 +326,19 @@ def build_subagent_orchestration(role_map: dict[str, object], skill_map: dict[st
             '',
             '## Delegation rule',
             '',
+            '- The orchestrator should translate the user request into a clear assignment for the lead.',
+            '- The lead decides whether to work directly or split clean ownership to workers.',
+            '- Workers report back to the lead; the lead integrates and reports back to the orchestrator.',
             f"- Use `{skill_map['delegate']}` only when ownership can be split cleanly.",
             '- Keep final integration and reporting with the lead.',
         ])
+    lines.extend([
+        '',
+        '## Tool parity',
+        '',
+        f"- Claude agents: {', '.join(f'`{a}`' for a in role_map['claude_agents']) if role_map['claude_agents'] else 'none detected'}",
+        f"- Codex agents: {', '.join(f'`{a}`' for a in role_map['codex_agents']) if role_map['codex_agents'] else 'none detected'}",
+    ])
     return '\n'.join(lines) + '\n'
 
 
@@ -362,6 +418,7 @@ def main() -> None:
 
     (schema_root / 'project_skill_map.json').write_text(json.dumps({'skills': skill_map, 'roles': role_map}, indent=2), encoding='utf-8')
     (schema_root / 'SESSION_BOOTSTRAP.md').write_text(build_session_bootstrap(skill_map), encoding='utf-8')
+    (schema_root / 'FIRST_SESSION_GUIDE.md').write_text(build_first_session_guide(skill_map, role_map), encoding='utf-8')
     (schema_root / 'SKILL_ROUTING.md').write_text(build_skill_routing(skill_map), encoding='utf-8')
     (schema_root / 'SUBAGENT_ORCHESTRATION.md').write_text(build_subagent_orchestration(role_map, skill_map), encoding='utf-8')
     (schema_root / 'PROJECT_SKILLS.md').write_text(build_project_skills(skill_map, role_map), encoding='utf-8')

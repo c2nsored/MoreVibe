@@ -94,12 +94,15 @@ Examples:
 - "review this before we finish"
 - "what could break?"
 - "check the UI too"
+- "check the order flow too"
+- "make sure the API contract still works"
 
 Expected routing:
 
 - `request-code-review`
 - `review-risk`
 - `qa-ui` for user-visible work
+- project-type specialist checks when relevant
 - `verify-change`
 
 ### Docs, handoff, and release requests
@@ -110,6 +113,7 @@ Examples:
 - "leave this ready for the next session"
 - "prepare this for release"
 - "tell me the real ship status"
+- "is this safe to ship?"
 
 Expected routing:
 
@@ -120,6 +124,7 @@ Expected routing:
 - `prepare-release`
 - `ship-change`
 - `report-deployment-status`
+- project-type specialist checks when release readiness depends on the affected domain
 
 ## Maintenance loop
 
