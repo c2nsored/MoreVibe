@@ -54,7 +54,8 @@ ClaudeCode projects that adopt MoreVibe should be able to understand:
 - `canon` is authoritative over `wiki`
 - `morevibe-using-morevibe` is the preferred workflow router when MoreVibe is present
 - `/morevibe-start` and `/morevibe-sync` can be used as first-class project commands
-- project subagents can mirror the MoreVibe orchestrator/reviewer split
+- the main Claude session should act as the user-facing orchestrator
+- project subagents should follow `pm-lead -> workers -> qa-reviewer`
 - startup automation should be expressed in `CLAUDE.md`, not assumed from hooks
 
 ## Non-destructive policy

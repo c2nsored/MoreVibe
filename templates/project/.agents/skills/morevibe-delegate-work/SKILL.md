@@ -11,12 +11,13 @@ Use subagents deliberately instead of by reflex.
 
 ## Steps
 
-1. Decide whether delegation actually helps.
-2. Split ownership by file or subsystem boundaries.
-3. Avoid assigning the same file to multiple agents.
-4. Keep review-only roles read-only when possible.
-5. Let the main agent focus on planning and integration.
-6. Use `morevibe-orchestrate-subagents` when the task needs an explicit orchestrator-first split.
+1. Let the main agent classify the user request and decide whether delegation is worth it.
+2. Route non-trivial delegated work through the project lead first.
+3. Split ownership by file or subsystem boundaries.
+4. Avoid assigning the same file to multiple agents.
+5. Keep review-only roles read-only when possible.
+6. Let the main agent focus on orchestration and user communication, and let the project lead focus on internal execution decisions.
+7. Use `morevibe-orchestrate-subagents` when the task needs an explicit orchestrator -> lead -> worker split.
 
 ## Rules
 

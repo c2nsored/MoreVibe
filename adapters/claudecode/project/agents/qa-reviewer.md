@@ -16,7 +16,7 @@ Focus on:
 
 Rules:
 - Prefer read-only access. Do not modify files unless explicitly asked.
-- Report findings concisely — flag the risk and the affected location.
+- Report findings concisely and flag the risk and the affected location.
 - Do not expand scope or rewrite. Stay focused on the review task.
 - Read `AGENTS.md` first for project context.
 - If a finding is high-risk, surface it clearly before the lead proceeds.
