@@ -1,29 +1,29 @@
 # MoreVibe
 
-**A project memory and workflow harness for long-running AI coding.**
+**A document-centered workflow harness for long-running AI coding projects.**
 
-MoreVibe helps tools such as **Codex**, **Claude Code**, and **Antigravity** keep working consistently across long projects by moving important context out of fragile chat history and into a durable project structure.
+MoreVibe helps tools such as **Codex**, **Claude Code**, and **Antigravity** work more consistently over long projects by moving important context out of fragile chat history and into a durable project structure.
 
-It is designed for people who want:
+It is built for people who want:
 
 - better continuity across many sessions
-- clear separation between raw notes, working memory, and authoritative project truth
-- reusable workflow skills instead of repeating the same process in every chat
-- a setup that non-programmers can install without building an operating model by hand
+- a clear separation between raw notes, working memory, and project truth
+- reusable workflow skills instead of re-explaining the same process in every chat
+- a setup that non-programmers can install without inventing an operating model by hand
 
 ---
 
 ## What MoreVibe Solves
 
-Long AI coding projects often lose quality in predictable ways:
+Long AI coding projects often degrade in predictable ways:
 
 - important decisions disappear into old conversations
-- the same context must be re-explained over and over
-- notes, plans, and official documentation get mixed together
-- agent behavior becomes inconsistent between sessions
+- the same project context must be explained again and again
+- plans, notes, handoff, and official docs get mixed together
+- agent behavior changes from one session to the next
 - non-programmers have no stable structure for planning, review, and handoff
 
-MoreVibe addresses that by giving the project its own memory system and workflow scaffolding.
+MoreVibe addresses that by giving the project its own memory model and workflow scaffold.
 
 ---
 
@@ -32,30 +32,30 @@ MoreVibe addresses that by giving the project its own memory system and workflow
 MoreVibe separates project knowledge into four layers:
 
 - `sources/`
-  Raw references, research, notes, logs, and imported material.
+  Raw references, imported material, research, notes, and evidence.
 - `canon/`
-  The current source of truth for the project: overview, architecture, tasks, decisions, operations, and handoff.
+  The authoritative project reference: overview, architecture, tasks, decisions, operations, and handoff.
 - `wiki/`
   AI-maintained working memory that helps future sessions resume faster.
 - `schema/`
   Operating rules that define what to read first, how the harness behaves, and how memory should be maintained.
 
-This reduces confusion between:
+This keeps the project clearer by separating:
 
-- evidence and truth
-- temporary memory and durable memory
-- raw notes and official decisions
-- session chatter and project structure
+- evidence from truth
+- temporary memory from durable memory
+- raw notes from official decisions
+- session chatter from structured project state
 
 ---
 
 ## What Gets Installed
 
-Depending on the selected tools, MoreVibe can create or update:
+Depending on the selected tool targets, MoreVibe can create or update:
 
 - a project-local `.morevibe/` harness
 - a root `AGENTS.md` entrypoint when one does not already exist
-- `.agents/skills/` with both generic `morevibe-*` skills and native workflow aliases
+- `.agents/skills/` with native workflow aliases plus MoreVibe compatibility skills
 - `.claude/skills/` and `.claude/agents/`
 - `.codex/config.toml` and `.codex/agents/*.toml`
 - rendered schema files that reflect the workflow and delegation model actually installed
@@ -64,7 +64,31 @@ The result is a project that carries more of its own operating context instead o
 
 ---
 
-## Native Workflow
+## Orchestration Model
+
+MoreVibe uses a three-layer operating model for non-trivial work:
+
+1. **Main agent = orchestrator**
+   The user talks to the main session in natural language.
+2. **`pm-lead` = internal team lead**
+   The lead interprets project scope, chooses the workflow, decides ownership, and integrates results.
+3. **Workers = scoped executors**
+   Worker agents own focused implementation areas, while `qa-reviewer` stays read-only when available.
+
+The intended flow is:
+
+- the user speaks to the main agent
+- the main agent classifies the request and routes execution through `pm-lead`
+- `pm-lead` decides whether to act directly or delegate to workers
+- workers report back to `pm-lead`
+- `pm-lead` reports back to the orchestrator
+- the orchestrator explains progress and outcomes back to the user in plain language
+
+This keeps the user experience simple while preserving a structured internal execution model.
+
+---
+
+## Skill Model
 
 MoreVibe installs a shared native workflow layer that can be used across project types:
 
@@ -83,9 +107,7 @@ MoreVibe installs a shared native workflow layer that can be used across project
 - `tdd-or-test-first`
 - `report-deployment-status`
 
-These aliases sit on top of the generic `morevibe-*` skills so a project can keep a readable, repeatable operating model without being tied to a special-purpose domain preset.
-
-MoreVibe also includes specialist support skills for work such as:
+It also installs specialist support skills for work such as:
 
 - risk review
 - UI QA
@@ -94,15 +116,41 @@ MoreVibe also includes specialist support skills for work such as:
 - failure investigation
 - safe refactor planning
 - feature specification
-- stronger session handoff
+- handoff preparation
 - documentation drift checks
-- first-session project onboarding
+- first-session onboarding
 
-The intended experience is still natural-language first:
+Project-type presets can add extra specialist skills such as:
+
+- `webapp-ui-flow-check`
+- `ecommerce-order-flow-check`
+- `blog-publishing-check`
+- `api-contract-check`
+
+### Active, Fallback, and Dormant Skills
+
+MoreVibe now classifies installed skills into:
+
+- **active**
+  Skills that are part of the primary installed workflow
+- **fallback**
+  Compatibility skills such as `morevibe-*` equivalents that remain available when needed
+- **dormant**
+  Installed skills not currently mapped into the active workflow
+
+This means the project can keep readable native workflow names while still preserving a compatibility layer. In normal installs, fallback skills are intentional, not meaningless leftovers.
+
+---
+
+## Natural-Language First
+
+The default MoreVibe experience is still natural-language first:
 
 - users can ask in plain language
 - MoreVibe should interpret the request and route it to the right workflow
-- explicit command-style shortcuts can exist, but they are optional
+- explicit command-style shortcuts can exist, but they are optional accelerators
+
+The product is intentionally designed so non-programmers do **not** need to memorize commands to benefit from the harness.
 
 ---
 
@@ -123,26 +171,25 @@ MoreVibe keeps the workflow consistent while adapting role templates to the proj
   `pm-lead`, `routes-worker`, `data-worker`, `qa-reviewer`
   specialist examples: `api-contract-check`, `api-data-flow-trace`
 - `generic`
-  fallback role model when no specific project type is selected
+  broad fallback preset when no specific project type is selected
 
 This keeps MoreVibe broadly useful for non-programmers while avoiding project-specific custom roles that only make sense in one product.
 
 ---
 
-## Who It Is For
+## Tool Support
 
-MoreVibe is especially useful for:
+- **Codex**
+  Project-local skills, `.codex/` role templates, and plugin-based integration support.
+- **Claude Code**
+  Project-local skills, agents, memory bootstrap, and optional commands.
+- **Antigravity**
+  Adapter-level bootstrap plus project-type-aware role partitioning rules.
 
-- non-programmers building real products with AI coding tools
-- solo builders running long projects over many sessions
-- teams or individuals who want explicit workflow, memory, and ownership rules
-- projects where continuity matters more than one-off prompting
+Important note:
 
-It is less suitable for users who want:
-
-- a document-free workflow
-- fully autonomous behavior with no review
-- identical behavior across every AI host and version
+- `Codex` and `Claude Code` can install actual project-local agent files.
+- `Antigravity` currently uses a single-agent role partitioning model rather than true project-local subagent files.
 
 ---
 
@@ -194,22 +241,11 @@ your-project/
 ## Recommended Usage Pattern
 
 1. Install MoreVibe into the project.
-2. Update `canon/` so it reflects the real current state.
-3. Keep raw notes and research in `sources/`.
+2. Keep `canon/` aligned with the real current state.
+3. Store raw notes and research in `sources/`.
 4. Let the AI summarize active state into `wiki/`.
 5. Keep `schema/` stable and use `canon/` as authority.
 6. Resume future sessions from the installed project structure, not from old chat history alone.
-
----
-
-## Supported Tools
-
-- **Claude Code**
-  Project-local skills, agents, and memory bootstrap support.
-- **Codex**
-  Project-local skills, `.codex/` role templates, and plugin-based integration support.
-- **Antigravity**
-  Adapter-level bootstrap and project entry support.
 
 ---
 

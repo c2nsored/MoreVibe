@@ -6,7 +6,7 @@ This guide explains what to include in a Windows-friendly release package.
 
 Current preferred Windows release package:
 
-- `MoreVibeInstaller-v0.5.0-win-x64.zip`
+- `MoreVibeInstaller-v0.5.1-win-x64.zip`
 - `MoreVibeInstaller.exe`
 - `installer/`
 - `plugin/`
@@ -33,9 +33,11 @@ The release package should reflect the current install behavior:
 - create or update a project root `AGENTS.md`
 - install default MoreVibe project skills into `.agents/skills/`
 - install shared native workflow aliases such as `start-session`, `project-bootstrap`, and `plan-feature`
+- classify installed skills into active and fallback layers in generated schema
 - install `.claude/skills/` for Claude Code targets
 - install project-local `.codex/` files for Codex targets
 - apply project-type role templates for `webapp`, `ecommerce`, `blog`, `api`, or generic fallback
+- treat the main agent as orchestrator and route internal execution through `pm-lead`
 - print a project bootstrap health summary after installation
 
 ## Future release target
