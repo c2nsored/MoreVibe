@@ -1,4 +1,7 @@
-Start the session using MoreVibe.
+Optional accelerator for starting a MoreVibe session.
+
+You do not need to use this command if plain language is enough.
+Natural requests like "start by understanding this project" should still work.
 
 1. Read the root `AGENTS.md` or project guide.
 2. Run `python .claude/morevibe/scripts/bootstrap_morevibe_session.py --project-root . --write-report`

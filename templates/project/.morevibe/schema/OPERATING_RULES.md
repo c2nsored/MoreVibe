@@ -2,7 +2,7 @@
 
 ## Default model
 
-- `schema` = MoreVibe-local operating rules
+- `schema` = project-local operating rules
 - `sources` = evidence and raw inputs
 - `canon` = authoritative project reference
 - `wiki` = compiled working memory
@@ -11,70 +11,122 @@
 
 Prefer canon over wiki when there is a conflict.
 
-## Maintenance loop
+## Natural-language routing
 
-1. ingest
-2. query
-3. write back reusable outputs
-4. lint
+The default user experience should work from plain-language requests.
+
+- Do not require the user to know internal skill names.
+- Interpret the request first, then map it to the closest workflow chain.
+- Treat explicit commands as optional accelerators, not mandatory controls.
 
 ## Session entry
 
 When a session starts on a MoreVibe project:
 
 1. read the root `AGENTS.md`
-2. read `.morevibe/schema/OPERATING_RULES.md`
-3. read `.morevibe/schema/SESSION_BOOTSTRAP.md`
-4. use `morevibe-session-brief` for a quick startup brief
-5. use `morevibe-query-harness` when you need a quick memory scan
-6. read `.morevibe/wiki/state.md`
-7. use `morevibe-using-morevibe` as the main workflow router
+2. read `.morevibe/schema/SESSION_BOOTSTRAP.md`
+3. read `.morevibe/schema/PROJECT_SKILLS.md`
+4. read `.morevibe/wiki/state.md`
+5. read `.morevibe/canon/HANDOFF.md`
+6. read `.morevibe/canon/TASKS.md`
+7. restore enough context before implementation begins
 
-## Workflow routing
+## Natural request mapping
 
-### Feature or structure change
+### Session restore requests
 
-- `morevibe-start-session`
-- `morevibe-plan-feature`
-- `morevibe-execute-plan`
-- `morevibe-request-review`
-- `morevibe-apply-review-fixes` when needed
-- `morevibe-verify-change`
-- `morevibe-update-docs`
-- `morevibe-update-handoff`
-- `morevibe-sync-memory`
-- `morevibe-finish-task`
+Examples:
 
-### Bug fix
+- "start the session"
+- "restore the project context"
+- "what should we read first?"
 
-- `morevibe-start-session`
-- `morevibe-debug-bug`
-- `morevibe-request-review`
-- `morevibe-apply-review-fixes` when needed
-- `morevibe-verify-change`
-- `morevibe-update-docs`
-- `morevibe-update-handoff`
-- `morevibe-sync-memory`
-- `morevibe-finish-task`
+Expected routing:
 
-### Document or operations change
+- `start-session`
+- `project-bootstrap`
 
-- `morevibe-start-session`
-- `morevibe-verify-change`
-- `morevibe-update-docs`
-- `morevibe-update-handoff`
-- `morevibe-sync-memory`
-- `morevibe-finish-task`
+### Planning requests
 
-## Extra skills
+Examples:
 
-- `morevibe-delegate-work`
-- `morevibe-test-first`
-- `morevibe-report-deployment`
-- `morevibe-sync-memory`
-- `morevibe-ingest-item`
-- `morevibe-query-harness`
-- `morevibe-session-brief`
-- `morevibe-orchestrate-subagents`
-- `morevibe-writeback-answer`
-- `morevibe-lint-harness`
+- "plan this feature first"
+- "spec this before building"
+- "structure this safely"
+
+Expected routing:
+
+- `spec-feature`
+- `plan-feature`
+- `refactor-safely` when the request is structural
+
+### Implementation requests
+
+Examples:
+
+- "build this feature"
+- "implement this change"
+
+Expected routing:
+
+- `plan-feature`
+- `execute-plan`
+- `request-code-review`
+- `verify-change`
+- `finish-task`
+
+### Bug and failure requests
+
+Examples:
+
+- "find the cause of this bug"
+- "why did this fail?"
+
+Expected routing:
+
+- `investigate-failure`
+- `debug-bug`
+
+### Review and safety requests
+
+Examples:
+
+- "review this before we finish"
+- "what could break?"
+- "check the UI too"
+
+Expected routing:
+
+- `request-code-review`
+- `review-risk`
+- `qa-ui` for user-visible work
+- `verify-change`
+
+### Docs, handoff, and release requests
+
+Examples:
+
+- "update the docs too"
+- "leave this ready for the next session"
+- "prepare this for release"
+- "tell me the real ship status"
+
+Expected routing:
+
+- `update-docs`
+- `audit-doc-drift`
+- `handoff-session`
+- `update-handoff`
+- `prepare-release`
+- `ship-change`
+- `report-deployment-status`
+
+## Maintenance loop
+
+1. restore context
+2. classify the request
+3. choose the workflow chain
+4. implement, review, or delegate
+5. verify
+6. update docs and handoff
+7. sync durable memory

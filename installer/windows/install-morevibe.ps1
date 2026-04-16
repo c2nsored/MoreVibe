@@ -257,7 +257,8 @@ function Install-ProjectSkills {
     param(
         [string]$ProjectRoot,
         [string]$ScriptRootPath,
-        [string[]]$TargetRelativePaths
+        [string[]]$TargetRelativePaths,
+        [string]$ProjectType = ""
     )
 
     if ([string]::IsNullOrWhiteSpace($ProjectRoot) -or $null -eq $TargetRelativePaths -or $TargetRelativePaths.Count -eq 0) {
@@ -266,6 +267,11 @@ function Install-ProjectSkills {
 
     $sourceRoot = Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\plugin\skills")
     $nativeAliasRoot = Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\templates\project\.agents\skills")
+    $projectTypeSkillsRoot = if ([string]::IsNullOrWhiteSpace($ProjectType)) {
+        $null
+    } else {
+        Resolve-FullPath -PathValue (Join-Path $ScriptRootPath "..\..\templates\project\presets\$($ProjectType.ToLowerInvariant())\.agents\skills")
+    }
     $results = @()
 
     foreach ($relativePath in $TargetRelativePaths) {
@@ -275,9 +281,13 @@ function Install-ProjectSkills {
         if (Test-Path -LiteralPath $nativeAliasRoot) {
             Copy-Item -Path (Join-Path $nativeAliasRoot "*") -Destination $targetRoot -Recurse -Force
         }
+        if ($null -ne $projectTypeSkillsRoot -and (Test-Path -LiteralPath $projectTypeSkillsRoot)) {
+            Copy-Item -Path (Join-Path $projectTypeSkillsRoot "*") -Destination $targetRoot -Recurse -Force
+        }
         $results += [ordered]@{
             target = $targetRoot
             action = "installed"
+            projectType = $ProjectType
         }
     }
 
@@ -445,6 +455,12 @@ function Install-ClaudeProjectIntegration {
     if (Test-Path -LiteralPath $nativeAliasSkillsSource) {
         Copy-Item -Path (Join-Path $nativeAliasSkillsSource "*") -Destination $skillsRoot -Recurse -Force
     }
+    if (-not [string]::IsNullOrWhiteSpace($ProjectType)) {
+        $projectTypeSkillsSource = Join-Path $ScriptRootPath "..\..\templates\project\presets\$($ProjectType.ToLowerInvariant())\.agents\skills"
+        if (Test-Path -LiteralPath $projectTypeSkillsSource) {
+            Copy-Item -Path (Join-Path $projectTypeSkillsSource "*") -Destination $skillsRoot -Recurse -Force
+        }
+    }
 
     # Copy agent files: use project type presets when available, else generic agents with auto-detection.
     $validPresets = @("webapp","ecommerce","blog","api")
@@ -528,7 +544,8 @@ function Get-ProjectBootstrapHealth {
     param(
         [string]$ProjectRoot,
         [bool]$ExpectCodex,
-        [bool]$ExpectClaude
+        [bool]$ExpectClaude,
+        [string]$ProjectType = ""
     )
 
     if ([string]::IsNullOrWhiteSpace($ProjectRoot)) { return @() }
@@ -565,6 +582,15 @@ function Get-ProjectBootstrapHealth {
             label = "Detected startup chain"
             ok = (-not $hasStartupGap)
             detail = $projectSkillsPath
+        }
+        if (-not [string]::IsNullOrWhiteSpace($ProjectType)) {
+            $specialistPrefix = "$($ProjectType.ToLowerInvariant())-"
+            $hasTypeSpecificSkill = $projectSkillsText.Contains($specialistPrefix)
+            $results += [ordered]@{
+                label = "Type-specific specialist skills"
+                ok = $hasTypeSpecificSkill
+                detail = "$projectSkillsPath ($specialistPrefix*)"
+            }
         }
     }
 
@@ -691,7 +717,7 @@ if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
     $resolvedProjectPath = Resolve-FullPath -PathValue $ProjectPath
     $projectAgentsTemplateSource = $defaultProjectAgentsTemplateSource
     $projectSkillTargets = @(".agents\skills")
-    $projectSkillResults = Install-ProjectSkills -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -TargetRelativePaths $projectSkillTargets
+    $projectSkillResults = Install-ProjectSkills -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -TargetRelativePaths $projectSkillTargets -ProjectType $ProjectType
     $agentsBootstrapResult = Apply-AgentsBootstrap -ProjectRoot $resolvedProjectPath -BootstrapSnippetPath $projectAgentsBootstrapSource -DefaultAgentsTemplatePath $projectAgentsTemplateSource
     if ($InstallCodex) {
         $codexProjectIntegrationResult = Install-CodexProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot -ProjectType $ProjectType
@@ -703,7 +729,7 @@ if (-not [string]::IsNullOrWhiteSpace($ProjectPath)) {
         $antigravityProjectIntegrationResult = Install-AntigravityProjectIntegration -ProjectRoot $resolvedProjectPath -ScriptRootPath $scriptRoot
     }
     & python (Join-Path $scriptRoot '..\..\plugin\scripts\render_morevibe_project_schema.py') --project-root $resolvedProjectPath | Out-Null
-    $projectBootstrapHealth = Get-ProjectBootstrapHealth -ProjectRoot $resolvedProjectPath -ExpectCodex $InstallCodex -ExpectClaude $InstallClaudeCode
+    $projectBootstrapHealth = Get-ProjectBootstrapHealth -ProjectRoot $resolvedProjectPath -ExpectCodex $InstallCodex -ExpectClaude $InstallClaudeCode -ProjectType $ProjectType
 } elseif ($ApplyProjectAgentsBootstrap.IsPresent) {
     throw "ProjectPath is required when using -ApplyProjectAgentsBootstrap."
 }

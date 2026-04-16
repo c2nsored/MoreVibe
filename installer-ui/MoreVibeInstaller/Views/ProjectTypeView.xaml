@@ -5,7 +5,7 @@
         <TextBlock FontSize="22" FontWeight="SemiBold" Text="프로젝트 유형 선택" />
         <TextBlock Margin="0,10,0,0"
                    TextWrapping="Wrap"
-                   Text="프로젝트 유형을 고르면 그에 맞는 기본 역할 구성과 문서 중심 workflow가 함께 설치됩니다." />
+                   Text="프로젝트 유형을 고르면 그에 맞는 기본 역할 구성과 전문 support skill이 함께 설치됩니다." />
 
         <StackPanel Margin="0,20,0,0">
             <RadioButton GroupName="ProjectType"

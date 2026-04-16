@@ -1,4 +1,6 @@
-Sync MoreVibe state before finishing.
+Optional accelerator for syncing MoreVibe state before finishing.
+
+You do not need to use this command if you already asked in plain language to update docs, handoff, and project memory.
 
 1. Update canon and handoff if needed.
 2. Run `python .claude/morevibe/scripts/lint_morevibe.py --project-root .`

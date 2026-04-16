@@ -9,6 +9,7 @@ This project uses MoreVibe as a project-local harness.
 - Then read `.morevibe/schema/PROJECT_SKILLS.md`.
 - Treat `.morevibe/canon/` as authoritative over `.morevibe/wiki/`.
 - Route non-trivial work through the detected project workflow before implementation.
+- Prefer understanding natural-language requests first, then map them to the closest project skill chain.
 
 ## MoreVibe Layers
 
@@ -23,3 +24,4 @@ This project uses MoreVibe as a project-local harness.
 - Do not treat `wiki` as more authoritative than `canon`.
 - Keep important decisions, active tasks, and handoff notes inside `.morevibe/canon/`.
 - Prefer updating project files over leaving important state only in chat.
+- Use explicit commands only as optional accelerators; the default experience should still work well from natural-language requests.

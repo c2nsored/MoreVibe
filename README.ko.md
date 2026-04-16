@@ -85,6 +85,25 @@ MoreVibe는 프로젝트 유형과 상관없이 사용할 수 있는 공통 nati
 
 이 alias들은 generic `morevibe-*` skill 위에 놓이는 읽기 쉬운 workflow 이름입니다. 특정 프로젝트 전용 기능 없이도, 반복 가능한 작업 구조를 유지할 수 있게 해줍니다.
 
+또한 MoreVibe는 아래 같은 전문 support skill도 함께 제공합니다.
+
+- 변경 리스크 검토
+- UI QA
+- 릴리스 준비
+- shipping 상태 보고
+- 실패 원인 조사
+- 안전한 리팩터링 계획
+- 기능 명세 정리
+- 더 강한 세션 handoff
+- 문서 drift 점검
+- 첫 세션 onboarding
+
+기본 사용 경험은 여전히 자연어 우선입니다.
+
+- 사용자는 평범한 말로 요청해도 됩니다
+- MoreVibe가 요청을 해석해서 맞는 workflow로 라우팅해야 합니다
+- 명령어 형태의 shortcut은 있어도 되지만 필수는 아닙니다
+
 ---
 
 ## 프로젝트 유형 프리셋
@@ -93,12 +112,16 @@ MoreVibe는 workflow는 공통으로 유지하고, 역할 템플릿만 프로젝
 
 - `webapp`
   `pm-lead`, `frontend-worker`, `backend-worker`, `qa-reviewer`
+  전문 skill 예시: `webapp-ui-flow-check`, `webapp-state-review`
 - `ecommerce`
   `pm-lead`, `storefront-worker`, `admin-worker`, `orders-worker`, `qa-reviewer`
+  전문 skill 예시: `ecommerce-order-flow-check`, `ecommerce-admin-audit`
 - `blog`
   `pm-lead`, `content-worker`, `layout-worker`, `qa-reviewer`
+  전문 skill 예시: `blog-publishing-check`, `blog-content-structure-audit`
 - `api`
   `pm-lead`, `routes-worker`, `data-worker`, `qa-reviewer`
+  전문 skill 예시: `api-contract-check`, `api-data-flow-trace`
 - `generic`
   특정 유형을 고르지 않았을 때 사용하는 범용 fallback
 
@@ -134,6 +157,10 @@ MoreVibe는 특히 아래 사용자에게 잘 맞습니다.
 5. 프로젝트 유형을 선택합니다.
 6. 설치를 완료합니다.
 7. 프로젝트 루트에서 AI 도구를 시작합니다.
+
+첫 세션 예문으로는 아래처럼 시작하면 좋습니다.
+
+- "이 프로젝트 먼저 이해하고 가장 안전한 다음 작업부터 알려줘"
 
 설치가 끝나면 bootstrap health 요약이 출력되어 진입점, skill, 역할 파일이 실제로 생성되었는지 확인할 수 있습니다.
 
@@ -220,9 +247,15 @@ Git, 테스트, 검토, 사용자 판단은 여전히 중요합니다.
 
 1. `README.md`
 2. `README.ko.md`
-3. `docs/RELEASE_GUIDE.md`
-4. `templates/`
-5. `adapters/`
+3. `docs/METHOD.md`
+4. `docs/WORKFLOW_MAP.md`
+5. `docs/TEAM_MODEL.md`
+6. `docs/MEMORY_MODEL.md`
+7. `docs/NON_PROGRAMMER_GUIDE.md`
+8. `docs/OPTIONAL_COMMANDS.md`
+9. `docs/RELEASE_GUIDE.md`
+10. `templates/`
+11. `adapters/`
 
 ---
 

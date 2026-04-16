@@ -154,6 +154,7 @@ public sealed class MainViewModel : ViewModelBase
 
                 RaiseCommandStates();
                 OnPropertyChanged(nameof(ProjectSummary));
+                OnPropertyChanged(nameof(FirstSessionExample));
             }
         }
     }
@@ -203,6 +204,17 @@ public sealed class MainViewModel : ViewModelBase
         _ => "기타(자동 감지): 프로젝트 구조를 바탕으로 범용 역할을 배치합니다."
     };
 
+    public string FirstSessionExample => SkipProjectBootstrap
+        ? "프로젝트 부트스트랩을 건너뛰면 설치 후 글로벌 설정만 적용됩니다."
+        : _projectType switch
+        {
+            "webapp" => "예시: \"이 웹앱 먼저 이해하고 가장 안전한 다음 작업부터 알려줘\"",
+            "ecommerce" => "예시: \"이 쇼핑몰 흐름부터 파악하고 주문 쪽 리스크가 뭐가 있는지 봐줘\"",
+            "blog" => "예시: \"이 콘텐츠 사이트 구조부터 이해하고 다음 작업을 추천해줘\"",
+            "api" => "예시: \"이 API 구조부터 읽고 계약 변경 리스크가 있는지 먼저 봐줘\"",
+            _ => "예시: \"이 프로젝트 먼저 이해하고 무엇부터 시작하면 좋을지 알려줘\""
+        };
+
     private void SetProjectType(string type)
     {
         _projectType = type;
@@ -213,6 +225,7 @@ public sealed class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(ProjectTypeGeneric));
         OnPropertyChanged(nameof(ProjectTypeSummary));
         OnPropertyChanged(nameof(ProjectSummary));
+        OnPropertyChanged(nameof(FirstSessionExample));
     }
 
     public bool IsInstalling
@@ -237,6 +250,7 @@ public sealed class MainViewModel : ViewModelBase
                 RaiseCommandStates();
                 OnPropertyChanged(nameof(ProjectSummary));
                 OnPropertyChanged(nameof(LogsText));
+                OnPropertyChanged(nameof(FirstSessionExample));
             }
         }
     }

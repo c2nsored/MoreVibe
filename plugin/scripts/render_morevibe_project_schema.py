@@ -59,6 +59,16 @@ def choose_skill_map(existing: set[str]) -> dict[str, object]:
     ingest = pick_first(existing, 'morevibe-ingest-item')
     writeback = pick_first(existing, 'morevibe-writeback-answer')
     lint = pick_first(existing, 'morevibe-lint-harness')
+    review_risk = pick_first(existing, 'review-risk')
+    qa_ui = pick_first(existing, 'qa-ui')
+    prepare_release = pick_first(existing, 'prepare-release')
+    ship_change = pick_first(existing, 'ship-change')
+    investigate_failure = pick_first(existing, 'investigate-failure')
+    refactor_safely = pick_first(existing, 'refactor-safely')
+    spec_feature = pick_first(existing, 'spec-feature')
+    handoff_session = pick_first(existing, 'handoff-session')
+    audit_doc_drift = pick_first(existing, 'audit-doc-drift')
+    onboard_project = pick_first(existing, 'onboard-project')
 
     startup = [name for name in [start, bootstrap] if name]
     support = [name for name in [delegate, test_first, report, query, sync, ingest, writeback, lint] if name]
@@ -69,6 +79,22 @@ def choose_skill_map(existing: set[str]) -> dict[str, object]:
     bug = list(dict.fromkeys(bug))
     docs_flow = [name for name in [start, bootstrap, verify, finish, update_docs, update_handoff, sync] if name]
     docs_flow = list(dict.fromkeys(docs_flow))
+    known_specialist = [
+        name for name in [
+            review_risk,
+            qa_ui,
+            prepare_release,
+            ship_change,
+            investigate_failure,
+            refactor_safely,
+            spec_feature,
+            handoff_session,
+            audit_doc_drift,
+            onboard_project,
+        ] if name
+    ]
+    claimed = set(feature + bug + docs_flow + support + known_specialist)
+    specialist = list(dict.fromkeys(known_specialist + sorted(name for name in existing if name not in claimed and not name.startswith('morevibe-'))))
 
     return {
         'startup': startup,
@@ -76,6 +102,7 @@ def choose_skill_map(existing: set[str]) -> dict[str, object]:
         'bug': bug,
         'docs': docs_flow,
         'support': support,
+        'specialist': specialist,
         'delegate': delegate,
         'query': query,
         'sync': sync,
@@ -108,6 +135,7 @@ def bullets(items: list[str], empty: str) -> str:
 def build_session_bootstrap(skill_map: dict[str, object]) -> str:
     startup = skill_map['startup']
     query = skill_map['query']
+    specialist = skill_map['specialist']
     lines = [
         '# Session Bootstrap',
         '',
@@ -128,6 +156,30 @@ def build_session_bootstrap(skill_map: dict[str, object]) -> str:
         lines.append('7. No project-native startup skill was detected; use the current canon/wiki state directly.')
     if query:
         lines.append(f"8. Use `{query}` only when a focused memory scan is needed")
+    lines.extend([
+        '',
+        '## Natural-language rule',
+        '',
+        '- Interpret the user request first.',
+        '- Then map it to the closest project workflow.',
+        '- Treat explicit command syntax as optional, not required.',
+        '',
+        '## Quick request hints',
+        '',
+        '- "understand the project first" -> startup / onboarding',
+        '- "plan this before coding" -> feature planning',
+        '- "find the cause first" -> failure investigation / bug work',
+        '- "review this before we finish" -> review / risk / verify',
+        '- "update docs too" -> docs / handoff',
+        '- "prepare release" -> release / ship status',
+    ])
+    if specialist:
+        lines.extend([
+            '',
+            '## Specialist skills available',
+            '',
+            bullets(specialist, 'No specialist skills detected.'),
+        ])
     lines.extend([
         '',
         '## Rule',
@@ -162,6 +214,19 @@ def build_skill_routing(skill_map: dict[str, object]) -> str:
         '## Support skills',
         '',
         bullets(skill_map['support'], 'No extra support skills detected.'),
+        '',
+        '## Specialist skills',
+        '',
+        bullets(skill_map['specialist'], 'No specialist skills detected.'),
+        '',
+        '## Natural-language examples',
+        '',
+        '- "plan this feature first" -> feature work + specialist planning skills',
+        '- "why did this fail?" -> bug work + `investigate-failure`',
+        '- "review this before finishing" -> review path + `review-risk`',
+        '- "check the UI too" -> `qa-ui`',
+        '- "update docs and leave handoff" -> docs/ops work + `handoff-session` + `audit-doc-drift`',
+        '- "prepare this for release" -> `prepare-release` + `ship-change` + deployment reporting',
     ]
     return '\n'.join(lines) + '\n'
 
@@ -213,6 +278,18 @@ def build_project_skills(skill_map: dict[str, object], role_map: dict[str, objec
         '## Detected support skills',
         '',
         bullets(skill_map['support'], 'No extra support skills detected.'),
+        '',
+        '## Detected specialist skills',
+        '',
+        bullets(skill_map['specialist'], 'No specialist skills detected.'),
+        '',
+        '## Natural-language routing notes',
+        '',
+        '- Planning requests should prefer `spec-feature` and `plan-feature` before implementation.',
+        '- Failure requests should prefer `investigate-failure` before or alongside `debug-bug`.',
+        '- Review requests should prefer `request-code-review`, `review-risk`, and `verify-change`.',
+        '- Release requests should prefer `prepare-release`, `ship-change`, and `report-deployment-status`.',
+        '- Docs or handoff requests should prefer `update-docs`, `audit-doc-drift`, `handoff-session`, and `update-handoff`.',
         '',
         '## Detected role model',
         '',

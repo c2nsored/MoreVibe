@@ -58,7 +58,7 @@ public sealed class InstallerService
             Success = process.ExitCode == 0,
             ExitCode = process.ExitCode,
             Summary = process.ExitCode == 0
-                ? "설치가 완료되었습니다. 이제 선택한 AI 도구에서 새 세션을 시작할 수 있습니다."
+                ? "설치가 완료되었습니다. 이제 프로젝트 루트에서 자연어로 세션을 시작하면 됩니다."
                 : $"설치에 실패했습니다. 종료 코드: {process.ExitCode}"
         };
     }

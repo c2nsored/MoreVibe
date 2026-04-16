@@ -85,6 +85,25 @@ MoreVibe installs a shared native workflow layer that can be used across project
 
 These aliases sit on top of the generic `morevibe-*` skills so a project can keep a readable, repeatable operating model without being tied to a special-purpose domain preset.
 
+MoreVibe also includes specialist support skills for work such as:
+
+- risk review
+- UI QA
+- release preparation
+- shipping status reporting
+- failure investigation
+- safe refactor planning
+- feature specification
+- stronger session handoff
+- documentation drift checks
+- first-session project onboarding
+
+The intended experience is still natural-language first:
+
+- users can ask in plain language
+- MoreVibe should interpret the request and route it to the right workflow
+- explicit command-style shortcuts can exist, but they are optional
+
 ---
 
 ## Project Type Presets
@@ -93,12 +112,16 @@ MoreVibe keeps the workflow consistent while adapting role templates to the proj
 
 - `webapp`
   `pm-lead`, `frontend-worker`, `backend-worker`, `qa-reviewer`
+  specialist examples: `webapp-ui-flow-check`, `webapp-state-review`
 - `ecommerce`
   `pm-lead`, `storefront-worker`, `admin-worker`, `orders-worker`, `qa-reviewer`
+  specialist examples: `ecommerce-order-flow-check`, `ecommerce-admin-audit`
 - `blog`
   `pm-lead`, `content-worker`, `layout-worker`, `qa-reviewer`
+  specialist examples: `blog-publishing-check`, `blog-content-structure-audit`
 - `api`
   `pm-lead`, `routes-worker`, `data-worker`, `qa-reviewer`
+  specialist examples: `api-contract-check`, `api-data-flow-trace`
 - `generic`
   fallback role model when no specific project type is selected
 
@@ -134,6 +157,10 @@ It is less suitable for users who want:
 5. Choose the project type that best matches the project.
 6. Complete installation.
 7. Start your AI tool from the project root.
+
+A good first message is:
+
+- "start by understanding this project and tell me the safest next step"
 
 The installer prints a bootstrap health summary so you can confirm that entrypoints, skills, and role files were actually created.
 
@@ -220,9 +247,15 @@ Recommended reading order:
 
 1. `README.md`
 2. `README.ko.md`
-3. `docs/RELEASE_GUIDE.md`
-4. `templates/`
-5. `adapters/`
+3. `docs/METHOD.md`
+4. `docs/WORKFLOW_MAP.md`
+5. `docs/TEAM_MODEL.md`
+6. `docs/MEMORY_MODEL.md`
+7. `docs/NON_PROGRAMMER_GUIDE.md`
+8. `docs/OPTIONAL_COMMANDS.md`
+9. `docs/RELEASE_GUIDE.md`
+10. `templates/`
+11. `adapters/`
 
 ---
 

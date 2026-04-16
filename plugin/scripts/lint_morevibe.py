@@ -18,7 +18,9 @@ REQUIRED_DIRS = [
 REQUIRED_FILES = [
     "schema/README.md",
     "schema/OPERATING_RULES.md",
+    "schema/SESSION_BOOTSTRAP.md",
     "schema/SKILL_ROUTING.md",
+    "schema/PROJECT_SKILLS.md",
     "canon/PROJECT_OVERVIEW.md",
     "canon/ARCHITECTURE.md",
     "canon/SCHEMA.md",
@@ -119,6 +121,26 @@ def main() -> None:
             warnings.append("- Root `AGENTS.md` exists but does not include a MoreVibe bootstrap block.")
     else:
         warnings.append("- Root `AGENTS.md` is missing.")
+
+    project_skills_path = morevibe_root / "schema" / "PROJECT_SKILLS.md"
+    if project_skills_path.exists() and file_has_content(project_skills_path):
+        project_skills_text = project_skills_path.read_text(encoding="utf-8")
+        if "Detected specialist skills" in project_skills_text:
+            passes.append("- Specialist skill section detected in `schema/PROJECT_SKILLS.md`.")
+        else:
+            warnings.append("- No specialist skill section detected in `schema/PROJECT_SKILLS.md`.")
+        if "Natural-language routing notes" in project_skills_text:
+            passes.append("- Natural-language routing notes detected in `schema/PROJECT_SKILLS.md`.")
+        else:
+            warnings.append("- No natural-language routing notes detected in `schema/PROJECT_SKILLS.md`.")
+
+    routing_path = morevibe_root / "schema" / "SKILL_ROUTING.md"
+    if routing_path.exists() and file_has_content(routing_path):
+        routing_text = routing_path.read_text(encoding="utf-8")
+        if "Natural-language examples" in routing_text:
+            passes.append("- Natural-language examples detected in `schema/SKILL_ROUTING.md`.")
+        else:
+            warnings.append("- No natural-language examples detected in `schema/SKILL_ROUTING.md`.")
 
     summary_line = f"- Issues: {len(issues)} | Warnings: {len(warnings)} | Passes: {len(passes)}"
     report_lines = [
