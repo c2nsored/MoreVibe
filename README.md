@@ -215,6 +215,8 @@ A good first message depends on whether the project is new or already has conten
 
 The installer prints a bootstrap health summary so you can confirm that entrypoints, skills, role files, and tool parity checks were actually created. If MoreVibe detects existing-project signals at session start, the session brief will also remind you to migrate before normal work.
 
+If you are reinstalling over an older MoreVibe version, `v1.2.1` now replays that migration advisory once even when a legacy `.claude/morevibe/.session_bootstrapped` timestamp survived from the older install. After that replay, normal `--once` throttling resumes.
+
 If this is the first session after installation, read:
 
 - `.morevibe/schema/FIRST_SESSION_GUIDE.md`

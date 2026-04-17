@@ -33,7 +33,7 @@ MOREVIBE_SCRIPT_BASENAMES = (
 def load_json(path: Path) -> dict:
     if not path.exists():
         return {}
-    raw = path.read_text(encoding="utf-8").strip()
+    raw = path.read_text(encoding="utf-8-sig").strip()
     if not raw:
         return {}
     return json.loads(raw)

@@ -5,6 +5,9 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+SESSION_BOOTSTRAP_STATE_VERSION = 2
+SESSION_BOOTSTRAP_INTERVAL_SECONDS = 3600
+
 
 FILES_TO_SCAN = [
     ('canon/HANDOFF.md', 'Handoff'),
@@ -16,7 +19,7 @@ FILES_TO_SCAN = [
 
 
 def first_nonempty_lines(text: str, limit: int = 5) -> list[str]:
-    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    lines = [line.lstrip('\ufeff').strip() for line in text.splitlines() if line.strip()]
     return lines[:limit]
 
 
@@ -37,6 +40,42 @@ def load_project_skill_map(schema_root: Path) -> dict[str, object]:
         return json.loads(mapping_path.read_text(encoding='utf-8'))
     except json.JSONDecodeError:
         return {}
+
+
+def load_session_bootstrap_state(state_path: Path) -> dict[str, object]:
+    if not state_path.exists():
+        return {}
+
+    raw = state_path.read_text(encoding='utf-8', errors='ignore').strip()
+    if not raw:
+        return {}
+
+    try:
+        parsed = json.loads(raw)
+        if isinstance(parsed, dict):
+            return parsed
+    except json.JSONDecodeError:
+        pass
+
+    try:
+        return {
+            'version': 1,
+            'last_run': float(raw),
+            'migration_advisory_shown': False,
+        }
+    except ValueError:
+        return {}
+
+
+def write_session_bootstrap_state(state_path: Path, timestamp_utc: float, migration_advisory_shown: bool) -> None:
+    state = {
+        'version': SESSION_BOOTSTRAP_STATE_VERSION,
+        'last_run': timestamp_utc,
+        'migration_advisory_shown': migration_advisory_shown,
+        'updated_at': datetime.now(tz=timezone.utc).isoformat(),
+    }
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_path.write_text(json.dumps(state, indent=2) + '\n', encoding='utf-8')
 
 
 def detect_migration_needed(project_root: Path) -> tuple[bool, list[str]]:
@@ -96,19 +135,29 @@ def main() -> None:
     morevibe_root = project_root / '.morevibe'
     schema_root = morevibe_root / 'schema'
     timestamp = args.timestamp.strip() or datetime.now().strftime('%Y-%m-%d %H:%M')
+    migration_needed, migration_signals = detect_migration_needed(project_root)
 
     if args.once:
         session_flag = project_root / '.claude' / 'morevibe' / '.session_bootstrapped'
         now_ts = datetime.now(tz=timezone.utc).timestamp()
-        if session_flag.exists():
-            try:
-                last_run = float(session_flag.read_text(encoding='utf-8').strip())
-                if now_ts - last_run < 3600:
-                    return
-            except (ValueError, OSError):
-                pass
-        session_flag.parent.mkdir(parents=True, exist_ok=True)
-        session_flag.write_text(str(now_ts), encoding='utf-8')
+        session_state = load_session_bootstrap_state(session_flag)
+        last_run = float(session_state.get('last_run', 0) or 0)
+        migration_advisory_shown = bool(session_state.get('migration_advisory_shown'))
+        recently_bootstrapped = last_run and (now_ts - last_run < SESSION_BOOTSTRAP_INTERVAL_SECONDS)
+
+        # Existing projects should surface the migration advisory at least once
+        # even if a legacy `.session_bootstrapped` timestamp was written by an
+        # older MoreVibe version before the advisory feature existed.
+        force_advisory_replay = migration_needed and not migration_advisory_shown
+
+        if recently_bootstrapped and not force_advisory_replay:
+            return
+
+        write_session_bootstrap_state(
+            session_flag,
+            timestamp_utc=now_ts,
+            migration_advisory_shown=migration_needed,
+        )
 
     project_map = load_project_skill_map(schema_root)
     skills = project_map.get('skills', {}) if isinstance(project_map, dict) else {}
@@ -119,8 +168,6 @@ def main() -> None:
     lead_role = roles.get('lead') if isinstance(roles, dict) else None
     worker_roles = roles.get('workers', []) if isinstance(roles, dict) else []
     reviewer_role = roles.get('reviewer') if isinstance(roles, dict) else None
-
-    migration_needed, migration_signals = detect_migration_needed(project_root)
 
     report_lines = [
         '# MoreVibe Session Brief',

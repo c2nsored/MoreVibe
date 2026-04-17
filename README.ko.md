@@ -215,6 +215,8 @@ MoreVibe는 workflow는 공통으로 유지하고, 역할 템플릿만 프로젝
 
 설치가 끝나면 bootstrap health 요약이 출력되어 entrypoint, skill, 역할 파일, tool parity가 실제로 생성되었는지 확인할 수 있습니다. MoreVibe가 세션 시작 시 기존 프로젝트 신호를 감지하면 session brief에 마이그레이션을 권하는 안내도 함께 표시됩니다.
 
+이전 MoreVibe 버전 위에 다시 설치하는 경우, `v1.2.1`부터는 구버전 설치가 남긴 레거시 `.claude/morevibe/.session_bootstrapped` 타임스탬프가 있어도 마이그레이션 안내를 한 번 다시 보여줍니다. 그 한 번의 재안내가 끝나면 다시 일반 `--once` 스로틀로 돌아갑니다.
+
 설치 직후 첫 세션이라면 먼저 아래 문서를 읽으면 됩니다.
 
 - `.morevibe/schema/FIRST_SESSION_GUIDE.md`

@@ -14,6 +14,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.1] - 2026-04-17
+
+### Fixed / 수정
+
+**EN**
+- Existing projects now replay the migration advisory once even when a legacy `.claude/morevibe/.session_bootstrapped` timestamp survives from an older MoreVibe version. After that first replay, the advisory returns to normal `--once` throttling and the bootstrap state is upgraded to the new JSON format.
+
+**KO**
+- 이전 MoreVibe 버전에서 남은 레거시 `.claude/morevibe/.session_bootstrapped` 타임스탬프 파일이 있어도, 기존 프로젝트에서는 마이그레이션 안내를 한 번 다시 보여주도록 수정했습니다. 첫 재노출 이후에는 다시 일반 `--once` 스로틀을 따르며 bootstrap 상태 파일도 새 JSON 형식으로 승격됩니다.
+
+---
+
 ## [1.2.0] - 2026-04-17
 
 ### Added / 추가

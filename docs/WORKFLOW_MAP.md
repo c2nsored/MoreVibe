@@ -19,6 +19,10 @@ project that already has its own docs, README, or a previous MoreVibe
 install. It is a one-shot adaptation and records a sentinel so it is
 not re-triggered later.
 
+If the project was reinstalled from an older MoreVibe version, `v1.2.1`
+replays this migration advisory once even when a legacy
+`.claude/morevibe/.session_bootstrapped` timestamp is still present.
+
 ## Session Start
 
 - "start the session"
