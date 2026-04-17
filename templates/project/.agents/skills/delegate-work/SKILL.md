@@ -20,3 +20,5 @@ Let the team lead split work safely after the main agent has classified the requ
 
 - Do not assign the same file to multiple agents at once.
 - The user-facing main agent remains the orchestrator; delegation happens through the project lead.
+- Do not delegate when the next step is small, tightly coupled, or cheaper for the lead to finish directly.
+- Prefer direct lead execution when context-splitting would cost more than the parallelism benefit.

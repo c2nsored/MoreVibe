@@ -30,6 +30,12 @@ Use the bundled script:
 plugin/scripts/sync_morevibe_memory.py
 ```
 
+If the tool integration supports session-end automation, prefer the automatic session-close path:
+
+```text
+plugin/scripts/auto_sync_morevibe_session.py
+```
+
 ## Required content
 
 - current focus

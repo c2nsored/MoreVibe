@@ -135,3 +135,9 @@ Expected routing:
 5. verify
 6. update docs and handoff
 7. sync durable memory
+
+## Delegation restraint
+
+- Do not delegate by default just because work is non-trivial.
+- Keep execution with the lead when the next step is small, obvious, tightly coupled, or mostly explanatory.
+- Delegate only when ownership is clean enough that splitting context will save real time or reduce risk.

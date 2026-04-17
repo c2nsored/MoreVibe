@@ -49,6 +49,7 @@ Antigravity projects that adopt MoreVibe should be able to understand:
 - `morevibe-using-morevibe` is the preferred workflow router when MoreVibe is present
 - lifecycle behavior should be driven through `run_command` rules for session start and session end
 - `.agents/rules/` can act as a project-local skill/subagent surrogate
+- session-end lifecycle rules should auto-sync project memory before linting the harness
 
 ## Non-destructive policy
 

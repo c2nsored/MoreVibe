@@ -72,6 +72,26 @@ def read_json_file(path: Path) -> dict | None:
     return json.loads(raw)
 
 
+def to_plain_guidance(warnings: list[str]) -> list[str]:
+    guidance: list[str] = []
+    for item in warnings:
+        if "Placeholder text still exists" in item:
+            guidance.append("- Some project memory files still contain starter template text. Replace those placeholders with the real project state before relying on them.")
+        elif "does not use `pm-lead`" in item:
+            guidance.append("- The installed role model does not clearly show `pm-lead` as the internal lead. Re-render the schema or inspect the installed agents.")
+        elif "not fully aligned" in item:
+            guidance.append("- Claude and Codex do not currently expose the same installed role set. Reinstall or inspect the project-local agent templates.")
+        elif "Natural-language" in item:
+            guidance.append("- The generated schema is missing some natural-language routing hints. Re-render the project schema so non-programmer prompts stay discoverable.")
+        elif "Fallback" in item:
+            guidance.append("- The fallback compatibility layer is missing from generated schema. Re-render the project schema and confirm fallback skills are still documented.")
+        elif "active skill section" in item.lower():
+            guidance.append("- The generated project skill map is missing the primary active workflow section. Re-render the schema before relying on the harness.")
+        elif "Root `AGENTS.md` is missing" in item:
+            guidance.append("- The project entrypoint is missing. Re-run installation or create the root `AGENTS.md` before starting a new session.")
+    return list(dict.fromkeys(guidance))
+
+
 def append_log(log_path: Path, timestamp: str, summary: str, details: str) -> None:
     existing = log_path.read_text(encoding="utf-8") if log_path.exists() else "# MoreVibe Log\n\n"
     entry = "\n".join(
@@ -239,6 +259,9 @@ def main() -> None:
         "",
         "## Warnings",
         *(warnings or ["- None."]),
+        "",
+        "## Friendly Guidance",
+        *(to_plain_guidance(warnings) or ["- The harness looks healthy enough to keep using. Replace any remaining template placeholders with real project state as work progresses."]),
         "",
         "## Passes",
         *(passes or ["- None."]),
