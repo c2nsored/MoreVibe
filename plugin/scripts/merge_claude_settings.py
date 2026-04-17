@@ -17,6 +17,19 @@ PERMISSION_ASK_RULES = [
 ]
 
 
+# MoreVibe-managed script basenames. Any Stop / UserPromptSubmit hook whose
+# command references one of these scripts is considered "ours" and is
+# replaced during reinstall. This prevents stale hook entries from a previous
+# MoreVibe version (e.g. a Stop hook that only ran lint_morevibe.py) from
+# piling up alongside the new canonical entry.
+MOREVIBE_SCRIPT_BASENAMES = (
+    "bootstrap_morevibe_session.py",
+    "auto_sync_morevibe_session.py",
+    "lint_morevibe.py",
+    "sync_morevibe_memory.py",
+)
+
+
 def load_json(path: Path) -> dict:
     if not path.exists():
         return {}
@@ -26,13 +39,42 @@ def load_json(path: Path) -> dict:
     return json.loads(raw)
 
 
+def _is_morevibe_command(command: str) -> bool:
+    if not command:
+        return False
+    return any(basename in command for basename in MOREVIBE_SCRIPT_BASENAMES)
+
+
+def _entry_has_only_morevibe_commands(entry: dict) -> bool:
+    hooks = entry.get("hooks", [])
+    if not hooks:
+        return False
+    for hook in hooks:
+        if hook.get("type") != "command":
+            return False
+        if not _is_morevibe_command(hook.get("command", "")):
+            return False
+    return True
+
+
 def ensure_event(hooks: dict, event_name: str, command: str) -> None:
-    event_items = hooks.setdefault(event_name, [])
-    for item in event_items:
-        for hook in item.get("hooks", []):
-            if hook.get("type") == "command" and hook.get("command") == command:
-                return
-    event_items.append(
+    """Install the canonical MoreVibe command for this event.
+
+    Behaviour:
+    - Remove any existing entry that only contains MoreVibe-managed commands
+      (including legacy versions such as lint_morevibe.py on Stop). This
+      guarantees that a reinstall replaces the previous MoreVibe command
+      instead of leaving both the old and the new entries in place.
+    - Preserve unrelated user-defined entries untouched.
+    - Append a single fresh entry with the canonical command.
+    """
+    existing = hooks.get(event_name, []) or []
+    preserved: list[dict] = []
+    for entry in existing:
+        if isinstance(entry, dict) and _entry_has_only_morevibe_commands(entry):
+            continue
+        preserved.append(entry)
+    preserved.append(
         {
             "hooks": [
                 {
@@ -42,6 +84,7 @@ def ensure_event(hooks: dict, event_name: str, command: str) -> None:
             ]
         }
     )
+    hooks[event_name] = preserved
 
 
 def ensure_status_line(settings: dict) -> None:
