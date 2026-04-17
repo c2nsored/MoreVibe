@@ -14,6 +14,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.3] - 2026-04-17
+
+### Fixed / 수정
+
+**EN**
+- Migration Advisory now actually surfaces to the user. Three linked issues were making it invisible in real Claude Code sessions on Windows:
+  1. The advisory body used passive "consider running..." language, so the model read it as optional context and did not mention it when the user opened with a trivial greeting such as "안녕". The advisory is now a direct instruction telling the assistant to explicitly raise the migration question in its very next reply, before engaging with the greeting.
+  2. The bootstrap state flipped `migration_advisory_shown` to `True` after the first print even if the user never got to see or act on the advisory, causing subsequent prompts in the same hour to suppress the brief entirely. The flag now only flips to `True` once the `.morevibe/.migration_complete` sentinel exists, so the advisory replays on every prompt until the migration is actually run or declined.
+  3. The Windows PowerShell installer printed its bilingual "Next step / 다음 단계" completion block through the OEM code page, so Hangul arrived on the console as mojibake. `install-morevibe.ps1` now forces `[Console]::OutputEncoding = UTF8` at startup.
+
+**KO**
+- 실사용 Windows Claude Code 세션에서 Migration Advisory가 실제로는 사용자에게 보이지 않던 세 가지 원인을 함께 고쳤습니다.
+  1. 기존 advisory 문구가 "consider running..."처럼 수동형이어서, 사용자가 "안녕" 같은 짧은 인사로 세션을 시작하면 모델이 advisory를 선택적 컨텍스트로만 받아들이고 실제로 안내하지 않았습니다. 이제는 "다음 답변에서 반드시 사용자에게 마이그레이션 필요성을 먼저 언급하고 확인을 받으라"는 지시형 문구로 바꿨습니다.
+  2. 기존에는 advisory가 첫 출력 직후 `migration_advisory_shown`을 `True`로 올려버려서, 같은 시간대 내 이어지는 프롬프트에서는 session brief가 완전히 억제되었습니다. 이제는 `.morevibe/.migration_complete` sentinel이 있을 때만 `True`가 되므로, 사용자가 마이그레이션을 실행하거나 명시적으로 거절할 때까지 매 프롬프트마다 advisory가 재노출됩니다.
+  3. Windows PowerShell 설치기 완료 출력의 이중언어 "Next step / 다음 단계" 블록이 OEM 코드페이지를 거치면서 한글이 깨져 사용자가 읽을 수 없었습니다. `install-morevibe.ps1` 시작부에서 `[Console]::OutputEncoding = UTF8`을 강제하도록 수정했습니다.
+
+---
+
 ## [1.2.2] - 2026-04-17
 
 ### Fixed / 수정

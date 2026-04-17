@@ -155,19 +155,23 @@ def main() -> None:
         migration_advisory_shown = bool(session_state.get('migration_advisory_shown'))
         recently_bootstrapped = last_run and (now_ts - last_run < SESSION_BOOTSTRAP_INTERVAL_SECONDS)
 
-        # Existing projects should surface the migration advisory at least once
-        # even if a legacy `.session_bootstrapped` timestamp was written by an
-        # older MoreVibe version before the advisory feature existed.
-        force_advisory_replay = migration_needed and not migration_advisory_shown
+        # While migration is still pending, the advisory must replay on every
+        # prompt until the user either completes the migration (sentinel) or
+        # declines it. Passive once-per-hour throttling let trivial greetings
+        # like "안녕" pass through without Claude ever surfacing the advisory.
+        should_suppress_output = recently_bootstrapped and not migration_needed
 
-        if recently_bootstrapped and not force_advisory_replay:
-            return
-
+        # Only flip `migration_advisory_shown` to True when migration is no
+        # longer needed (i.e. the sentinel exists). Otherwise keep it False
+        # so the advisory keeps replaying in future prompts.
         write_session_bootstrap_state(
             session_flag,
             timestamp_utc=now_ts,
-            migration_advisory_shown=migration_needed,
+            migration_advisory_shown=not migration_needed,
         )
+
+        if should_suppress_output:
+            return
 
     project_map = load_project_skill_map(schema_root)
     skills = project_map.get('skills', {}) if isinstance(project_map, dict) else {}
@@ -188,21 +192,31 @@ def main() -> None:
 
     if migration_needed:
         report_lines.extend([
-            '## Migration Advisory',
+            '## Migration Advisory — MUST surface to user now',
             '',
-            'This project looks like an **existing codebase** that has not yet been',
-            'adapted to MoreVibe. Before starting normal work, consider running the',
-            '`migrate-existing-project` skill so the harness reflects your real',
-            'project instead of placeholder content.',
+            '**Instruction to the assistant:** Before answering the user\'s current',
+            'message on its own terms, explicitly tell them in your very next reply',
+            'that this project appears to be an **existing codebase** with prior docs,',
+            'a previous MoreVibe install, or project manifests, and that MoreVibe has',
+            'not yet been adapted to it. Offer to run the `migrate-existing-project`',
+            'skill first (a one-shot, non-destructive adaptation with `--dry-run`',
+            'preview and `*.pre-migration-*` backups) and wait for their confirmation',
+            'before doing any normal work. Do this even for short greetings such as',
+            '"안녕" or "hi" — the migration question outranks the greeting.',
             '',
-            'Detected signals:',
+            'Speak in the user\'s language (Korean if they wrote Korean, English',
+            'otherwise). Natural-language triggers the user can reply with:',
+            '"migrate this project", "마이그레이션해줘", "adapt MoreVibe to this repo",',
+            'or "기존 구조랑 통합해줘".',
+            '',
+            'Detected existing-project signals:',
         ])
         for signal in migration_signals:
             report_lines.append(f'- {signal}')
         report_lines.extend([
             '',
-            'Ask in natural language: "migrate this project", "마이그레이션해줘",',
-            'or "adapt MoreVibe to this repo". Use `--dry-run` first if unsure.',
+            'This advisory replays until the user either runs the migration or',
+            'explicitly declines it.',
             '',
         ])
 

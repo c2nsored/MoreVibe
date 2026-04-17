@@ -16,6 +16,12 @@
 
 $ErrorActionPreference = "Stop"
 
+# Ensure Korean and other non-ASCII completion messages render correctly in the
+# console. PowerShell's default output encoding on Windows is the OEM code page,
+# which mangles Hangul characters such as the "다음 단계" block below.
+try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
+try { $OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
+
 function Resolve-FullPath {
     param([string]$PathValue)
     return [System.IO.Path]::GetFullPath($PathValue)

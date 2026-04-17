@@ -87,24 +87,36 @@ $userCustomPresent = $stopCommands -contains "echo user-custom-hook"
 
 $hookDedupOk = ($autoSyncCount -eq 1) -and ($legacyLintCount -eq 0) -and $userCustomPresent
 
-# Verify migration advisory replay: an old timestamp-only bootstrap flag should
-# not suppress the new migration advisory forever. The first `--once` run must
-# still emit the advisory and upgrade the flag format; the second immediate run
-# should stay quiet again.
+# Verify migration advisory replay: while the migration sentinel is absent,
+# the advisory must appear on EVERY `--once` run so Claude cannot silently
+# skip it on trivial greetings. After the sentinel is written, the advisory
+# must stop replaying and the session flag must flip to `migration_advisory_shown: true`.
 $bootstrapScript = Join-Path $projectRoot ".claude\morevibe\scripts\bootstrap_morevibe_session.py"
 $sessionFlagPath = Join-Path $projectRoot ".claude\morevibe\.session_bootstrapped"
+$sentinelPath = Join-Path $projectRoot ".morevibe\.migration_complete"
 $legacyBootstrapTimestamp = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
 Set-Content -LiteralPath $sessionFlagPath -Value $legacyBootstrapTimestamp -Encoding UTF8
 
 $bootstrapFirst = & python $bootstrapScript --project-root $projectRoot --once --skip-log
 $bootstrapSecond = & python $bootstrapScript --project-root $projectRoot --once --skip-log
-$sessionFlagRaw = Get-Content -LiteralPath $sessionFlagPath -Raw -Encoding UTF8
-$sessionFlagState = $sessionFlagRaw | ConvertFrom-Json
+$sessionFlagRawPending = Get-Content -LiteralPath $sessionFlagPath -Raw -Encoding UTF8
+$sessionFlagStatePending = $sessionFlagRawPending | ConvertFrom-Json
+
+# Now simulate migration completion by writing the sentinel, then rerun.
+New-Item -ItemType Directory -Force -Path (Split-Path $sentinelPath -Parent) | Out-Null
+Set-Content -LiteralPath $sentinelPath -Value "migration complete" -Encoding UTF8
+$bootstrapAfterSentinel = & python $bootstrapScript --project-root $projectRoot --once --skip-log
+$bootstrapAfterSentinelSecond = & python $bootstrapScript --project-root $projectRoot --once --skip-log
+$sessionFlagRawDone = Get-Content -LiteralPath $sessionFlagPath -Raw -Encoding UTF8
+$sessionFlagStateDone = $sessionFlagRawDone | ConvertFrom-Json
 
 $migrationAdvisoryFirstShown = $bootstrapFirst -match "Migration Advisory"
-$migrationAdvisorySecondSuppressed = -not ($bootstrapSecond -match "Migration Advisory")
-$sessionFlagUpgraded = ($sessionFlagState.version -eq 2) -and $sessionFlagState.migration_advisory_shown
-$migrationReplayOk = $migrationAdvisoryFirstShown -and $migrationAdvisorySecondSuppressed -and $sessionFlagUpgraded
+$migrationAdvisoryReplays = $bootstrapSecond -match "Migration Advisory"
+$pendingFlagStaysFalse = ($sessionFlagStatePending.version -eq 2) -and (-not $sessionFlagStatePending.migration_advisory_shown)
+$advisoryStopsAfterSentinel = -not ($bootstrapAfterSentinelSecond -match "Migration Advisory")
+$doneFlagIsTrue = ($sessionFlagStateDone.version -eq 2) -and $sessionFlagStateDone.migration_advisory_shown
+
+$migrationReplayOk = $migrationAdvisoryFirstShown -and $migrationAdvisoryReplays -and $pendingFlagStaysFalse -and $advisoryStopsAfterSentinel -and $doneFlagIsTrue
 
 $lintOutput = & python (Join-Path $repoRoot "plugin\scripts\lint_morevibe.py") --project-root $projectRoot --skip-log
 
@@ -115,10 +127,12 @@ Write-Host ("[{0}] Stop hook dedup (canonical=1, legacy=0, user-custom preserved
 Write-Host ("    canonical auto_sync count : {0}" -f $autoSyncCount)
 Write-Host ("    legacy lint-only count    : {0}" -f $legacyLintCount)
 Write-Host ("    user-custom preserved     : {0}" -f $userCustomPresent)
-Write-Host ("[{0}] Migration advisory replay survives legacy bootstrap flag" -f ($(if ($migrationReplayOk) { "OK" } else { "FAIL" })))
-Write-Host ("    advisory shown first run  : {0}" -f $migrationAdvisoryFirstShown)
-Write-Host ("    advisory suppressed after : {0}" -f $migrationAdvisorySecondSuppressed)
-Write-Host ("    session flag upgraded     : {0}" -f $sessionFlagUpgraded)
+Write-Host ("[{0}] Migration advisory replays while pending and stops after sentinel" -f ($(if ($migrationReplayOk) { "OK" } else { "FAIL" })))
+Write-Host ("    advisory shown first run     : {0}" -f $migrationAdvisoryFirstShown)
+Write-Host ("    advisory replays second run  : {0}" -f $migrationAdvisoryReplays)
+Write-Host ("    pending flag stays false     : {0}" -f $pendingFlagStaysFalse)
+Write-Host ("    advisory stops after sentinel: {0}" -f $advisoryStopsAfterSentinel)
+Write-Host ("    done flag flips to true      : {0}" -f $doneFlagIsTrue)
 Write-Host ""
 Write-Host $lintOutput
 
