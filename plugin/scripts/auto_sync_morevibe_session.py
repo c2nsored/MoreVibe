@@ -7,6 +7,14 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
+# Claude Code reads hook stdout as UTF-8. Windows Python defaults to cp949/cp1252,
+# which breaks Korean lint guidance when it surfaces to the model via Stop hook.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, OSError):
+        pass
+
 
 PLACEHOLDER_MARKERS = (
     "[TODO]",

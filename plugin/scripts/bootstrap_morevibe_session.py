@@ -2,8 +2,18 @@
 
 import argparse
 import json
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
+
+# Hook output is read by Claude Code (Node.js) as UTF-8. On Windows the default
+# Python stdout is the ANSI code page (e.g. cp949), which garbles Korean text in
+# the session brief. Force UTF-8 so the Migration Advisory reaches the model intact.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, OSError):
+        pass
 
 SESSION_BOOTSTRAP_STATE_VERSION = 2
 SESSION_BOOTSTRAP_INTERVAL_SECONDS = 3600

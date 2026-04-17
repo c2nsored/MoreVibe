@@ -14,6 +14,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.2] - 2026-04-17
+
+### Fixed / 수정
+
+**EN**
+- Hook scripts (`bootstrap_morevibe_session.py`, `auto_sync_morevibe_session.py`, `lint_morevibe.py`) now force UTF-8 on stdout and stderr. On Windows the default Python stream encoding is the ANSI code page (e.g. `cp949` on Korean systems, `cp1252` elsewhere); Claude Code reads hook output as UTF-8, so Korean content in the Migration Advisory and lint guidance was arriving garbled and being dropped silently. With this fix, the advisory reaches the model intact on Windows.
+
+**KO**
+- Windows에서 hook 스크립트(`bootstrap_morevibe_session.py`, `auto_sync_morevibe_session.py`, `lint_morevibe.py`)의 stdout/stderr를 명시적으로 UTF-8로 고정했습니다. 기존에는 Python 기본 스트림 인코딩이 ANSI 코드페이지(한국어 Windows 기준 `cp949`)라서 Claude Code(Node.js)가 UTF-8로 읽는 과정에서 Migration Advisory와 lint guidance의 한국어가 깨진 바이트로 전달되어 실사용 프로젝트에서 Migration 안내가 표시되지 않았습니다. 이 수정으로 Windows에서도 안내 문구가 모델에 정상 전달됩니다.
+
+---
+
 ## [1.2.1] - 2026-04-17
 
 ### Fixed / 수정

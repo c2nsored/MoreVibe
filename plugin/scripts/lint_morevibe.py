@@ -2,8 +2,17 @@
 
 import argparse
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
+
+# Lint output reaches Claude through the Stop hook and may contain Korean guidance.
+# Force UTF-8 so Windows cp949 stdout does not mangle the advisory text.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, OSError):
+        pass
 
 
 REQUIRED_DIRS = [

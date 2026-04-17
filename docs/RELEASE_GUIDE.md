@@ -6,7 +6,7 @@ This guide explains what to include in a Windows-friendly release package.
 
 Current preferred Windows release package:
 
-- `MoreVibeInstaller-v1.2.1-win-x64.zip`
+- `MoreVibeInstaller-v1.2.2-win-x64.zip`
 - `MoreVibeInstaller.exe`
 - `installer/`
 - `plugin/`
@@ -43,10 +43,11 @@ The release package should reflect the current install behavior:
 - warn when canon/wiki still contain placeholder content that should be replaced with real project state
 - replay the existing-project migration advisory once on upgraded installs even if a legacy bootstrap timestamp survives
 - upgrade the Claude bootstrap session flag from the old timestamp-only format to the current JSON state format when needed
+- force hook stdout to UTF-8 so Korean guidance and advisories reach Claude Code intact on Windows
 
-## v1.2.1 release message
+## v1.2.2 release message
 
-`v1.2.1` should be described as:
+`v1.2.2` should be described as:
 
 - a document-centered workflow harness for long-running AI coding projects
 - natural-language first for non-programmers
@@ -60,6 +61,7 @@ The release package should reflect the current install behavior:
 - existing-project migration workflow via `migrate-existing-project`
 - migration advisory injection in the session brief for projects that already have docs or a prior MoreVibe install
 - a compatibility fix that replays the migration advisory once after upgraded installs, even when the old `.session_bootstrapped` flag would otherwise suppress it
+- a Windows-specific fix that forces hook scripts to write UTF-8 so Korean advisories reach Claude intact instead of arriving as garbled cp949 bytes
 
 ## Future release target
 
