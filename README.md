@@ -208,11 +208,12 @@ Important note:
 6. Complete installation.
 7. Start your AI tool from the project root.
 
-A good first message is:
+A good first message depends on whether the project is new or already has content:
 
-- "start by understanding this project and tell me the safest next step"
+- **New project**: *"start by understanding this project and tell me the safest next step"*
+- **Existing project with docs, README, or a prior MoreVibe install**: *"migrate this project"* (or in Korean, *"마이그레이션해줘"*). This runs the `migrate-existing-project` skill, which inventories your current docs, drafts `canon/` from real content, resolves authority conflicts, cleans legacy traces, and records a one-time sentinel so you are not asked again. Use `--dry-run` first to preview without writing.
 
-The installer prints a bootstrap health summary so you can confirm that entrypoints, skills, role files, and tool parity checks were actually created.
+The installer prints a bootstrap health summary so you can confirm that entrypoints, skills, role files, and tool parity checks were actually created. If MoreVibe detects existing-project signals at session start, the session brief will also remind you to migrate before normal work.
 
 If this is the first session after installation, read:
 

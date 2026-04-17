@@ -14,6 +14,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [1.2.0] - 2026-04-17
+
+### Added / 추가
+
+**EN**
+- New `migrate-existing-project` skill for the one-time adaptation of MoreVibe to an existing project. The skill runs an 8-step operating loop: inventory existing docs, draft canon content, extract workflows, resolve authority conflicts, clean legacy MoreVibe traces, auto-repair mechanical lint warnings, write a `.morevibe/.migration_complete` sentinel, and log the migration in `wiki/log.md` and `wiki/state.md`. Every destructive step has an approval gate, all modified files get `*.pre-migration-*` backups, and `--dry-run` previews without writing.
+- `bootstrap_morevibe_session.py` now detects existing-project signals (existing `docs/`, substantial root `README.md`, prior `AGENTS.md.backup-*` files, project manifests such as `package.json`) when the sentinel is absent, and injects a one-line "Migration Advisory" into the session brief so users are prompted to migrate before normal work.
+- Installer completion output now ends with a bilingual "Next step" block that tells new-project users to start the session and existing-project users to run the migration skill first.
+- `docs/WORKFLOW_MAP.md` now documents the natural-language routes for migrating an existing project (EN and KO phrases).
+- README Quick Start (EN and KO) now distinguishes between first-message advice for new projects versus existing projects.
+
+**KO**
+- 기존 프로젝트에 MoreVibe를 처음 설치한 뒤 한 번만 수행하는 적응 작업을 자동화하는 `migrate-existing-project` skill을 추가했습니다. 8단계 흐름(기존 문서 인벤토리, canon 초안 작성, 워크플로 추출, 권위 충돌 해소, 레거시 MoreVibe 흔적 정리, 기계적 lint 경고 자동 수정, `.morevibe/.migration_complete` sentinel 기록, wiki 로그 남기기)을 거치며, 파괴적 작업 직전마다 사용자 승인 게이트를 두고 수정되는 모든 파일은 `*.pre-migration-*` 백업을 남기며 `--dry-run` 미리보기를 지원합니다.
+- sentinel이 없는 상태에서 기존 프로젝트 신호(기존 `docs/`, 상당 분량의 루트 `README.md`, 이전 설치의 `AGENTS.md.backup-*`, `package.json` 등 매니페스트)를 `bootstrap_morevibe_session.py`가 감지하면, session brief 상단에 "Migration Advisory" 한 줄을 주입해서 사용자가 본 작업 전에 마이그레이션을 실행하도록 안내합니다.
+- 설치기 완료 출력 끝에 이중언어 "Next step / 다음 단계" 블록을 추가해, 신규 프로젝트와 기존 프로젝트의 첫 메시지 예시를 각각 표시합니다.
+- `docs/WORKFLOW_MAP.md`에 기존 프로젝트 마이그레이션용 자연어 라우팅 경로(영/한)를 문서화했습니다.
+- README Quick Start(영/한)에서 신규 프로젝트와 기존 프로젝트의 첫 메시지 예시를 구분해서 안내합니다.
+
+### Changed / 변경
+
+**EN**
+- The initial onboarding flow for existing projects now treats migration as an explicit one-shot pre-step, not a manual user responsibility.
+
+**KO**
+- 기존 프로젝트 초기 온보딩 흐름이 "사용자가 직접 정리"가 아니라 "일회성 사전 작업으로 명시적 마이그레이션 수행" 구조로 바뀌었습니다.
+
+---
+
 ## [1.1.1] - 2026-04-17
 
 ### Fixed / 수정

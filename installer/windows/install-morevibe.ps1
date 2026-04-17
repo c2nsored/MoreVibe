@@ -999,3 +999,14 @@ if ($null -ne $projectBootstrapHealth -and $projectBootstrapHealth.Count -gt 0) 
     }
 }
 
+Write-Host ""
+Write-Host "Next step / 다음 단계:" -ForegroundColor Cyan
+Write-Host "  New project / 신규 프로젝트:" -ForegroundColor Gray
+Write-Host "    Start your AI tool and send:"
+Write-Host "      'start by understanding this project and tell me the safest next step'"
+Write-Host "  Existing project / 기존 프로젝트:" -ForegroundColor Gray
+Write-Host "    Before normal work, ask the AI to migrate first:"
+Write-Host "      'migrate this project' or '마이그레이션해줘'"
+Write-Host "    This runs the 'migrate-existing-project' skill, which"
+Write-Host "    adapts MoreVibe to your real docs and existing workflows."
+Write-Host ""

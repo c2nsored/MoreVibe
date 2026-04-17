@@ -2,6 +2,23 @@
 
 This document explains how common natural-language requests should map onto MoreVibe workflow skills.
 
+## First Install on Existing Project
+
+- "migrate this project"
+- "adapt MoreVibe to this repo"
+- "마이그레이션해줘"
+- "기존 구조랑 통합해줘"
+- "MoreVibe에 맞춰줘"
+
+Expected routing:
+
+- `migrate-existing-project`
+
+Use this before `start-session` on the very first MoreVibe session in a
+project that already has its own docs, README, or a previous MoreVibe
+install. It is a one-shot adaptation and records a sentinel so it is
+not re-triggered later.
+
 ## Session Start
 
 - "start the session"

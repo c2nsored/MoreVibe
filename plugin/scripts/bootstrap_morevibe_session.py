@@ -39,6 +39,50 @@ def load_project_skill_map(schema_root: Path) -> dict[str, object]:
         return {}
 
 
+def detect_migration_needed(project_root: Path) -> tuple[bool, list[str]]:
+    """Detect whether this looks like an existing project that has not yet
+    been adapted to MoreVibe (i.e. migrate-existing-project skill should run).
+
+    Returns (needed, signals). `needed` is True only if the sentinel is
+    absent AND at least one existing-project signal is present.
+    """
+    sentinel = project_root / '.morevibe' / '.migration_complete'
+    if sentinel.exists():
+        return False, []
+
+    signals: list[str] = []
+
+    docs_dir = project_root / 'docs'
+    if docs_dir.is_dir():
+        try:
+            has_content = any(p.is_file() for p in docs_dir.rglob('*'))
+        except OSError:
+            has_content = False
+        if has_content:
+            signals.append('existing `docs/` directory with files')
+
+    readme = project_root / 'README.md'
+    if readme.is_file():
+        try:
+            line_count = sum(1 for _ in readme.open(encoding='utf-8', errors='ignore'))
+        except OSError:
+            line_count = 0
+        if line_count >= 40:
+            signals.append(f'substantial root `README.md` ({line_count} lines)')
+
+    for pattern in ('AGENTS.md.backup-*', 'CLAUDE.md.backup-*', 'GEMINI.md.backup-*'):
+        matches = list(project_root.glob(pattern))
+        if matches:
+            signals.append(f'{len(matches)} `{pattern}` file(s) from prior installs')
+
+    manifests = ['package.json', 'pyproject.toml', 'Cargo.toml', 'go.mod', 'composer.json']
+    present_manifests = [m for m in manifests if (project_root / m).is_file()]
+    if present_manifests:
+        signals.append(f'project manifests present: {", ".join(present_manifests)}')
+
+    return (bool(signals), signals)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description='Create a session-start brief from a MoreVibe harness.')
     parser.add_argument('--project-root', required=True)
@@ -76,15 +120,40 @@ def main() -> None:
     worker_roles = roles.get('workers', []) if isinstance(roles, dict) else []
     reviewer_role = roles.get('reviewer') if isinstance(roles, dict) else None
 
+    migration_needed, migration_signals = detect_migration_needed(project_root)
+
     report_lines = [
         '# MoreVibe Session Brief',
         '',
         f'Generated: {timestamp}',
         '',
+    ]
+
+    if migration_needed:
+        report_lines.extend([
+            '## Migration Advisory',
+            '',
+            'This project looks like an **existing codebase** that has not yet been',
+            'adapted to MoreVibe. Before starting normal work, consider running the',
+            '`migrate-existing-project` skill so the harness reflects your real',
+            'project instead of placeholder content.',
+            '',
+            'Detected signals:',
+        ])
+        for signal in migration_signals:
+            report_lines.append(f'- {signal}')
+        report_lines.extend([
+            '',
+            'Ask in natural language: "migrate this project", "마이그레이션해줘",',
+            'or "adapt MoreVibe to this repo". Use `--dry-run` first if unsure.',
+            '',
+        ])
+
+    report_lines.extend([
         '## Startup Order',
         '- Read the root `AGENTS.md` first.',
         '- Read `.morevibe/schema/OPERATING_RULES.md` early in the session.',
-    ]
+    ])
     if startup:
         report_lines.append(f"- Follow the detected startup skill chain: {', '.join(f'`{name}`' for name in startup)}.")
     if query_skill:
