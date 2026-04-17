@@ -6,7 +6,7 @@ This guide explains what to include in a Windows-friendly release package.
 
 Current preferred Windows release package:
 
-- `MoreVibeInstaller-v1.0.0-win-x64.zip`
+- `MoreVibeInstaller-v1.1.0-win-x64.zip`
 - `MoreVibeInstaller.exe`
 - `installer/`
 - `plugin/`
@@ -42,9 +42,9 @@ The release package should reflect the current install behavior:
 - print a project bootstrap health summary after installation
 - warn when canon/wiki still contain placeholder content that should be replaced with real project state
 
-## v1.0.0 release message
+## v1.1.0 release message
 
-`v1.0.0` should be described as:
+`v1.1.0` should be described as:
 
 - a document-centered workflow harness for long-running AI coding projects
 - natural-language first for non-programmers
@@ -52,6 +52,9 @@ The release package should reflect the current install behavior:
 - active / fallback skill layering
 - project-type specialist checks
 - Codex / Claude Code parity with Antigravity role partition support
+- session-end auto-sync for `wiki/state.md`, `wiki/log.md`, and `canon/HANDOFF.md`
+- Claude statusline and dangerous-command confirmation baseline
+- periodic drift audit generation during long-running sessions
 
 ## Future release target
 
