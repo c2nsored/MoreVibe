@@ -571,7 +571,7 @@ function Install-ClaudeProjectIntegration {
     }
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\claudecode\project\CLAUDE.morevibe.md") -Destination (Join-Path $morevibeRoot "CLAUDE.morevibe.md") -Force
 
-    foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {
+    foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","auto_sync_morevibe_session.py","writeback_morevibe_output.py","lint_morevibe.py","statusline_morevibe.ps1")) {
         Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\plugin\scripts\$scriptFile") -Destination (Join-Path $scriptsRoot $scriptFile) -Force
     }
 
@@ -654,6 +654,8 @@ function Get-ProjectBootstrapHealth {
     $sharedSkillsRoot = Join-Path $ProjectRoot ".agents\skills"
     $codexAgentsRoot = Join-Path $ProjectRoot ".codex\agents"
     $claudeSkillsRoot = Join-Path $ProjectRoot ".claude\skills"
+    $claudeSettingsPath = Join-Path $ProjectRoot ".claude\settings.json"
+    $claudeStatuslinePath = Join-Path $ProjectRoot ".claude\morevibe\scripts\statusline_morevibe.ps1"
 
     $results += [ordered]@{
         label = "Root AGENTS"
@@ -723,6 +725,37 @@ function Get-ProjectBootstrapHealth {
             ok = ($claudeSkillCount -gt 0)
             detail = "$claudeSkillsRoot ($claudeSkillCount)"
         }
+        $results += [ordered]@{
+            label = "Claude statusline script"
+            ok = (Test-Path -LiteralPath $claudeStatuslinePath)
+            detail = $claudeStatuslinePath
+        }
+        if (Test-Path -LiteralPath $claudeSettingsPath) {
+            $claudeSettings = Read-JsonFile -LiteralPath $claudeSettingsPath
+            $hasStatusLine = ($null -ne $claudeSettings.statusLine) -and ($claudeSettings.statusLine.command -like "*statusline_morevibe.ps1*")
+            $permissions = @()
+            if ($null -ne $claudeSettings.permissions -and $null -ne $claudeSettings.permissions.ask) {
+                $permissions = @($claudeSettings.permissions.ask)
+            }
+            $requiredAskRules = @(
+                "Bash(git push *)",
+                "Bash(git reset --hard*)",
+                "Bash(git clean -f*)",
+                "Bash(git clean -fd*)",
+                "Bash(rm -rf*)"
+            )
+            $missingRules = @($requiredAskRules | Where-Object { $_ -notin $permissions })
+            $results += [ordered]@{
+                label = "Claude statusline baseline"
+                ok = $hasStatusLine
+                detail = $claudeSettingsPath
+            }
+            $results += [ordered]@{
+                label = "Claude permissions baseline"
+                ok = ($missingRules.Count -eq 0)
+                detail = if ($missingRules.Count -eq 0) { $claudeSettingsPath } else { "$claudeSettingsPath (missing: $($missingRules -join ', '))" }
+            }
+        }
     }
 
     if ((Test-Path -LiteralPath $projectSkillMapPath)) {
@@ -772,7 +805,7 @@ function Install-AntigravityProjectIntegration {
     Copy-Item -Path (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\rules\*") -Destination $rulesRoot -Force
     Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\adapters\antigravity\project\GEMINI.morevibe.md") -Destination (Join-Path $morevibeRoot "GEMINI.morevibe.md") -Force
 
-    foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","writeback_morevibe_output.py","lint_morevibe.py")) {
+    foreach ($scriptFile in @("bootstrap_morevibe_session.py","ingest_morevibe_item.py","query_morevibe.py","sync_morevibe_memory.py","auto_sync_morevibe_session.py","writeback_morevibe_output.py","lint_morevibe.py")) {
         Copy-Item -LiteralPath (Join-Path $ScriptRootPath "..\..\plugin\scripts\$scriptFile") -Destination (Join-Path $scriptsRoot $scriptFile) -Force
     }
 

@@ -44,6 +44,7 @@ Important limitation:
 
 - Claude Code does not expose an official `SessionStart` hook
 - therefore `CLAUDE.md` is the primary automatic startup lever for MoreVibe
+- session-end automation is still useful and should refresh memory before linting
 
 ## Project Integration
 
@@ -57,6 +58,9 @@ ClaudeCode projects that adopt MoreVibe should be able to understand:
 - the main Claude session should act as the user-facing orchestrator
 - project subagents should follow `pm-lead -> workers -> qa-reviewer`
 - startup automation should be expressed in `CLAUDE.md`, not assumed from hooks
+- session-end hooks should auto-sync `wiki/state.md`, `wiki/log.md`, and `canon/HANDOFF.md` before the harness is linted
+- project settings should expose a short MoreVibe statusline instead of requiring the user to inspect schema files manually
+- risky commands such as `git push`, `git reset --hard`, `git clean -f`, and `rm -rf` should default to ask-for-confirmation behavior
 
 ## Non-destructive policy
 
