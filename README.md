@@ -302,8 +302,21 @@ Recommended reading order:
 7. `docs/NON_PROGRAMMER_GUIDE.md`
 8. `docs/OPTIONAL_COMMANDS.md`
 9. `docs/RELEASE_GUIDE.md`
-10. `templates/`
-11. `adapters/`
+10. `CHANGELOG.md`
+11. `templates/`
+12. `adapters/`
+
+---
+
+## Bug Reports
+
+If you run into a MoreVibe issue in a real project, include these files when opening a GitHub issue:
+
+- `.morevibe/wiki/lint/latest.md`
+- `.morevibe/wiki/log.md`
+- hook stderr output, if the failing tool showed one
+
+These three usually make it much easier to understand whether the issue came from routing, memory sync, or tool integration.
 
 ---
 

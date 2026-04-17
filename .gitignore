@@ -15,3 +15,8 @@ build/
 # Temporary files
 *.tmp
 *.log
+
+# Local Codex / Claude scratch space
+.claude/
+scratch/
+scratch_diff.txt
