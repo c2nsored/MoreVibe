@@ -1,5 +1,7 @@
 # MoreVibe
 
+> **Language / 언어:** [English](README.md) · **한국어**
+
 **장기 AI 코딩 프로젝트를 위한 문서 중심 workflow 하네스이자 방법론 제품**
 
 MoreVibe는 **Codex**, **Claude Code**, **Antigravity** 같은 AI 코딩 도구가 긴 프로젝트에서도 더 일관되게 작동하도록, 중요한 맥락을 불안정한 채팅 기록 밖으로 꺼내 프로젝트 구조 안에 보존하도록 돕습니다.

@@ -1,5 +1,7 @@
 # MoreVibe
 
+> **Language / 언어:** **English** · [한국어](README.ko.md)
+
 **A document-centered workflow harness and methodology product for long-running AI coding projects.**
 
 MoreVibe helps tools such as **Codex**, **Claude Code**, and **Antigravity** work more consistently over long projects by moving important context out of fragile chat history and into a durable project structure.
